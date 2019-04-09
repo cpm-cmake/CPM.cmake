@@ -14,7 +14,7 @@ if(${PACKAGE_FOUND})
 else()
 
   download_project(
-    PROJ LHC
+    PROJ @CPM_ARGS_NAME@
     GIT_REPOSITORY @CPM_ARGS_GIT_REPOSITORY@
     GIT_TAG @CPM_ARGS_GIT_TAG@
     UPDATE_DISCONNECTED 1
@@ -23,6 +23,5 @@ else()
     QUIET
   )
 
-message("test:   add_subdirectory(${@CPM_ARGS_NAME@_SOURCE_DIR} ${@CPM_ARGS_NAME@_BINARY_DIR})")
   add_subdirectory(${@CPM_ARGS_NAME@_SOURCE_DIR} ${@CPM_ARGS_NAME@_BINARY_DIR})
 endif()
