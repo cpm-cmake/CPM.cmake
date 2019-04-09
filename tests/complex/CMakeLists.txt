@@ -14,6 +14,7 @@ CPMAddPackage(
   NAME LarsEvent
   GIT_REPOSITORY https://github.com/TheLartians/Event.git
   VERSION 1.0
+  GIT_TAG master
 )
 
 # Add project that depends on previous project
