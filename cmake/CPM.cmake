@@ -30,8 +30,6 @@ function(CPMAddPackage)
     set(CPM_ARGS_BINARY_DIR ${CMAKE_BINARY_DIR}/CPM-projects/${CPM_ARGS_NAME})
   endif()
 
-  message("test: ${CPM_ARGS_BINARY_DIR}")
-
   if (NOT CPM_PROJECT_DIR)
     set(CPM_PROJECT_DIR "${CPM_ARGS_BINARY_DIR}")
   endif()
