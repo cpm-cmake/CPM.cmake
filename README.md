@@ -2,7 +2,7 @@
 
 # CPM
 
-CPM is a very simple package manager written in Cmake based on the amazing [DownloadProject](https://github.com/Crascit/DownloadProject) script. It is extremely easy to use and drastically simplifies the inclusion of other Cmake-based projects from github.
+CPM is a minimalistic package manager written in Cmake based on the amazing [DownloadProject](https://github.com/Crascit/DownloadProject) script. It is extremely easy to use and drastically simplifies the inclusion of other Cmake-based projects from github.
 
 # Usage
 
