@@ -29,6 +29,14 @@ add_executable(my-parser my-parser.cpp)
 target_link_libraries(cpm-test LarsParser)
 ```
 
+# Installation
+
+To add CPM to your current project, copy the scripts in the `cmake` directory into you current project project. The command below will perform this automatically.
+
+```bash
+wget -qO- https://github.com/TheLartians/CPM/releases/download/v0.1/cmake.zip | bsdtar -xvf-
+```
+
 # Limitations
 
 - First version used: in diamond dependency graphs (e.g. `A` depends on `C`(v1.1) and `A` depends on `B` depends on `C`(v1.2)) the first added dependency will be used (in this case `C`@1.1).
