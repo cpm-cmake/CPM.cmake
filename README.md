@@ -38,7 +38,7 @@ To update packages, run cmake with the additional option `-DCPM_RESET=ON`. To ke
 To add CPM to your current project, copy the scripts in the `cmake` directory into you current project project. The command below will perform this automatically.
 
 ```bash
-wget -qO- https://github.com/TheLartians/CPM/releases/download/v0.2/cmake.zip | bsdtar -xvf-
+wget -qO- https://github.com/TheLartians/CPM/releases/download/v0.3/cmake.zip | bsdtar -xvf-
 ```
 
 # Limitations
