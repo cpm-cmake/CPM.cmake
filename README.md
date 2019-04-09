@@ -32,3 +32,4 @@ target_link_libraries(cpm-test LarsParser)
 # Current Limitations
 
 - First version used: in diamond dependency graphs (e.g. `A` depends on `C`(v1.1) and `A` depends on `B` depends on `C`(v1.2)) the first added dependency will be used (in this case `C`@1.1).
+- No possibility not automatically update dependencies. To update a dependency, version numbers or git tags in the cmake scripts must be adapted manually.
