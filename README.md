@@ -1,2 +1,2 @@
 # CPM
-Cmake based package management
+Simple Cmake + git based package management
