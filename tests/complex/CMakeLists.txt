@@ -21,14 +21,14 @@ CPMAddPackage(
 CPMAddPackage(
   NAME LarsParser
   GIT_REPOSITORY https://github.com/TheLartians/Parser.git
-  VERSION 1.3
+  VERSION 1.4
 )
 
-# add project twice
+# add project twice (will be ignored)
 CPMAddPackage(
   NAME LHC
   GIT_REPOSITORY https://github.com/TheLartians/LHC.git
-  VERSION 0.3
+  VERSION 0.1
 )
 
 # add executable

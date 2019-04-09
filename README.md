@@ -18,7 +18,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME LarsParser
-  VERSION 1.2
+  VERSION 1.4
   GIT_REPOSITORY https://github.com/TheLartians/Parser.git
   GIT_TAG master # optional
 )
