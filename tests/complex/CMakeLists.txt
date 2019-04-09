@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 project(CPMTest)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/CPM.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME LHC
