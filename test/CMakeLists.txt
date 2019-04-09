@@ -29,3 +29,12 @@ CPMAddPackage(
   GIT_REPOSITORY https://github.com/TheLartians/LHC.git
   VERSION 0.3
 )
+
+# add executable
+set (CMAKE_CXX_STANDARD 17)
+add_executable(cpm-test test.cpp)
+target_link_libraries(cpm-test LHC LarsEvent LarsParser)
+
+# tests
+enable_testing()
+add_test(cpm-test cpm-test)

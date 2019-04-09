@@ -26,20 +26,10 @@ function(CPMAddPackage)
     set(CPM_PACKAGES "")
   endif()
 
-  if (${CPM_ARGS_NAME} IN_LIST CPM_PACKAGES)
-    message(STATUS "CPM: package ${CPM_ARGS_NAME} already added")
-    return()
-  endif()
-
-  message(STATUS "CPM: adding package ${CPM_ARGS_NAME}")
-  # update package data
-  LIST(APPEND CPM_PACKAGES ${CPM_ARGS_NAME})
-  # save package data
-  set(CPM_PACKAGES "${CPM_PACKAGES}" CACHE INTERNAL "CPM Packages")
-
   if (NOT CPM_ARGS_BINARY_DIR)
     set(CPM_ARGS_BINARY_DIR ${CMAKE_BINARY_DIR}/CPM-projects/${CPM_ARGS_NAME})
   endif()
+
   message("test: ${CPM_ARGS_BINARY_DIR}")
 
   if (NOT CPM_PROJECT_DIR)
@@ -52,12 +42,24 @@ function(CPMAddPackage)
 
   SET(CPM_TARGET_CMAKE_FILE "${CPM_PROJECT_DIR}")
 
-  configure_file(
-    "${_CPM_Dir}/CPMProject.CMakeLists.cmake.in"
-    "${CPM_TARGET_CMAKE_FILE}/CMakeLists.txt"
-    @ONLY
-  )
+  if (${CPM_ARGS_NAME} IN_LIST CPM_PACKAGES)
+    message(STATUS "CPM: package ${CPM_ARGS_NAME} already added")
+  else()
+    message(STATUS "CPM: adding package ${CPM_ARGS_NAME}@${CPM_ARGS_VERSION}")
+    # update package data
+    LIST(APPEND CPM_PACKAGES ${CPM_ARGS_NAME})
+    # save package data
+    set(CPM_PACKAGES "${CPM_PACKAGES}" CACHE INTERNAL "CPM Packages")
 
-  add_subdirectory(${CPM_TARGET_CMAKE_FILE} ${CPM_ARGS_BINARY_DIR})
+    configure_file(
+      "${_CPM_Dir}/CPMProject.CMakeLists.cmake.in"
+      "${CPM_TARGET_CMAKE_FILE}/CMakeLists.txt"
+      @ONLY
+    )
+  endif()
+
+  if (NOT TARGET ${CPM_ARGS_NAME})
+    add_subdirectory(${CPM_TARGET_CMAKE_FILE} ${CPM_ARGS_BINARY_DIR})
+  endif()
 
 endfunction()
