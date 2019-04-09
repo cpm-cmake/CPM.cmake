@@ -30,6 +30,11 @@ matrix:
       env:
         - MATRIX_EVAL="export CC=clang-6.0; export CXX=clang++-6.0;"
 
+before_install:
+  # Update compilers
+  - eval "${MATRIX_EVAL}"
+  - echo "CC=$CC CXX=$CXX"
+
 script:
   - cmake -Htest -Bbuild  
   - cmake --build build
