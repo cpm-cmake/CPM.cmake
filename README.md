@@ -29,9 +29,9 @@ add_executable(my-parser my-parser.cpp)
 target_link_libraries(cpm-test LarsParser)
 ```
 
-# Update packages
+# Offline mode
 
-To update packages, run cmake with the additional option `-DCPM_RESET=ON`. To keep the project working offline after the update, set `-DCPM_RESET=OFF` afterwards.
+After including CPM CMake will try to update remote repositories at every new buld. To continue working offline, set the parameter `CPM_OFFLINE=On`. 
 
 # Installation
 
