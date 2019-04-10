@@ -3,10 +3,9 @@ set(_CPM_Dir "${CMAKE_CURRENT_LIST_DIR}")
 include(CMakeParseArguments)
 include(${_CPM_Dir}/DownloadProject.cmake)
   
-option(CPM_RESET "reset CPM" OFF)
+option(CPM_OFFLINE "CPM offline mode" OFF)
 
-if(${CPM_RESET})
-  message(STATUS "CPM: resetting packages")
+if(NOT ${CPM_OFFLINE})
   set(CPM_PACKAGES "" CACHE INTERNAL "CPM Packages")
 endif()
 
@@ -33,15 +32,6 @@ function(CPMAddPackage)
   if (NOT CPM_ARGS_BINARY_DIR)
     set(CPM_ARGS_BINARY_DIR ${CMAKE_BINARY_DIR}/CPM-projects/${CPM_ARGS_NAME})
   endif()
-
-  if (NOT CPM_ARGS_UPDATE_DISCONNECTED)
-    if (${CPM_RESET})
-      set(CPM_ARGS_UPDATE_DISCONNECTED OFF)
-    else()
-      set(CPM_ARGS_UPDATE_DISCONNECTED ON)
-    endif()
-  endif()
-
 
   if (NOT CPM_PROJECT_DIR)
     set(CPM_PROJECT_DIR "${CPM_ARGS_BINARY_DIR}")

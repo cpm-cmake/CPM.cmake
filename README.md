@@ -2,7 +2,7 @@
 
 # CPM
 
-CPM is a very simple package manager written in Cmake based on the amazing [DownloadProject](https://github.com/Crascit/DownloadProject) script. It is extremely easy to use and drastically simplifies the inclusion of other Cmake-based projects from github.
+CPM is a minimalistic package manager written in Cmake based on the amazing [DownloadProject](https://github.com/Crascit/DownloadProject) script. It is extremely easy to use and drastically simplifies the inclusion of other Cmake-based projects from github.
 
 # Usage
 
@@ -29,19 +29,25 @@ add_executable(my-parser my-parser.cpp)
 target_link_libraries(cpm-test LarsParser)
 ```
 
-# Update packages
+# Offline mode
 
-To update packages, run cmake with the additional option `-DCPM_RESET=ON`. To keep the project working offline after the update, set `-DCPM_RESET=OFF` afterwards.
+After including CPM CMake will try to update remote repositories at every new buld. To continue working offline, set the parameter `CPM_OFFLINE=On`. 
 
 # Installation
 
 To add CPM to your current project, copy the scripts in the `cmake` directory into you current project project. The command below will perform this automatically.
 
 ```bash
-wget -qO- https://github.com/TheLartians/CPM/releases/download/v0.3/cmake.zip | bsdtar -xvf-
+wget -qO- https://github.com/TheLartians/CPM/releases/download/v0.4/cmake.zip | bsdtar -xvf-
 ```
+
+# Advantages
+
+- **Auto handle dependencies** Users of your projects do not need to worry about dependencies, everything is handled automatically.
+- **Reproducable builds** Using git tags it is ensured that a project will always be in the same state everywhere.
+- **No installation required** No need to install any third-party package managers. Just copy the files from the CMake directory and you're good to go.
 
 # Limitations
 
-- First version used: in diamond dependency graphs (e.g. `A` depends on `C`(v1.1) and `A` depends on `B` depends on `C`(v1.2)) the first added dependency will be used (in this case `C`@1.1).
-- No possibility not automatically update dependencies. To update a dependency, version numbers or git tags in the cmake scripts must be adapted manually.
+- **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`(v1.1) and `A` depends on `B` depends on `C`(v1.2)) the first added dependency will be used (in this case `C`@1.1).
+- **No auto-update** To update a dependency, version numbers or git tags in the cmake scripts must be adapted manually.
