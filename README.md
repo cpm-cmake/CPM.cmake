@@ -33,7 +33,7 @@ target_link_libraries(cpm-test LarsParser)
 
 After including CPM CMake will try to update remote repositories at every new buld. To continue working offline, set the parameter `CPM_OFFLINE=On`. 
 
-# Installation
+# Adding CPM
 
 To add CPM to your current project, copy the scripts in the `cmake` directory into you current project project. The command below will perform this automatically.
 
