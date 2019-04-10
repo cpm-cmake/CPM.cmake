@@ -33,7 +33,7 @@ target_link_libraries(cpm-test LarsParser)
 
 After including CPM CMake will try to update remote repositories at every new buld. To continue working offline, set the parameter `CPM_OFFLINE=On`. 
 
-# Installation
+# Adding CPM
 
 To add CPM to your current project, copy the scripts in the `cmake` directory into you current project project. The command below will perform this automatically.
 
@@ -46,6 +46,7 @@ wget -qO- https://github.com/TheLartians/CPM/releases/download/v0.4/cmake.zip | 
 - **Auto handle dependencies** Users of your projects do not need to worry about dependencies, everything is handled automatically.
 - **Reproducable builds** Using git tags it is ensured that a project will always be in the same state everywhere.
 - **No installation required** No need to install any third-party package managers. Just copy the files from the CMake directory and you're good to go.
+- **Cross-Plattform** As CPM adds projects as cmake subdirectories, it is compatible with all cmake toolchains and generators. 
 
 # Limitations
 
