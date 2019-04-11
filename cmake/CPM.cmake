@@ -32,6 +32,7 @@ function(CPMAddPackage)
 
   if (${CPM_ARGS_NAME} IN_LIST CPM_PACKAGES)
     message(STATUS "CPM: not adding ${CPM_ARGS_NAME}@${CPM_ARGS_GIT_TAG}: already addded package ${CPM_ARGS_NAME}")
+    return()
   endif()
 
   LIST(APPEND CPM_PACKAGES ${CPM_ARGS_NAME})
