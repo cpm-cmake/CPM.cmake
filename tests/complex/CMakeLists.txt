@@ -11,24 +11,21 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
+  NAME LHC
+  GIT_REPOSITORY https://github.com/TheLartians/LHC.git
+  VERSION 0.1
+)
+
+CPMAddPackage(
   NAME LarsEvent
   GIT_REPOSITORY https://github.com/TheLartians/Event.git
   VERSION 1.0
-  GIT_TAG master
 )
 
-# Add project that depends on previous project
 CPMAddPackage(
   NAME LarsParser
   GIT_REPOSITORY https://github.com/TheLartians/Parser.git
   VERSION 1.4
-)
-
-# add project twice (will be ignored)
-CPMAddPackage(
-  NAME LHC
-  GIT_REPOSITORY https://github.com/TheLartians/LHC.git
-  VERSION 0.1
 )
 
 # add executable

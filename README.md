@@ -2,14 +2,14 @@
 
 # CPM
 
-CPM is a minimalistic package manager written in Cmake based on the amazing [DownloadProject](https://github.com/Crascit/DownloadProject) script. It is extremely easy to use and drastically simplifies the inclusion of other Cmake-based projects from github.
+CPM is a minimalistic package manager written in Cmake using `find_package` and `FetchContent` as a fallback to download non locally installed packages.
 
 # Usage
 
 To add a new dependency to your project simply add the Projects target name, the git URL and the version. If the git tag for this version does not match the pattern `v$VERSION`, then the exact branch or tag can be specified with the `GIT_TAG` argument.
 
 ```cmake
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 project(MyParser)
 
@@ -18,9 +18,9 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME LarsParser
-  VERSION 1.4
+  VERSION 1.4 # optional, used for find_package
   GIT_REPOSITORY https://github.com/TheLartians/Parser.git
-  GIT_TAG master # optional
+  GIT_TAG v1.4 # optional if TAG matches v$VERSION
 )
 
 # add executable
@@ -29,16 +29,12 @@ add_executable(my-parser my-parser.cpp)
 target_link_libraries(cpm-test LarsParser)
 ```
 
-# Offline mode
-
-After including CPM CMake will try to update remote repositories at every new buld. To continue working offline, set the parameter `CPM_OFFLINE=On`. 
-
 # Adding CPM
 
 To add CPM to your current project, copy the scripts in the `cmake` directory into you current project project. The command below will perform this automatically.
 
 ```bash
-wget -qO- https://github.com/TheLartians/CPM/releases/download/v0.4/cmake.zip | bsdtar -xvf-
+wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master/cmake/CPM.cmake
 ```
 
 # Advantages
