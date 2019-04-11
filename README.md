@@ -31,7 +31,7 @@ target_link_libraries(cpm-test LarsParser)
 
 # Adding CPM
 
-To add CPM to your current project, copy the scripts in the `cmake` directory into you current project project. The command below will perform this automatically.
+To add CPM to your current project, simply include add `cmake/CPM.cmake` to your projects `cmake` directory. The command below will perform this automatically.
 
 ```bash
 wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master/cmake/CPM.cmake
