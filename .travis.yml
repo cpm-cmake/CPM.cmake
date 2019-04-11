@@ -2,6 +2,34 @@
 language: cpp
 sudo: require
 
+common_sources: &all_sources
+  - ubuntu-toolchain-r-test
+  - llvm-toolchain-trusty
+  - llvm-toolchain-trusty-6.0
+
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+      addons: &gcc8
+        apt:
+          sources: *all_sources
+          packages: 
+            - g++-8
+      env:
+        - MATRIX_EVAL="export CC=gcc-8; export CXX=g++-8;"
+
+    - os: linux
+      compiler: clang
+      addons:
+          apt:
+              sources: *all_sources
+              packages:
+                - g++-8
+                - clang-6.0
+      env:
+        - MATRIX_EVAL="export CC=clang-6.0; export CXX=clang++-6.0;"
+
 before_install:
   # Update compilers
   - eval "${MATRIX_EVAL}"
