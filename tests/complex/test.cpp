@@ -18,8 +18,6 @@ int main() {
   g["Number"  ] << "'-'? [0-9]+ ('.' [0-9]+)?" >> [](auto e){ return stof(e.string()); };
   g.setStart(g["Sum"]);
 
-  // Execute a string
-
   // create an event
   lars::Event<float> onResult;
   onResult.connect([&](float v){ result = !(int(v) == 5); });
