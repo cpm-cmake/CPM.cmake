@@ -14,8 +14,7 @@ CPMAddPackage(
   VERSION 0.7
 )
 
-# util library
-# will be ignored as package has already been added
+# adding LHC again will be ignored as the package has already been added
 CPMAddPackage(
   NAME LHC
   GIT_REPOSITORY https://github.com/TheLartians/LHC.git
@@ -28,7 +27,7 @@ CPMAddPackage(
 set(GLUE_ENABLE_LUA ON)
 CPMAddPackage(
   NAME Glue
-  GIT_TAG 07bc2091166ba7a142a7194d1d108de8986efda1
+  GIT_TAG 78af65625751ad15a42ca52b842863e85b5d2adc
   GIT_REPOSITORY https://github.com/TheLartians/Glue.git
   OPTIONS 
     "GLUE_ENABLE_LUA ON"
@@ -36,7 +35,7 @@ CPMAddPackage(
 )
 
 # parser library 
-# depends on LHC 
+# depends on LHC (ignored as already added)
 CPMAddPackage(
   NAME LarsParser
   GIT_REPOSITORY https://github.com/TheLartians/Parser.git
