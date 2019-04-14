@@ -1,30 +1,52 @@
-#include <lars/parser_generator.h>
-#include <lars/event.h>
+#include <lars/parser/extension.h>
+#include <lars/lua_glue.h>
+#include <stdexcept>
 
 int main() {
-  // Define the return value
-  int result = 1;
+  // create lua state
+  auto lua = lars::LuaState();
+  lua.open_libs();
 
-  // Define grammar and evaluation rules
-  lars::ParserGenerator<float> g;
-  g.setSeparator(g["Whitespace"] << "[\t ]");
-  g["Sum"     ] << "Add | Subtract | Product";
-  g["Product" ] << "Multiply | Divide | Atomic";
-  g["Atomic"  ] << "Number | '(' Sum ')'";
-  g["Add"     ] << "Sum '+' Product"    >> [](auto e){ return e[0].evaluate() + e[1].evaluate(); };
-  g["Subtract"] << "Sum '-' Product"    >> [](auto e){ return e[0].evaluate() - e[1].evaluate(); };
-  g["Multiply"] << "Product '*' Atomic" >> [](auto e){ return e[0].evaluate() * e[1].evaluate(); };
-  g["Divide"  ] << "Product '/' Atomic" >> [](auto e){ return e[0].evaluate() / e[1].evaluate(); };
-  g["Number"  ] << "'-'? [0-9]+ ('.' [0-9]+)?" >> [](auto e){ return stof(e.string()); };
-  g.setStart(g["Sum"]);
+  // create extensions
+  lars::Extension extensions;
 
-  // create an event
-  lars::Event<float> onResult;
-  onResult.connect([&](float v){ result = !(int(v) == 5); });
+  // add parser library to extension
+  extensions.add_extension("parser", lars::extensions::parser());
+
+  // connect parser extension to lua
+  extensions.connect(lua.get_glue());
+
+  // create a parser
+  lua.run(R"(
+    NumberMap = parser.Program.create()
+
+    NumberMap:setRule("Whitespace", "[ \t]")
+    NumberMap:setSeparatorRule("Whitespace")
+
+    NumberMap:setRuleWithCallback("Object", "'{' KeyValue (',' KeyValue)* '}'",function(e) 
+      local N = e:size()-1
+      local res = {}
+      for i=0,N do 
+        local a = e:get(i)
+        res[a:get(0):evaluate()] = a:get(1):evaluate() 
+      end
+      return res
+    end)
+
+    NumberMap:setRule("KeyValue", "Number ':' Number")
+
+    NumberMap:setRuleWithCallback("Number", "'-'? [0-9]+", function(e) return tonumber(e:string()); end)
+    
+    NumberMap:setStartRule("Object")
+  )");
+
+  // parse a string
+  lua.run("m = NumberMap:run('{1:3, 2:-1, 3:42}')");
   
-  // emit the result of a parsed string
-  onResult.notify(g.run("1 + 2 * (3+4)/2 - 3"));
+  // check result
+  if (lua.get_numeric("m[1]") != 3) throw std::runtime_error("unexpected result");
+  if (lua.get_numeric("m[2]") != -1) throw std::runtime_error("unexpected result");
+  if (lua.get_numeric("m[3]") != 42) throw std::runtime_error("unexpected result");
 
-  // return the result
-  return result;
+  return 0;
 }
