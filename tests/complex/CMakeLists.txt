@@ -22,6 +22,7 @@ CPMAddPackage(
 )
 
 # language bindings
+# uses git tag instead of version identifier
 # depends on visitor library that depends on Event library and LHC (ignored as already added)
 # configuration arguments passed via OPTIONS. these will all be set internally
 set(GLUE_ENABLE_LUA ON)
@@ -39,9 +40,9 @@ CPMAddPackage(
 CPMAddPackage(
   NAME LarsParser
   GIT_REPOSITORY https://github.com/TheLartians/Parser.git
-  VERSION 1.7
+  VERSION 1.8
   OPTIONS 
-    "BUILD_LARS_PARSER_GLUE_EXTENSION ON"
+    "LARS_PARSER_BUILD_GLUE_EXTENSION ON"
 )
 
 # add executable
