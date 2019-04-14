@@ -6,27 +6,28 @@ CPM is a minimalistic package manager written in Cmake using `find_package` and 
 
 # Usage
 
-To add a new dependency to your project simply add the Projects target name, the git URL and the version. If the git tag for this version does not match the pattern `v$VERSION`, then the exact branch or tag can be specified with the `GIT_TAG` argument.
+To add a new dependency to your project simply add the Projects target name, the git URL and the version. If the git tag for this version does not match the pattern `v$VERSION`, then the exact branch or tag can be specified with the `GIT_TAG` argument. CMake options can also be supplied with the package.
 
 ```cmake
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-project(MyParser)
+project(MyProject)
 
 # add dependencies
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME LarsParser
-  VERSION 1.4 # optional, used for find_package
   GIT_REPOSITORY https://github.com/TheLartians/Parser.git
-  GIT_TAG v1.4 # optional if TAG matches v$VERSION
+  VERSION 1.8
+  OPTIONS 
+    "LARS_PARSER_BUILD_GLUE_EXTENSION ON"
 )
 
 # add executable
 set (CMAKE_CXX_STANDARD 17)
-add_executable(my-parser my-parser.cpp)
-target_link_libraries(cpm-test LarsParser)
+add_executable(my-project my-project.cpp)
+target_link_libraries(my-project LarsParser)
 ```
 
 # Adding CPM
