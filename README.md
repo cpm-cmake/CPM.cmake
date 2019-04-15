@@ -2,7 +2,11 @@
 
 # CPM
 
-CPM is a minimalistic package manager written in Cmake using `find_package` and `FetchContent` as a fallback to download non locally installed packages.
+CPM is a minimalistic package manager written in CMake. It downloads and adds packages via `FetchContent` or uses locally installed packages if applicable via `find_package`.
+
+# Supported packages
+
+Any project that you can add via `add_subdirectory` should already work with CPM.
 
 # Usage
 
@@ -11,6 +15,7 @@ To add a new dependency to your project simply add the Projects target name, the
 ```cmake
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
+# create project
 project(MyProject)
 
 # add dependencies
@@ -18,11 +23,9 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME LarsParser
+  VERSION 1.8  # optional, will try find_package(LarsParser 1.8) before downloading
   GIT_REPOSITORY https://github.com/TheLartians/Parser.git
-  VERSION 1.8
-  GIT_TAG v1.8 # optional, as already defined by VERSION
-  OPTIONS      # used to set CMake options in the inner package
-    "LARS_PARSER_BUILD_GLUE_EXTENSION ON"
+  GIT_TAG v1.8 # optional, as indirectly defined by VERSION
 )
 
 # add executable
@@ -38,10 +41,6 @@ To add CPM to your current project, simply include add `cmake/CPM.cmake` to your
 ```bash
 wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master/cmake/CPM.cmake
 ```
-
-# Supported packages
-
-Basically any project that you can add via `add_subdirectory` should work with CPM.
 
 # Options
 
