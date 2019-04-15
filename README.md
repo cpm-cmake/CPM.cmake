@@ -20,7 +20,8 @@ CPMAddPackage(
   NAME LarsParser
   GIT_REPOSITORY https://github.com/TheLartians/Parser.git
   VERSION 1.8
-  OPTIONS 
+  GIT_TAG v1.8 # optional, as already defined by VERSION
+  OPTIONS      # used to set CMake options in the inner package
     "LARS_PARSER_BUILD_GLUE_EXTENSION ON"
 )
 
@@ -37,6 +38,10 @@ To add CPM to your current project, simply include add `cmake/CPM.cmake` to your
 ```bash
 wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master/cmake/CPM.cmake
 ```
+
+# Supported packages
+
+Basically any project that you can add via `add_subdirectory` should work with CPM.
 
 # Advantages
 
