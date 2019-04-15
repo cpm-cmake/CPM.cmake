@@ -63,7 +63,7 @@ function(CPMAddPackage)
     endforeach()
   endif()
 
-  if (NOT ${CPM_REMOTE_PACKAGES_ONLY})
+  if (CPM_ARGS_VERSION AND NOT ${CPM_REMOTE_PACKAGES_ONLY})
     find_package(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} QUIET)
     set(CPM_PACKAGE_FOUND ${CPM_ARGS_NAME}_FOUND)
 
