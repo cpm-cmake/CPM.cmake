@@ -34,7 +34,7 @@ add_executable(my-project my-project.cpp)
 target_link_libraries(my-project LarsParser)
 ```
 
-See [here](https://github.com/TheLartians/CPM/tree/master/examples) for more examples.
+See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for more examples.
 
 # Adding CPM
 
