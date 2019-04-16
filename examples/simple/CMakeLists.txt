@@ -13,9 +13,9 @@ CPMAddPackage(
 
 # add executable
 set (CMAKE_CXX_STANDARD 17)
-add_executable(cpm-test test.cpp)
-target_link_libraries(cpm-test LarsParser)
+add_executable(cpm-test-simple main.cpp)
+target_link_libraries(cpm-test-simple LarsParser)
 
 # tests
 enable_testing()
-add_test(cpm-test cpm-test)
+add_test(cpm-test-simple cpm-test-simple)
