@@ -34,6 +34,8 @@ add_executable(my-project my-project.cpp)
 target_link_libraries(my-project LarsParser)
 ```
 
+See [here](https://github.com/TheLartians/CPM/tree/master/examples) for more examples.
+
 # Adding CPM
 
 To add CPM to your current project, simply include add `cmake/CPM.cmake` to your projects `cmake` directory. The command below will perform this automatically.
