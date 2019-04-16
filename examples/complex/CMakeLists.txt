@@ -47,9 +47,9 @@ CPMAddPackage(
 
 # add executable
 set (CMAKE_CXX_STANDARD 17)
-add_executable(cpm-test test.cpp)
-target_link_libraries(cpm-test LHC LarsParser Glue)
+add_executable(cpm-test-complex main.cpp)
+target_link_libraries(cpm-test-complex LHC LarsParser Glue)
 
 # tests
 enable_testing()
-add_test(cpm-test cpm-test)
+add_test(cpm-test-complex cpm-test-complex)
