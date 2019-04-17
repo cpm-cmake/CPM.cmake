@@ -69,6 +69,10 @@ function(CPMAddPackage)
     endif()
   endif()
 
+  if(${CPM_LOCAL_PACKAGES_ONLY}) 
+    message(SEND_ERROR "CPM: ${CPM_ARGS_NAME} not found via findpackage(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION})")
+  endif()
+
   if (NOT CPM_ARGS_VERSION)
     set(CPM_ARGS_VERSION 0)
   endif()
