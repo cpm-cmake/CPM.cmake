@@ -2,7 +2,7 @@
 
 # CPM
 
-CPM is a minimalistic package manager written in CMake. It downloads and adds packages via `FetchContent` or uses locally installed packages if applicable via `find_package`.
+CPM is a simple dependency manager written in CMake. It downloads and adds packages via `FetchContent` or uses locally installed packages via `find_package`.
 
 # Supported packages
 
