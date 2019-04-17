@@ -4,7 +4,7 @@
 
 CPM is a simple GIT dependency manager written in CMake. It downloads and adds packages via `FetchContent` or uses locally installed packages via `find_package`.
 
-# Supported packages
+# Supported projects
 
 Any project that you can add via `add_subdirectory` should already work with CPM.
 
