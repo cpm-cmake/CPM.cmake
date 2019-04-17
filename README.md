@@ -2,9 +2,9 @@
 
 # CPM
 
-CPM is a simple dependency manager written in CMake. It downloads and adds packages via `FetchContent` or uses locally installed packages via `find_package`.
+CPM is a simple GIT dependency manager written in CMake. It downloads and adds packages via `FetchContent` or uses locally installed packages via `find_package`.
 
-# Supported packages
+# Supported projects
 
 Any project that you can add via `add_subdirectory` should already work with CPM.
 
@@ -52,10 +52,11 @@ If you set the CMake option `CPM_REMOTE_PACKAGES_ONLY` to `On`, packages will al
 
 # Advantages
 
-- **Small repos** CPM takes care of package dependencies, allowing programmers to focus on creating small well-tested frameworks.
-- **Cross-Plattform** CPM adds projects via `add_subdirectory`, which is compatible with all cmake toolchains and generators. 
+- **Small repos** CPM takes care of project dependencies, allowing you to focus on creating small, well-tested frameworks.
+- **Cross-Plattform** CPM adds projects via `add_subdirectory`, which is compatible with all cmake toolchains and generators.
 - **Reproducable builds** By using versioning via git tags it is ensured that a project will always be in the same state everywhere.
 - **No installation required** No need to install anything. Just add the script to your project and you're good to go.
+- **No Setup required** There is a good chance your existing projects already work as CPM dependencies.
 
 # Limitations
 
