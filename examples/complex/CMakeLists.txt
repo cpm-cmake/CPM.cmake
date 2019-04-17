@@ -14,29 +14,28 @@ CPMAddPackage(
   VERSION 0.7
 )
 
-# adding LHC again will be ignored as the package has already been added
 CPMAddPackage(
   NAME LHC
   GIT_REPOSITORY https://github.com/TheLartians/LHC.git
-  VERSION 0.1
+  VERSION 0.2
 )
 
 # language bindings
 # uses git tag instead of version identifier
-# depends on visitor library that depends on Event library and LHC (ignored as already added)
-# configuration arguments passed via OPTIONS. these will all be set internally
-set(GLUE_ENABLE_LUA ON)
+# depends on visitor library that depends on Event library and LHC
+# CMake configuration arguments passed via OPTIONS
 CPMAddPackage(
   NAME Glue
   GIT_TAG 78af65625751ad15a42ca52b842863e85b5d2adc
   GIT_REPOSITORY https://github.com/TheLartians/Glue.git
+  VERSION 0.5.1
   OPTIONS 
     "GLUE_ENABLE_LUA ON"
     "GLUE_BUILD_LUA ON"
 )
 
 # parser library 
-# depends on LHC (ignored as already added)
+# depends on LHC and Glue
 CPMAddPackage(
   NAME LarsParser
   GIT_REPOSITORY https://github.com/TheLartians/Parser.git
