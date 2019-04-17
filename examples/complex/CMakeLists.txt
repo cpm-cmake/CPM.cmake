@@ -14,6 +14,7 @@ CPMAddPackage(
   VERSION 0.7
 )
 
+# will be ignored as newer version already added
 CPMAddPackage(
   NAME LHC
   GIT_REPOSITORY https://github.com/TheLartians/LHC.git
