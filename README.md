@@ -34,6 +34,8 @@ add_executable(my-project my-project.cpp)
 target_link_libraries(my-project LarsParser)
 ```
 
+See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for more examples.
+
 # Adding CPM
 
 To add CPM to your current project, simply include add `cmake/CPM.cmake` to your projects `cmake` directory. The command below will perform this automatically.
@@ -51,7 +53,7 @@ If you set the CMake option `CPM_REMOTE_PACKAGES_ONLY` to `On`, packages will al
 - **Small repos** CPM takes care of package dependencies, allowing programmers to focus on creating small well-tested frameworks.
 - **Cross-Plattform** CPM adds projects via `add_subdirectory`, which is compatible with all cmake toolchains and generators. 
 - **Reproducable builds** By using versioning via git tags it is ensured that a project will always be in the same state everywhere.
-- **No installation required** No need to install any third-party package managers. Just copy the files from the CMake directory and you're good to go.
+- **No installation required** No need to install anything. Just add the script to your project and you're good to go.
 
 # Limitations
 
