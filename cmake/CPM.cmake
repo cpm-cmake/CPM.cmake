@@ -56,7 +56,7 @@ function(CPMAddPackage)
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  if (CPM_ARGS_VERSION AND NOT ${CPM_REMOTE_PACKAGES_ONLY})
+  if (CPM_ARGS_VERSION AND NOT CPM_ARGS_OPTIONS AND NOT ${CPM_REMOTE_PACKAGES_ONLY})
     find_package(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} QUIET)
 
     if(${CPM_PACKAGE_FOUND})
