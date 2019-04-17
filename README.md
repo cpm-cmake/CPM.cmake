@@ -23,9 +23,11 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME LarsParser
-  VERSION 1.8  # optional, will try find_package(LarsParser 1.8) before downloading
+  VERSION 1.8
   GIT_REPOSITORY https://github.com/TheLartians/Parser.git
-  GIT_TAG v1.8 # optional, as indirectly defined by VERSION
+  GIT_TAG v1.8 # optional here, as indirectly defined by VERSION
+  OPTIONS      # optional CMake arguments passed to the dependency
+    "LARS_PARSER_BUILD_GLUE_EXTENSION ON"
 )
 
 # add executable
