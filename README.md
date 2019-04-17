@@ -2,7 +2,7 @@
 
 # CPM
 
-CPM is a simple GIT dependency manager written in CMake. It downloads and adds packages via `FetchContent` or uses locally installed packages via `find_package`.
+CPM is a simple GIT dependency manager written in CMake. Projects are downloaded via CMake's `FetchContent` or uses locally installed packages via `find_package`.
 
 # Supported projects
 
