@@ -46,6 +46,10 @@ To add CPM to your current project, simply include add `cmake/CPM.cmake` to your
 wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master/cmake/CPM.cmake
 ```
 
+# Updating CPM
+
+To update CPM to the newest version, simply run the script again in the projects directory. Dependencies using CPM will automatically use the updated script of the outermost project.
+
 # Options
 
 If you set the CMake option `CPM_REMOTE_PACKAGES_ONLY` to `On`, packages will always be fetched via the URL. Setting `CPM_LOCAL_PACKAGES_ONLY` to `On` will only add packages via `find_package`.
