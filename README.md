@@ -48,7 +48,7 @@ wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master
 
 # Updating CPM
 
-To update CPM to the newest version, simply run the script again in the projects directory. Dependencies using CPM will automatically use the updated script of the outermost project.
+To update CPM to the newest version, simply update the script in the project's cmake directory, for example by running the command above. Dependencies using CPM will automatically use the updated script of the outermost project.
 
 # Options
 
