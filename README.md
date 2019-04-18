@@ -31,8 +31,8 @@ CPMAddPackage(
 )
 
 # add executable
-set (CMAKE_CXX_STANDARD 17)
 add_executable(my-project my-project.cpp)
+set_target_properties(my-project PROPERTIES CXX_STANDARD 17)
 target_link_libraries(my-project LarsParser)
 ```
 
