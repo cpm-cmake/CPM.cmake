@@ -1,5 +1,5 @@
-# TheLartians/CPM - Simple Git dependency management
-# From https://github.com/TheLartians/CPM
+# TheLartians/CPM - A simple Git dependency manager
+# See https://github.com/TheLartians/CPM for issues, usage and update instructions
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
