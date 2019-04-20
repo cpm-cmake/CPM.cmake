@@ -64,5 +64,6 @@ If you set the CMake option `CPM_REMOTE_PACKAGES_ONLY` to `On`, packages will al
 
 # Limitations
 
-- **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`(v1.1) and `A` depends on `B` depends on `C`(v1.2)) the first added dependency will be used (in this case `C`@1.1). If the current version is older than the version beeing added, or if provided options are incompatible, a CMake warning will be emitted.
+- **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`(v1.1) and `A` depends on `B` depends on `C`(v1.2)) the first added dependency will be used (in this case `C`@1.1). If the current version is older than the version beeing added, or if provided options are incompatible, a CMake warning will be emitted. To resolve, add the new version of the common dependency to the outer project.
 - **No auto-update** To update a dependency, version numbers or git tags in the cmake scripts must be adapted manually.
+- **No pre-built binaries**  
