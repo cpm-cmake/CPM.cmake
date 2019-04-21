@@ -40,7 +40,7 @@ See the [examples directory](https://github.com/TheLartians/CPM/tree/master/exam
 
 # Adding CPM
 
-To add CPM to your current project, simply include add `cmake/CPM.cmake` to your projects `cmake` directory. The command below will perform this automatically.
+To add CPM to your current project, simply add `cmake/CPM.cmake` to your project's `cmake` directory. The command below will perform this automatically.
 
 ```bash
 wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master/cmake/CPM.cmake
