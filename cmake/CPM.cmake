@@ -38,7 +38,6 @@ set(CPM_PACKAGES "" CACHE INTERNAL "")
 
 option(CPM_USE_LOCAL_PACKAGES "Use locally installed packages (find_package)" OFF)
 option(CPM_LOCAL_PACKAGES_ONLY "Use only locally installed packages" OFF)
-option(CPM_REMOTE_PACKAGES_ONLY "Always download packages" OFF)
 
 include(FetchContent)
 include(CMakeParseArguments)
@@ -85,18 +84,15 @@ function(CPMAddPackage)
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   if(${CPM_USE_LOCAL_PACKAGES} OR ${CPM_LOCAL_PACKAGES_ONLY}) 
+    find_package(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} QUIET)
 
-    if (CPM_ARGS_VERSION AND NOT CPM_ARGS_OPTIONS AND NOT ${CPM_REMOTE_PACKAGES_ONLY})
-      find_package(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} QUIET)
-
-      if(${CPM_PACKAGE_FOUND})
-        message(STATUS "CPM: adding local package ${CPM_ARGS_NAME}@${CPM_ARGS_VERSION}")
-        set_target_properties(${CPM_ARGS_NAME} 
-          PROPERTIES
-            IMPORTED_GLOBAL True
-        )
-        return()
-      endif()
+    if(${CPM_PACKAGE_FOUND})
+      message(STATUS "CPM: adding local package ${CPM_ARGS_NAME}@${CPM_ARGS_VERSION}")
+      set_target_properties(${CPM_ARGS_NAME} 
+        PROPERTIES
+          IMPORTED_GLOBAL True
+      )
+      return()
     endif()
 
     if(${CPM_LOCAL_PACKAGES_ONLY}) 
