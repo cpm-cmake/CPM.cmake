@@ -52,7 +52,7 @@ To update CPM to the newest version, simply update the script in the project's c
 
 # Options
 
-If you set the CMake option `CPM_REMOTE_PACKAGES_ONLY` to `On`, packages will always be fetched via the URL. Setting `CPM_LOCAL_PACKAGES_ONLY` to `On` will only add packages via `find_package`.
+Setting the CMake option `CPM_USE_LOCAL_PACKAGES` will activate finding packages via `find_package`. If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will only use local packages.
 
 # Advantages
 
