@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.com/TheLartians/CPM.svg?branch=master)](https://travis-ci.com/TheLartians/CPM)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b2807ebd72e546159c736a8c92b16f4b)](https://www.codacy.com/app/TheLartians/CPM?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TheLartians/CPM&amp;utm_campaign=Badge_Grade)
 
 # CPM
 
