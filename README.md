@@ -57,14 +57,14 @@ Setting the CMake option `CPM_USE_LOCAL_PACKAGES` will activate finding packages
 
 ## Advantages
 
-  - **Small repos** CPM takes care of project dependencies, allowing you to focus on creating small, well-tested frameworks.
-  - **Cross-Plattform** CPM adds projects via `add_subdirectory`, which is compatible with all cmake toolchains and generators.
-  - **Reproducable builds** By using versioning via git tags it is ensured that a project will always be in the same state everywhere.
-  - **No installation required** No need to install anything. Just add the script to your project and you're good to go.
-  - **No Setup required** There is a good chance your existing projects already work as CPM dependencies.
+- **Small repos** CPM takes care of project dependencies, allowing you to focus on creating small, well-tested frameworks.
+- **Cross-Plattform** CPM adds projects via `add_subdirectory`, which is compatible with all cmake toolchains and generators.
+- **Reproducable builds** By using versioning via git tags it is ensured that a project will always be in the same state everywhere.
+- **No installation required** No need to install anything. Just add the script to your project and you're good to go.
+- **No Setup required** There is a good chance your existing projects already work as CPM dependencies.
 
 ## Limitations
 
-  - **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`(v1.1) and `A` depends on `B` depends on `C`(v1.2)) the first added dependency will be used (in this case `C`@1.1). If the current version is older than the version beeing added, or if provided options are incompatible, a CMake warning will be emitted. To resolve, add the new version of the common dependency to the outer project.
-  - **No auto-update** To update a dependency, version numbers or git tags in the cmake scripts must be adapted manually.
-  - **No pre-built binaries** Unless they are installed or included in the linked repository.
+- **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`(v1.1) and `A` depends on `B` depends on `C`(v1.2)) the first added dependency will be used (in this case `C`@1.1). If the current version is older than the version beeing added, or if provided options are incompatible, a CMake warning will be emitted. To resolve, add the new version of the common dependency to the outer project.
+- **No auto-update** To update a dependency, version numbers or git tags in the cmake scripts must be adapted manually.
+- **No pre-built binaries** Unless they are installed or included in the linked repository.
