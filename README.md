@@ -1,14 +1,15 @@
 [![Build Status](https://travis-ci.com/TheLartians/CPM.svg?branch=master)](https://travis-ci.com/TheLartians/CPM)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b2807ebd72e546159c736a8c92b16f4b)](https://www.codacy.com/app/TheLartians/CPM?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TheLartians/CPM&amp;utm_campaign=Badge_Grade)
 
 # CPM
 
 CPM is a simple GIT dependency manager written in CMake. The main use-case is abstracting CMake's `FetchContent` and managing dependencies in small to medium sized projects.
 
-# Supported projects
+## Supported projects
 
 Any project that you can add via `add_subdirectory` should already work with CPM.
 
-# Usage
+## Usage
 
 To add a new dependency to your project simply add the Projects target name, the git URL and the version. If the git tag for this version does not match the pattern `v$VERSION`, then the exact branch or tag can be specified with the `GIT_TAG` argument. CMake options can also be supplied with the package.
 
@@ -38,7 +39,7 @@ target_link_libraries(my-project LarsParser)
 
 See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for more examples.
 
-# Adding CPM
+## Adding CPM
 
 To add CPM to your current project, simply add `cmake/CPM.cmake` to your project's `cmake` directory. The command below will perform this automatically.
 
@@ -46,15 +47,15 @@ To add CPM to your current project, simply add `cmake/CPM.cmake` to your project
 wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master/cmake/CPM.cmake
 ```
 
-# Updating CPM
+## Updating CPM
 
 To update CPM to the newest version, simply update the script in the project's cmake directory, for example by running the command above. Dependencies using CPM will automatically use the updated script of the outermost project.
 
-# Options
+## Options
 
 Setting the CMake option `CPM_USE_LOCAL_PACKAGES` will activate finding packages via `find_package`. If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will only use local packages.
 
-# Advantages
+## Advantages
 
 - **Small repos** CPM takes care of project dependencies, allowing you to focus on creating small, well-tested frameworks.
 - **Cross-Plattform** CPM adds projects via `add_subdirectory`, which is compatible with all cmake toolchains and generators.
@@ -62,7 +63,7 @@ Setting the CMake option `CPM_USE_LOCAL_PACKAGES` will activate finding packages
 - **No installation required** No need to install anything. Just add the script to your project and you're good to go.
 - **No Setup required** There is a good chance your existing projects already work as CPM dependencies.
 
-# Limitations
+## Limitations
 
 - **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`(v1.1) and `A` depends on `B` depends on `C`(v1.2)) the first added dependency will be used (in this case `C`@1.1). If the current version is older than the version beeing added, or if provided options are incompatible, a CMake warning will be emitted. To resolve, add the new version of the common dependency to the outer project.
 - **No auto-update** To update a dependency, version numbers or git tags in the cmake scripts must be adapted manually.
