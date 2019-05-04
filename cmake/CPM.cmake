@@ -2,8 +2,9 @@
 # =================================================
 # See https://github.com/TheLartians/CPM for usage and update instructions.
 #
-#   MIT License
-#[[ -----------
+# MIT License
+# ----------- 
+#[[
   Copyright (c) 2019 Lars Melchior
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,13 +28,21 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
+set(CURRENT_CPM_VERSION 0.8) 
+
 if(CPM_DIRECTORY)
   if(NOT ${CPM_DIRECTORY} MATCHES ${CMAKE_CURRENT_LIST_DIR})
+    if (${CPM_VERSION} VERSION_LESS ${CURRENT_CPM_VERSION})
+      message(AUTHOR_WARNING "${CPM_INDENT}\
+A dependency is using a newer CPM version (${CPM_VERSION}) than the current project (${CURRENT_CPM_VERSION}). \
+It is recommended to upgrade CPM to the most recent version. See https://github.com/TheLartians/CPM for more information.\
+")  
+    endif()
     return()
   endif()
 endif()
 
-set(CPM_VERSION 0.7.1 CACHE INTERNAL "")
+set(CPM_VERSION ${CURRENT_CPM_VERSION} CACHE INTERNAL "")
 
 set(CPM_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "")
 set(CPM_PACKAGES "" CACHE INTERNAL "")
@@ -72,6 +81,7 @@ function(CPMAddPackage)
     NAME
     VERSION
     GIT_TAG
+    DOWNLOAD_ONLY
   )
 
   set(multiValueArgs
@@ -105,6 +115,12 @@ function(CPMAddPackage)
     set(CPM_ARGS_GIT_TAG v${CPM_ARGS_VERSION})
   endif()
 
+  if(CPM_ARGS_DOWNLOAD_ONLY)
+    set(DOWNLOAD_ONLY ${CPM_ARGS_DOWNLOAD_ONLY})
+  else()
+    set(DOWNLOAD_ONLY NO)
+  endif()
+
   if (${CPM_ARGS_NAME} IN_LIST CPM_PACKAGES)
     CPM_GET_PACKAGE_VERSION(${CPM_ARGS_NAME})
     if(${CPM_PACKAGE_VERSION} VERSION_LESS ${CPM_ARGS_VERSION})
@@ -118,7 +134,7 @@ function(CPMAddPackage)
         endif()
       endforeach()
     endif()
-    CPM_FETCH_PACKAGE(${CPM_ARGS_NAME})
+    CPM_FETCH_PACKAGE(${CPM_ARGS_NAME} ${DOWNLOAD_ONLY})
     return()
   endif()
 
@@ -132,7 +148,7 @@ function(CPMAddPackage)
   endif()
 
   CPM_DECLARE_PACKAGE(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} ${CPM_ARGS_GIT_TAG} "${CPM_ARGS_UNPARSED_ARGUMENTS}")
-  CPM_FETCH_PACKAGE(${CPM_ARGS_NAME})
+  CPM_FETCH_PACKAGE(${CPM_ARGS_NAME} ${DOWNLOAD_ONLY})
 endfunction()
 
 function (CPM_DECLARE_PACKAGE PACKAGE VERSION GIT_TAG)
@@ -145,9 +161,15 @@ function (CPM_DECLARE_PACKAGE PACKAGE VERSION GIT_TAG)
   )
 endfunction()
 
-function (CPM_FETCH_PACKAGE PACKAGE)  
+function (CPM_FETCH_PACKAGE PACKAGE DOWNLOAD_ONLY)  
   set(CPM_OLD_INDENT "${CPM_INDENT}")
   set(CPM_INDENT "${CPM_INDENT} ${PACKAGE}:")
-  FetchContent_MakeAvailable(${PACKAGE})
+  if(${DOWNLOAD_ONLY})
+    if(NOT "${PACKAGE}_POPULATED")
+      FetchContent_Populate(${PACKAGE})
+    endif()
+  else()
+    FetchContent_MakeAvailable(${PACKAGE})
+  endif()
   set(CPM_INDENT "${CPM_OLD_INDENT}")
 endfunction()
