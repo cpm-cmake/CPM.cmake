@@ -33,7 +33,7 @@ set(CURRENT_CPM_VERSION 0.8)
 if(CPM_DIRECTORY)
   if(NOT ${CPM_DIRECTORY} MATCHES ${CMAKE_CURRENT_LIST_DIR})
     if (${CPM_VERSION} VERSION_LESS ${CURRENT_CPM_VERSION})
-      message(AUTHOR_WARNING "${CPM_INDENT}\
+      message(AUTHOR_WARNING "${CPM_INDENT} \
 A dependency is using a newer CPM version (${CPM_VERSION}) than the current project (${CURRENT_CPM_VERSION}). \
 It is recommended to upgrade CPM to the most recent version. See https://github.com/TheLartians/CPM for more information.\
 ")  
