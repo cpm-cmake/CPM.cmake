@@ -31,9 +31,9 @@ CPMAddPackage(
 )
 
 # add executable
-add_executable(my-project my-project.cpp)
-set_target_properties(my-project PROPERTIES CXX_STANDARD 17)
-target_link_libraries(my-project LarsParser)
+add_executable(myProject myProject.cpp)
+set_target_properties(myProject PROPERTIES CXX_STANDARD 17)
+target_link_libraries(myProject LarsParser)
 ```
 
 See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for more examples.
