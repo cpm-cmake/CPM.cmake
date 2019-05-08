@@ -28,7 +28,7 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-set(CURRENT_CPM_VERSION 0.8.1) 
+set(CURRENT_CPM_VERSION 0.8.2) 
 
 if(CPM_DIRECTORY)
   if(NOT ${CPM_DIRECTORY} MATCHES ${CMAKE_CURRENT_LIST_DIR})
@@ -173,4 +173,11 @@ function (CPM_FETCH_PACKAGE PACKAGE DOWNLOAD_ONLY)
     FetchContent_MakeAvailable(${PACKAGE})
   endif()
   set(CPM_INDENT "${CPM_OLD_INDENT}")
+endfunction()
+
+function (CPM_GET_PROPERTIES PACKAGE)
+  FetchContent_GetProperties(${PACKAGE})
+  string(TOLOWER ${PACKAGE} lpackage)
+  SET(${PACKAGE}_SOURCE_DIR "${${lpackage}_SOURCE_DIR}" PARENT_SCOPE)
+  SET(${PACKAGE}_BINARY_DIR "${${lpackage}_BINARY_DIR}" PARENT_SCOPE)
 endfunction()
