@@ -36,7 +36,56 @@ set_target_properties(myProject PROPERTIES CXX_STANDARD 17)
 target_link_libraries(myProject LarsParser)
 ```
 
-See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for more examples.
+## Examples
+
+### Catch2
+
+```cmake
+CPMAddPackage(
+  NAME Catch2
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  VERSION 2.5.0
+)
+```
+
+### google/benchmark
+
+```cmake
+CPMAddPackage(
+  NAME benchmark
+  GIT_REPOSITORY https://github.com/google/benchmark.git
+  VERSION 1.4.1
+  OPTIONS
+   "BENCHMARK_ENABLE_TESTING Off"
+   "BENCHMARK_USE_LIBCXX ON"
+)
+
+# required to compile with C++17
+set_target_properties(benchmark PROPERTIES CXX_STANDARD 17)
+```
+
+### Lua
+
+```cmake
+CPMAddPackage(
+  NAME lua
+  GIT_REPOSITORY https://github.com/lua/lua.git
+  VERSION 5-3-4
+  GIT_SHALLOW YES
+  DOWNLOAD_ONLY YES # lua has no CMakeLists.txt
+)
+
+CPMGetProperties(lua)
+FILE(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
+FILE(GLOB lua_headers ${lua_SOURCE_DIR}/*.h)
+add_library(lua STATIC ${lua_sources} ${lua_headers})
+
+target_include_directories(lua
+  PUBLIC
+    $<BUILD_INTERFACE:${lua_SOURCE_DIR}>
+)
+```
+
 
 ## Adding CPM
 
