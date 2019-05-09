@@ -10,7 +10,7 @@ Any project that you can add via `add_subdirectory` should already work with CPM
 
 ## Usage
 
-To add a new dependency to your project simply add the Projects target name, the git URL and the version. If the git tag for this version does not match the pattern `v$VERSION`, then the exact branch or tag can be specified with the `GIT_TAG` argument. CMake options can also be supplied with the package.
+To add a new dependency to your project simply add the Projects target name, the git URL and the version. If the git tag for this version does not match the pattern `v$VERSION`, then the exact branch or tag can be specified with the `GIT_TAG` argument. CMake options can also be supplied with the package. If a package is not CMake compaitible it can still be downloaded with the `DOWNLOAD_ONLY` flag. See below for usage examples.
 
 ```cmake
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
@@ -60,7 +60,7 @@ CPMAddPackage(
    "BENCHMARK_USE_LIBCXX ON"
 )
 
-# required to compile with C++17
+# needed to compile with C++17
 set_target_properties(benchmark PROPERTIES CXX_STANDARD 17)
 ```
 
@@ -86,7 +86,6 @@ target_include_directories(lua
 )
 ```
 
-
 ## Adding CPM
 
 To add CPM to your current project, simply add `cmake/CPM.cmake` to your project's `cmake` directory. The command below will perform this automatically.
@@ -99,7 +98,7 @@ wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master
 
 To update CPM to the newest version, simply update the script in the project's cmake directory, for example by running the command above. Dependencies using CPM will automatically use the updated script of the outermost project.
 
-## Options
+## Global Options
 
 Setting the CMake option `CPM_USE_LOCAL_PACKAGES` will activate finding packages via `find_package`. If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will only use local packages.
 
