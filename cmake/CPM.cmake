@@ -175,7 +175,7 @@ function (CPM_FETCH_PACKAGE PACKAGE DOWNLOAD_ONLY)
   set(CPM_INDENT "${CPM_OLD_INDENT}")
 endfunction()
 
-function (CPM_GET_PROPERTIES PACKAGE)
+function (CPMGetProperties PACKAGE)
   FetchContent_GetProperties(${PACKAGE})
   string(TOLOWER ${PACKAGE} lpackage)
   SET(${PACKAGE}_SOURCE_DIR "${${lpackage}_SOURCE_DIR}" PARENT_SCOPE)
