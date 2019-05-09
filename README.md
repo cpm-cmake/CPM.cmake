@@ -36,6 +36,14 @@ set_target_properties(myProject PROPERTIES CXX_STANDARD 17)
 target_link_libraries(myProject LarsParser)
 ```
 
+## Adding CPM
+
+To add CPM to your current project, simply add `cmake/CPM.cmake` to your project's `cmake` directory. The command below will perform this automatically.
+
+```bash
+wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master/cmake/CPM.cmake
+```
+
 ## Examples
 
 ### Catch2
@@ -84,14 +92,6 @@ target_include_directories(lua
   PUBLIC
     $<BUILD_INTERFACE:${lua_SOURCE_DIR}>
 )
-```
-
-## Adding CPM
-
-To add CPM to your current project, simply add `cmake/CPM.cmake` to your project's `cmake` directory. The command below will perform this automatically.
-
-```bash
-wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master/cmake/CPM.cmake
 ```
 
 ## Updating CPM
