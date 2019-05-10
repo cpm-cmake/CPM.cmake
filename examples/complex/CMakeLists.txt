@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 project(CPMTest)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/CPM.cmake)
+include(../../cmake/CPM.cmake)
 
 # ignore locally installed projects for reproducable builds
 set(CPM_REMOTE_PACKAGES_ONLY ON CACHE INTERNAL "")
@@ -11,10 +11,11 @@ set(CPM_REMOTE_PACKAGES_ONLY ON CACHE INTERNAL "")
 CPMAddPackage(
   NAME LHC
   GIT_REPOSITORY https://github.com/TheLartians/LHC.git
-  VERSION 0.7
+  VERSION 0.8
 )
 
-# will be ignored as newer version already added
+# will be ignored as a newer version has already been added 
+# if a newer version is required, a warning will be emitted
 CPMAddPackage(
   NAME LHC
   GIT_REPOSITORY https://github.com/TheLartians/LHC.git
@@ -27,9 +28,8 @@ CPMAddPackage(
 # CMake configuration arguments passed via OPTIONS
 CPMAddPackage(
   NAME Glue
-  GIT_TAG 78af65625751ad15a42ca52b842863e85b5d2adc
   GIT_REPOSITORY https://github.com/TheLartians/Glue.git
-  VERSION 0.5.1
+  VERSION 0.8.1
   OPTIONS 
     "GLUE_ENABLE_LUA ON"
     "GLUE_BUILD_LUA ON"
@@ -40,7 +40,7 @@ CPMAddPackage(
 CPMAddPackage(
   NAME LarsParser
   GIT_REPOSITORY https://github.com/TheLartians/Parser.git
-  VERSION 1.8
+  VERSION 1.9
   OPTIONS 
     "LARS_PARSER_BUILD_GLUE_EXTENSION ON"
 )
