@@ -60,7 +60,7 @@ CPMAddPackage(
 
 ### google/benchmark
 
-Has a CMakeLists.txt that supports `add_subdirectory`, but needs some configuring (otherwise depends on googletest as well).
+Has a CMakeLists.txt that supports `add_subdirectory`, but needs some configuring.
 
 ```cmake
 CPMAddPackage(
