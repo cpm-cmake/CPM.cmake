@@ -48,6 +48,8 @@ wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master
 
 ### Catch2
 
+Has a CMakeLists.txt that supports `add_subdirectory`.
+
 ```cmake
 CPMAddPackage(
   NAME Catch2
@@ -57,6 +59,8 @@ CPMAddPackage(
 ```
 
 ### google/benchmark
+
+Has a CMakeLists.txt that supports `add_subdirectory`, but needs some configuring (otherwise depends on googletest as well).
 
 ```cmake
 CPMAddPackage(
@@ -74,13 +78,15 @@ set_target_properties(benchmark PROPERTIES CXX_STANDARD 17)
 
 ### Lua
 
+Has no CMakeLists.txt, target must be created manually.
+
 ```cmake
 CPMAddPackage(
   NAME lua
   GIT_REPOSITORY https://github.com/lua/lua.git
   VERSION 5-3-4
   GIT_SHALLOW YES
-  DOWNLOAD_ONLY YES # lua has no CMakeLists.txt
+  DOWNLOAD_ONLY YES
 )
 
 CPMGetProperties(lua)
