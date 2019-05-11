@@ -100,6 +100,24 @@ target_include_directories(lua
 )
 ```
 
+### robin_hood::unordered_map
+
+Has CMakeLists.txt, but it seems it is only used for testing.
+Therefore we must create or own target.
+
+```cmake
+CPMAddPackage(
+  NAME RobinHood
+  VERSION 3.2.7
+  GIT_REPOSITORY https://github.com/martinus/robin-hood-hashing.git
+  DOWNLOAD_ONLY Yes
+)
+
+CPMGetProperties(RobinHood)
+add_library(RobinHood INTERFACE IMPORTED)
+target_include_directories(RobinHood INTERFACE "${RobinHood_SOURCE_DIR}/src/include")
+```
+
 ## Updating CPM
 
 To update CPM to the newest version, simply update the script in the project's cmake directory, for example by running the command above. Dependencies using CPM will automatically use the updated script of the outermost project.
