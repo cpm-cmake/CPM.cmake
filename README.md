@@ -91,8 +91,7 @@ CPMAddPackage(
 
 CPMGetProperties(lua)
 FILE(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
-FILE(GLOB lua_headers ${lua_SOURCE_DIR}/*.h)
-add_library(lua STATIC ${lua_sources} ${lua_headers})
+add_library(lua STATIC ${lua_sources})
 
 target_include_directories(lua
   PUBLIC
