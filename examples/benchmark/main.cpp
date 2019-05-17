@@ -1,0 +1,36 @@
+#include <benchmark/benchmark.h>
+#include <vector>
+#include <algorithm>
+#include <random>
+
+#include <fibonacci.h>
+
+
+std::vector<unsigned> createTestNumbers(){
+  std::vector<unsigned> v;
+  for (int i=0;i<25;++i) v.emplace_back(i);
+  std::random_device rd;
+  std::mt19937 g(rd());
+  std::shuffle(v.begin(), v.end(), g);
+  return v;
+}
+
+void fibonnacci(benchmark::State& state) {
+  auto numbers = createTestNumbers();
+  for (auto _ : state) {
+    for (auto v: numbers) benchmark::DoNotOptimize(fibonnacci(v));
+  }
+}
+
+BENCHMARK(fibonnacci);
+
+void fastFibonacci(benchmark::State& state) {
+  auto numbers = createTestNumbers();
+  for (auto _ : state) {
+    for (auto v: numbers) benchmark::DoNotOptimize(fastFibonacci(v));
+  }
+}
+
+BENCHMARK(fastFibonacci);
+
+BENCHMARK_MAIN();

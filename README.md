@@ -2,7 +2,7 @@
 
 # CPM
 
-CPM is a simple GIT dependency manager written in CMake built on top of CMake's built-in [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module.
+CPM is a simple dependency manager written in CMake built on top of CMake's built-in [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module.
 
 ## Supported projects
 
@@ -10,7 +10,26 @@ Any project that you can add via `add_subdirectory` should already work with CPM
 
 ## Usage
 
-To add a new dependency to your project simply add the Projects target name, the git URL and the version. If the git tag for this version does not match the pattern `v$VERSION`, then the exact branch or tag can be specified with the `GIT_TAG` argument. CMake options can also be supplied with the package. If a package is not CMake compaitible it can still be downloaded with the `DOWNLOAD_ONLY` flag. See below for usage examples.
+After `CPM.cmake` has been added to your project, you can call `CPMAddPackage` for every dependency of the project with the following named parameters.
+
+```cmake
+CPMAddPackage(
+  NAME          # The dependency name (usually chosen to match the target name)
+  VERSION       # The minimum version of the dependency (optional, defaults to 0)
+  OPTIONS       # Configuration options passed to the dependency (optional)
+  DOWNLOAD_ONLY # If set, the project is downloaded, but not configured (optional)
+  [...]         # Source options, see below
+)
+```
+
+The command downloads the project defined by the source options if a newer version hasn't been included before.
+The source is usually a git repository, but svn and direct urls are als supported.
+See the [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) documentation for all available options.
+If a `GIT_TAG` hasn't been explicitly specified it defaults to `v$VERSION` which is a common convention for github projects.
+
+After calling `CPMAddPackage`, the variables `(DEPENDENCY)_SOURCE_DIR` and `(DEPENDENCY)_BINARY_DIR` are set, where `(PACKAGE)` is the name of the dependency.
+
+## Example
 
 ```cmake
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
@@ -25,8 +44,7 @@ CPMAddPackage(
   NAME LarsParser
   VERSION 1.8
   GIT_REPOSITORY https://github.com/TheLartians/Parser.git
-  GIT_TAG v1.8 # optional here, as indirectly defined by VERSION
-  OPTIONS      # optional CMake arguments passed to the dependency
+  OPTIONS
     "LARS_PARSER_BUILD_GLUE_EXTENSION ON"
 )
 
@@ -36,6 +54,8 @@ set_target_properties(myProject PROPERTIES CXX_STANDARD 17)
 target_link_libraries(myProject LarsParser)
 ```
 
+See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for full examples with source.
+
 ## Adding CPM
 
 To add CPM to your current project, simply add `cmake/CPM.cmake` to your project's `cmake` directory. The command below will perform this automatically.
@@ -44,7 +64,13 @@ To add CPM to your current project, simply add `cmake/CPM.cmake` to your project
 wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master/cmake/CPM.cmake
 ```
 
-## Examples
+## Updating CPM
+
+To update CPM to the newest version, simply update the script in the project's cmake directory, for example by running the command above. Dependencies using CPM will automatically use the updated script of the outermost project.
+
+## Snipplets
+
+These are some small snipplets demonstrating how to include some projects used with CPM.
 
 ### Catch2
 
@@ -60,7 +86,7 @@ CPMAddPackage(
 
 ### google/benchmark
 
-Has a CMakeLists.txt that supports `add_subdirectory`, but needs some configuring.
+Has a CMakeLists.txt that supports `add_subdirectory`, but needs some configuring to work without external dependencies.
 
 ```cmake
 CPMAddPackage(
@@ -69,7 +95,6 @@ CPMAddPackage(
   VERSION 1.4.1
   OPTIONS
    "BENCHMARK_ENABLE_TESTING Off"
-   "BENCHMARK_USE_LIBCXX ON"
 )
 
 # needed to compile with C++17
@@ -78,7 +103,7 @@ set_target_properties(benchmark PROPERTIES CXX_STANDARD 17)
 
 ### Lua
 
-Has no CMakeLists.txt, target must be created manually.
+Has no CMakeLists.txt, so a target must be created manually.
 
 ```cmake
 CPMAddPackage(
@@ -89,7 +114,6 @@ CPMAddPackage(
   DOWNLOAD_ONLY YES
 )
 
-CPMGetProperties(lua)
 FILE(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
 add_library(lua STATIC ${lua_sources})
 
@@ -99,31 +123,10 @@ target_include_directories(lua
 )
 ```
 
-### robin_hood::unordered_map
+## Local packages
 
-Has CMakeLists.txt, but it seems it is only used for testing.
-Therefore we must create or own target.
-
-```cmake
-CPMAddPackage(
-  NAME RobinHood
-  VERSION 3.2.7
-  GIT_REPOSITORY https://github.com/martinus/robin-hood-hashing.git
-  DOWNLOAD_ONLY Yes
-)
-
-CPMGetProperties(RobinHood)
-add_library(RobinHood INTERFACE IMPORTED)
-target_include_directories(RobinHood INTERFACE "${RobinHood_SOURCE_DIR}/src/include")
-```
-
-## Updating CPM
-
-To update CPM to the newest version, simply update the script in the project's cmake directory, for example by running the command above. Dependencies using CPM will automatically use the updated script of the outermost project.
-
-## Global Options
-
-Setting the CMake option `CPM_USE_LOCAL_PACKAGES` will activate finding packages via `find_package`. If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will only use local packages.
+CPM can be configured to use `find_package` to search for locally installed dependencies first.
+If `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will error when dependency is not found locally.
 
 ## Advantages
 
@@ -132,9 +135,12 @@ Setting the CMake option `CPM_USE_LOCAL_PACKAGES` will activate finding packages
 - **Reproducable builds** By using versioning via git tags it is ensured that a project will always be in the same state everywhere.
 - **No installation required** No need to install anything. Just add the script to your project and you're good to go.
 - **No Setup required** There is a good chance your existing projects already work as CPM dependencies.
+- **Simple source distribution** CPM makes including projects with source files easy, reducing the need for monolithic header files.
 
 ## Limitations
 
-- **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`(v1.1) and `A` depends on `B` depends on `C`(v1.2)) the first added dependency will be used (in this case `C`@1.1). If the current version is older than the version beeing added, or if provided options are incompatible, a CMake warning will be emitted. To resolve, add the new version of the common dependency to the outer project.
-- **No auto-update** To update a dependency, version numbers or git tags in the cmake scripts must be adapted manually.
-- **No pre-built binaries** Unless they are installed or included in the linked repository.
+- **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit an error. This can be resolved by updating the outermost dependency version.
+- **No auto-update** To update a dependency, version must be adapted manually and there is no way for CPM to figure out the most recent version.
+- **No pre-built binaries** Unless they are installed or included in the linked repository. 
+
+For projects with more complex needs and an extra setup step doesn't matter, it is worth to check out fully featured C++ package managers such as [conan](https://conan.io) or [hunter](https://github.com/ruslo/hunter) instead.
