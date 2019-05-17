@@ -11,7 +11,7 @@ CPMAddPackage(
   DOWNLOAD_ONLY True
 )
 
-add_library(simple_match INTERFACE)
+add_library(simple_match INTERFACE IMPORTED)
 target_include_directories(simple_match INTERFACE "${simple_match_SOURCE_DIR}/include")
 
 # ---- Executable ----
