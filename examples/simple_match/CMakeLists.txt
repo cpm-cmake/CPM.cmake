@@ -1,0 +1,22 @@
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+
+# ---- Dependencies ----
+
+include(../../cmake/CPM.cmake)
+
+CPMAddPackage(
+  NAME simple_match
+  GIT_REPOSITORY https://github.com/jbandela/simple_match.git
+  GIT_TAG a3ab17f3d98db302de68ad85ed399a42ae41889e
+  DOWNLOAD_ONLY True
+)
+
+add_library(simple_match INTERFACE)
+target_include_directories(simple_match INTERFACE "${simple_match_SOURCE_DIR}/include")
+
+# ---- Executable ----
+
+add_executable(CPMSimpleMatchExample "main.cpp")
+set_target_properties(CPMSimpleMatchExample PROPERTIES CXX_STANDARD 17)        
+target_link_libraries(CPMSimpleMatchExample simple_match)
+
