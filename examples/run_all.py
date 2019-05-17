@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 from pathlib import Path
 from subprocess import PIPE, run
