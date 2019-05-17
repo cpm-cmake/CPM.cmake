@@ -23,8 +23,8 @@ CPMAddPackage(
 ```
 
 The origin is usually defined as a git repository and tag, but [svn revisions and direct URLs are also supported](https://cmake.org/cmake/help/latest/module/FetchContent.html#declaring-content-details).
-If a `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for github projects.
-It can also be set to a branch name such as `master` to download the most recent version.
+If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for github projects.
+`GIT_TAG` can also be set to a branch name such as `master` to download the most recent version.
 
 After calling `CPMAddPackage`, targets defined in the dependency can be added and the variables `(DEPENDENCY)_SOURCE_DIR` and `(DEPENDENCY)_BINARY_DIR` are set to the source and binary directory of the dependency.
 
