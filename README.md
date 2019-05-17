@@ -101,9 +101,25 @@ CPMAddPackage(
 set_target_properties(benchmark PROPERTIES CXX_STANDARD 17)
 ```
 
+### Simple match
+
+Header-only library without releases or CMakeLists.txt, target must be created manually.
+
+```cmake
+CPMAddPackage(
+  NAME simple_match
+  GIT_REPOSITORY https://github.com/jbandela/simple_match.git
+  GIT_TAG a3ab17f3d98db302de68ad85ed399a42ae41889e
+  DOWNLOAD_ONLY True
+)
+
+add_library(simple_match INTERFACE IMPORTED)
+target_include_directories(simple_match INTERFACE "${simple_match_SOURCE_DIR}/include")
+```
+
 ### Lua
 
-Has no CMakeLists.txt, so a target must be created manually.
+Library without CMakeLists.txt, target must be created manually.
 
 ```cmake
 CPMAddPackage(
