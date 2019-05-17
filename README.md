@@ -18,14 +18,14 @@ CPMAddPackage(
   VERSION       # The minimum version of the dependency (optional, defaults to 0)
   OPTIONS       # Configuration options passed to the dependency (optional)
   DOWNLOAD_ONLY # If set, the project is downloaded, but not configured (optional)
-  [...]         # Source options, see below
+  [...]         # Origin options, see below
 )
 ```
 
-The command downloads the project defined by the source options if a newer version hasn't been included before.
-The source is usually a git repository, but svn and direct urls are als supported.
-See the [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) documentation for all available options.
-If a `GIT_TAG` hasn't been explicitly specified it defaults to `v$VERSION` which is a common convention for github projects.
+`CPMAddPackage` downloads and configures the dependency if a newer version hasn't already been included before, for example by another dependency.
+The origin is usually defined as a git repository and tag, but [svn revisions and direct urls are also supported](https://cmake.org/cmake/help/latest/module/FetchContent.html#declaring-content-details).
+If a `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for github projects.
+It can also be set to a branch name such as `master` to use download the most recent version.
 
 After calling `CPMAddPackage`, the variables `(DEPENDENCY)_SOURCE_DIR` and `(DEPENDENCY)_BINARY_DIR` are set, where `(DEPENDENCY)` is the name of the dependency.
 
@@ -70,7 +70,7 @@ To update CPM to the newest version, simply update the script in the project's c
 
 ## Snipplets
 
-These are some small snipplets demonstrating how to include some projects used with CPM.
+These examples demonstrate how to include some well-known projects with CPM.
 
 ### Catch2
 
