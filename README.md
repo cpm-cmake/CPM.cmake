@@ -10,7 +10,7 @@ Any project that you can add via `add_subdirectory` should already work with CPM
 
 ## Usage
 
-After `CPM.cmake` has been added to your project, you can call `CPMAddPackage` to add and recursively fetch dependencies at compile time. `CPMAddPackage` takes the following named arguments.
+After `CPM.cmake` has been added to your project, you can call `CPMAddPackage` to add and recursively fetch dependencies at configure time. `CPMAddPackage` takes the following named arguments.
 
 ```cmake
 CPMAddPackage(
