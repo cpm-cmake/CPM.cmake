@@ -16,7 +16,6 @@ CPMAddPackage(
   VERSION 1.4.1
   OPTIONS
     "BENCHMARK_ENABLE_TESTING Off"
-    "BENCHMARK_USE_LIBCXX ON"
 )
 
 # patch google benchmark target
