@@ -27,7 +27,7 @@ The source is usually a git repository, but svn and direct urls are als supporte
 See the [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) documentation for all available options.
 If a `GIT_TAG` hasn't been explicitly specified it defaults to `v$VERSION` which is a common convention for github projects.
 
-After calling `CPMAddPackage`, the variables `(DEPENDENCY)_SOURCE_DIR` and `(DEPENDENCY)_BINARY_DIR` are set, where `(PACKAGE)` is the name of the dependency.
+After calling `CPMAddPackage`, the variables `(DEPENDENCY)_SOURCE_DIR` and `(DEPENDENCY)_BINARY_DIR` are set, where `(DEPENDENCY)` is the name of the dependency.
 
 ## Example
 
