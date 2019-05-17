@@ -3,7 +3,9 @@
 from pathlib import Path
 from subprocess import PIPE, run
 
-examples = [x for x in Path(__file__).parent.iterdir() if x.is_dir() and (x / 'CmakeLists.txt').is_file()]
+examples = [
+  x for x in Path(__file__).parent.iterdir() if x.is_dir() and (x / 'CMakeLists.txt').exists()
+]
 
 assert(len(examples) > 0)
 
@@ -25,4 +27,3 @@ for example in examples:
   build = runCommand('cmake --build %s -j' % (project))
   print('  ' + '\n  '.join([line for line in build.split('\n') if 'Built target' in line]))
   print('')
-  
