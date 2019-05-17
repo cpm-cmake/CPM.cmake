@@ -1,15 +1,14 @@
 
 language: cpp
-dist: xenial
 sudo: require
-
-python:
-  - 3.7
+dist: xenial
 
 common_sources: &all_sources
   - ubuntu-toolchain-r-test
   - llvm-toolchain-trusty
-  - llvm-toolchain-trusty-6.0
+
+python:
+  - 3.7
 
 matrix:
   include:
