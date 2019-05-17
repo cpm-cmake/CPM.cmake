@@ -29,7 +29,7 @@ If a `GIT_TAG` hasn't been explicitly specified it defaults to `v$VERSION` which
 
 After calling `CPMAddPackage`, the variables `(DEPENDENCY)_SOURCE_DIR` and `(DEPENDENCY)_BINARY_DIR` are set, where `(DEPENDENCY)` is the name of the dependency.
 
-## Example
+## Full Example
 
 ```cmake
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
@@ -54,7 +54,7 @@ set_target_properties(myProject PROPERTIES CXX_STANDARD 17)
 target_link_libraries(myProject LarsParser)
 ```
 
-See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for full examples with source.
+See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for more examples with source code.
 
 ## Adding CPM
 
