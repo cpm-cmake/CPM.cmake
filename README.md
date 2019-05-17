@@ -89,7 +89,6 @@ CPMAddPackage(
   DOWNLOAD_ONLY YES
 )
 
-CPMGetProperties(lua)
 FILE(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
 add_library(lua STATIC ${lua_sources})
 
@@ -112,7 +111,6 @@ CPMAddPackage(
   DOWNLOAD_ONLY Yes
 )
 
-CPMGetProperties(RobinHood)
 add_library(RobinHood INTERFACE IMPORTED)
 target_include_directories(RobinHood INTERFACE "${RobinHood_SOURCE_DIR}/src/include")
 ```
