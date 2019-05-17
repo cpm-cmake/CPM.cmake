@@ -143,4 +143,4 @@ If `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will error when dependency is not found
 - **No auto-update** To update a dependency, version must be adapted manually and there is no way for CPM to figure out the most recent version.
 - **No pre-built binaries** Unless they are installed or included in the linked repository. 
 
-For projects with more complex needs and an extra setup step doesn't matter, it is worth to check out fully featured C++ package managers such as [conan](https://conan.io) or [hunter](https://github.com/ruslo/hunter) instead.
+For projects with more complex needs and where an extra setup step doesn't matter, it is worth to check out fully featured C++ package managers such as [conan](https://conan.io) or [hunter](https://github.com/ruslo/hunter).
