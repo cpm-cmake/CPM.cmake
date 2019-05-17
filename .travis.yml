@@ -41,10 +41,5 @@ before_install:
   - cmake --version
 
 script:
-  - cmake -Hexamples/simple -Bbuild/simple 
-  - cmake --build build/simple
-  - CTEST_OUTPUT_ON_FAILURE=1 cmake --build build/simple --target test
-  - cmake -Hexamples/complex -Bbuild/complex
-  - cmake --build build/complex
-  - CTEST_OUTPUT_ON_FAILURE=1 cmake --build build/complex --target test
+  - python3 examples/run_all.py
  
