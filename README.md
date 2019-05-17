@@ -72,7 +72,7 @@ To update CPM to the newest version, simply update the script in the project's c
 
 These examples demonstrate how to include some well-known projects with CPM.
 
-### Catch2
+### [Catch2](https://github.com/catchorg/Catch2.git)
 
 Has a CMakeLists.txt that supports `add_subdirectory`.
 
@@ -84,7 +84,7 @@ CPMAddPackage(
 )
 ```
 
-### google/benchmark
+### [google/benchmark](https://github.com/google/benchmark.git)
 
 Has a CMakeLists.txt that supports `add_subdirectory`, but needs some configuring to work without external dependencies.
 
@@ -101,7 +101,7 @@ CPMAddPackage(
 set_target_properties(benchmark PROPERTIES CXX_STANDARD 17)
 ```
 
-### Simple match
+### [Simple match](https://github.com/jbandela/simple_match.git)
 
 Header-only library without releases or CMakeLists.txt, target must be created manually.
 
@@ -117,7 +117,7 @@ add_library(simple_match INTERFACE IMPORTED)
 target_include_directories(simple_match INTERFACE "${simple_match_SOURCE_DIR}/include")
 ```
 
-### Lua
+### [Lua](https://www.lua.org)
 
 Library without CMakeLists.txt, target must be created manually.
 
