@@ -24,6 +24,6 @@ for example in examples:
   project = Path(".") / 'build' / example.name
   configure = runCommand('cmake -H%s -B%s -DCMAKE_BUILD_TYPE=RelWithDebInfo' % (example, project))
   print('  ' + '\n  '.join([line for line in configure.split('\n') if 'CPM:' in line]))
-  build = runCommand('cmake --build %s -j' % (project))
+  build = runCommand('cmake --build %s -j4' % (project))
   print('  ' + '\n  '.join([line for line in build.split('\n') if 'Built target' in line]))
   print('')
