@@ -10,7 +10,7 @@ Any project that you can add via `add_subdirectory` should already work with CPM
 
 ## Usage
 
-After `CPM.cmake` has been added to your project, you can call `CPMAddPackage` for every dependency of the project with the following named parameters.
+After `CPM.cmake` has been added to your project, you can call `CPMAddPackage` to add and recursively fetch dependencies at compile time. `CPMAddPackage` takes the following named arguments.
 
 ```cmake
 CPMAddPackage(
@@ -22,12 +22,11 @@ CPMAddPackage(
 )
 ```
 
-`CPMAddPackage` downloads and configures the dependency if a newer version hasn't already been included before, for example by another dependency.
 The origin is usually defined as a git repository and tag, but [svn revisions and direct URLs are also supported](https://cmake.org/cmake/help/latest/module/FetchContent.html#declaring-content-details).
 If a `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for github projects.
 It can also be set to a branch name such as `master` to download the most recent version.
 
-After calling `CPMAddPackage`, the variables `(DEPENDENCY)_SOURCE_DIR` and `(DEPENDENCY)_BINARY_DIR` are set, where `(DEPENDENCY)` is the name of the dependency.
+After calling `CPMAddPackage`, targets defined dependency can be added and the variables `(DEPENDENCY)_SOURCE_DIR` and `(DEPENDENCY)_BINARY_DIR` are set, where `(DEPENDENCY)` is the name of the dependency.
 
 ## Full Example
 
