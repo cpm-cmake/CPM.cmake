@@ -19,7 +19,6 @@ CPMAddPackage(
   GIT_REPOSITORY https://github.com/onqtam/doctest.git
   VERSION 2.3.2
   GIT_TAG 2.3.2
-  GIT_SHALLOW True
 )
 
 # ---- Create binary ----
