@@ -12,8 +12,10 @@ CPMAddPackage(
   URL_HASH SHA256=69cc88207ce91347ea530b227ff0776db82dcb8de6704e1a3d74f4841bc651cf
 )
 
-add_library(nlohmann_json INTERFACE)
-target_include_directories(nlohmann_json INTERFACE ${nlohmann_json_SOURCE_DIR})
+if(nlohmann_json_ADDED)
+  add_library(nlohmann_json INTERFACE)
+  target_include_directories(nlohmann_json INTERFACE ${nlohmann_json_SOURCE_DIR})
+endif()
 
 # ---- Executable ----
 
