@@ -18,8 +18,10 @@ CPMAddPackage(
     "BENCHMARK_ENABLE_TESTING Off"
 )
 
-# patch google benchmark target
-set_target_properties(benchmark PROPERTIES CXX_STANDARD 17)
+if (benchmark_ADDED)
+  # patch google benchmark target
+  set_target_properties(benchmark PROPERTIES CXX_STANDARD 17)
+endif()
 
 # ---- Executable ----
 

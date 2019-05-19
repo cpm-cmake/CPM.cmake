@@ -98,7 +98,7 @@ CPMAddPackage(
   GIT_REPOSITORY https://github.com/google/benchmark.git
   VERSION 1.4.1
   OPTIONS
-   "BENCHMARK_ENABLE_TESTING Off"
+    "BENCHMARK_ENABLE_TESTING Off"
 )
 
 # needed to compile with C++17
@@ -118,8 +118,10 @@ CPMAddPackage(
   URL_HASH SHA256=69cc88207ce91347ea530b227ff0776db82dcb8de6704e1a3d74f4841bc651cf
 )
 
-add_library(nlohmann_json INTERFACE)
-target_include_directories(nlohmann_json INTERFACE ${nlohmann_json_SOURCE_DIR})
+if (nlohmann_json_ADDED)
+  add_library(nlohmann_json INTERFACE)
+  target_include_directories(nlohmann_json INTERFACE ${nlohmann_json_SOURCE_DIR})
+endif()
 ```
 
 ### [Lua](https://www.lua.org)
@@ -134,13 +136,15 @@ CPMAddPackage(
   DOWNLOAD_ONLY YES
 )
 
-FILE(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
-add_library(lua STATIC ${lua_sources})
+if (lua_ADDED)
+  FILE(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
+  add_library(lua STATIC ${lua_sources})
 
-target_include_directories(lua
-  PUBLIC
-    $<BUILD_INTERFACE:${lua_SOURCE_DIR}>
-)
+  target_include_directories(lua
+    PUBLIC
+      $<BUILD_INTERFACE:${lua_SOURCE_DIR}>
+  )
+endif()
 ```
 
 ## Local packages
