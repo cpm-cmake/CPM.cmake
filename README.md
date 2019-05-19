@@ -83,6 +83,8 @@ CPMAddPackage(
 )
 ```
 
+See [here](https://github.com/TheLartians/CPM/blob/master/examples/doctest/CMakeLists.txt) for doctest example.
+
 ### [google/benchmark](https://github.com/google/benchmark.git)
 
 Has a CMakeLists.txt that supports `add_subdirectory`, but needs some configuring to work without external dependencies.
@@ -100,20 +102,21 @@ CPMAddPackage(
 set_target_properties(benchmark PROPERTIES CXX_STANDARD 17)
 ```
 
-### [Simple match](https://github.com/jbandela/simple_match.git)
+### [nlohmann/json](https://github.com/nlohmann/json)
 
-Header-only library without releases or CMakeLists.txt, target must be created manually.
+Header-only library with a huge git repositoy.
+Instead of downloading the whole repositoy, we fetch the zip included with the release and create our own target.
 
 ```cmake
 CPMAddPackage(
-  NAME simple_match
-  GIT_REPOSITORY https://github.com/jbandela/simple_match.git
-  GIT_TAG a3ab17f3d98db302de68ad85ed399a42ae41889e
-  DOWNLOAD_ONLY True
+  NAME nlohmann_json
+  VERSION 3.6.1  
+  URL https://github.com/nlohmann/json/releases/download/v3.6.1/include.zip
+  URL_HASH SHA256=69cc88207ce91347ea530b227ff0776db82dcb8de6704e1a3d74f4841bc651cf
 )
 
-add_library(simple_match INTERFACE IMPORTED)
-target_include_directories(simple_match INTERFACE "${simple_match_SOURCE_DIR}/include")
+add_library(nlohmann_json INTERFACE)
+target_include_directories(nlohmann_json INTERFACE ${nlohmann_json_SOURCE_DIR})
 ```
 
 ### [Lua](https://www.lua.org)
