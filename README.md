@@ -18,11 +18,11 @@ CPMAddPackage(
   VERSION       # The minimum version of the dependency (optional, defaults to 0)
   OPTIONS       # Configuration options passed to the dependency (optional)
   DOWNLOAD_ONLY # If set, the project is downloaded, but not configured (optional)
-  [...]         # Origin options, see below
+  [...]         # Origin paramters forwarded to FetchContent_Declare, see below
 )
 ```
 
-The origin is usually defined as a git repository and tag, but [svn revisions and direct URLs are also supported](https://cmake.org/cmake/help/latest/module/FetchContent.html#declaring-content-details).
+The origin is usually specified by a `GIT_REPOSITORY`, but [svn revisions and direct URLs are also supported](https://cmake.org/cmake/help/latest/module/FetchContent.html#declaring-content-details).
 If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for github projects.
 `GIT_TAG` can also be set to a branch name such as `master` to download the most recent version.
 
