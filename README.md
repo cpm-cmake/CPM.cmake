@@ -128,7 +128,6 @@ CPMAddPackage(
   NAME lua
   GIT_REPOSITORY https://github.com/lua/lua.git
   VERSION 5-3-4
-  GIT_SHALLOW YES
   DOWNLOAD_ONLY YES
 )
 
