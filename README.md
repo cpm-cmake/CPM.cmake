@@ -150,7 +150,7 @@ If `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will error when dependency is not found
 - **Small repos** CPM takes care of project dependencies, allowing you to focus on creating small, well-tested frameworks.
 - **Cross-Plattform** CPM adds projects via `add_subdirectory`, which is compatible with all cmake toolchains and generators.
 - **Reproducable builds** By using versioning via git tags it is ensured that a project will always be in the same state everywhere.
-- **Recursive dependencies** Ensures that no dependency is added twice.
+- **Recursive dependencies** Ensures that no dependency is added twice and is added in the minimum required version.
 - **No installation required** No need to install anything. Just add the script to your project and you're good to go.
 - **No Setup required** There is a good chance your existing projects already work as CPM dependencies.
 - **Simple source distribution** CPM makes including projects with source files and dependencies easy, reducing the need for monolithic header files.
