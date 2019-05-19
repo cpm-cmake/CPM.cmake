@@ -7,7 +7,7 @@ include(../../cmake/CPM.cmake)
 CPMAddPackage(
   NAME nlohmann_json
   VERSION 3.6.1  
-  # not using the git as it takes forever to clone
+  # not using the repo as it takes forever to clone
   URL https://github.com/nlohmann/json/releases/download/v3.6.1/include.zip
   URL_HASH SHA256=69cc88207ce91347ea530b227ff0776db82dcb8de6704e1a3d74f4841bc651cf
 )
