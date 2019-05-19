@@ -3,7 +3,7 @@
 # CPM
 
 CPM is a CMake script that adds dependency management capabilities to CMake. 
-It's built as an extension of CMake's [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module with easier syntax and version control.
+It's built as an extension of CMake's [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module with that adds version control and simpler usage.
 
 ## Supported projects
 
