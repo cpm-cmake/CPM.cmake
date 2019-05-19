@@ -2,7 +2,8 @@
 
 # CPM
 
-CPM is a simple dependency manager written in CMake built on top of CMake's built-in [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module.
+CPM is a CMake script that adds dependency management capabilities to CMake. 
+It's built as an extension of CMake's [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module with easier syntax and version control.
 
 ## Supported projects
 
@@ -10,11 +11,13 @@ Any project that you can add via `add_subdirectory` should already work with CPM
 
 ## Usage
 
-After `CPM.cmake` has been added to your project, you can call `CPMAddPackage` to add and recursively fetch dependencies at configure time. `CPMAddPackage` takes the following named arguments.
+After `CPM.cmake` has been added to your project, the function `CPMAddPackage` can be used to fetch and configure all dependencies.
+Afterwards all targets defined in the dependencies can be used.
+`CPMAddPackage` takes the following named arguments.
 
 ```cmake
 CPMAddPackage(
-  NAME          # The dependency name (usually chosen to match the target name)
+  NAME          # The name of the dependency (should be chosen to match the main target's name)
   VERSION       # The minimum version of the dependency (optional, defaults to 0)
   OPTIONS       # Configuration options passed to the dependency (optional)
   DOWNLOAD_ONLY # If set, the project is downloaded, but not configured (optional)
@@ -26,7 +29,7 @@ The origin is usually specified by a `GIT_REPOSITORY`, but [svn revisions and di
 If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for github projects.
 `GIT_TAG` can also be set to a branch name such as `master` to download the most recent version.
 
-After calling `CPMAddPackage`, targets defined in the dependency can be added and the variables `(DEPENDENCY)_SOURCE_DIR` and `(DEPENDENCY)_BINARY_DIR` are set to the source and binary directory of the dependency.
+Besides downloading and to configuring the dependency, the variables `(DEPENDENCY)_SOURCE_DIR` and `(DEPENDENCY)_BINARY_DIR` are defined in the local scope to point to the source and binary directory of the dependency.
 
 ## Full Example
 
