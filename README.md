@@ -150,7 +150,7 @@ If `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will error when dependency is not found
 
 ## Advantages
 
-- **Small and reusable projects** CPM takes care of project dependencies, allowing you to focus on creating small, well-tested frameworks.
+- **Small and reusable projects** CPM takes care of project dependencies, allowing developers to focus on creating small, well-tested frameworks.
 - **Cross-Plattform** CPM adds projects via `add_subdirectory`, which is compatible with all cmake toolchains and generators.
 - **Reproducable builds** By using versioning via git tags it is ensured that a project will always be in the same state everywhere.
 - **Recursive dependencies** Ensures that no dependency is added twice and is added in the minimum required version.
