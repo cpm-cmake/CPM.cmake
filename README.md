@@ -29,7 +29,7 @@ The origin is usually specified by a `GIT_REPOSITORY`, but [svn revisions and di
 If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for github projects.
 `GIT_TAG` can also be set to a branch name such as `master` to download the most recent version.
 
-Besides downloading and to configuring the dependency, the variables `(DEPENDENCY)_SOURCE_DIR` and `(DEPENDENCY)_BINARY_DIR` are defined in the local scope to point to the source and binary directory of the dependency.
+Besides downloading and to configuring the dependency, the variables `(DEPENDENCY)_SOURCE_DIR` and `(DEPENDENCY)_BINARY_DIR` are defined in the local scope to point to the source and binary directory of the dependency, where `(DEPENDENCY)` is the name of the dependency.
 
 ## Full Example
 
