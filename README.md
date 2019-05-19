@@ -31,7 +31,7 @@ If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a com
 
 Besides downloading and to configuring the dependency, the following variables are defined in the local scope, where `(DEPENDENCY)` is the name of the dependency.
 
-- `(DEPENDENCY)_SOURCE_DIR` is the path to the downloaded source of the dependency.
+- `(DEPENDENCY)_SOURCE_DIR` is the path to the source of the dependency.
 - `(DEPENDENCY)_BINARY_DIR` is the path to the build directory of the dependency.
 - `(DEPENDENCY)_ADDED` is set to `YES` if the dependency has not been added before, otherwise it is set to `NO`.
 
