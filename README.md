@@ -150,7 +150,7 @@ If `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will error when dependency is not found
 - **Reproducable builds** By using versioning via git tags it is ensured that a project will always be in the same state everywhere.
 - **No installation required** No need to install anything. Just add the script to your project and you're good to go.
 - **No Setup required** There is a good chance your existing projects already work as CPM dependencies.
-- **Simple source distribution** CPM makes including projects with source files easy, reducing the need for monolithic header files.
+- **Simple source distribution** CPM makes including projects with source files and dependencies easy, reducing the need for monolithic header files.
 
 ## Limitations
 
