@@ -16,7 +16,7 @@ CPMAddPackage(
 
 CPMAddPackage(
   NAME Catch2
-  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GITHUB_REPOSITORY catchorg/Catch2
   VERSION 2.5.0
 )
 

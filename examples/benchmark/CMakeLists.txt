@@ -12,7 +12,7 @@ CPMAddPackage(
 
 CPMAddPackage(
   NAME benchmark
-  GIT_REPOSITORY https://github.com/google/benchmark.git
+  GITHUB_REPOSITORY google/benchmark
   VERSION 1.4.1
   OPTIONS
     "BENCHMARK_ENABLE_TESTING Off"
