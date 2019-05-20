@@ -33,18 +33,13 @@ set(CURRENT_CPM_VERSION 0.10)
 if(CPM_DIRECTORY)
   if(NOT ${CPM_DIRECTORY} MATCHES ${CMAKE_CURRENT_LIST_DIR})
     if (${CPM_VERSION} VERSION_LESS ${CURRENT_CPM_VERSION})
-      message(AUTHOR_WARNING "${CPM_INDENT} \
-A dependency is using a more recent CPM (${CURRENT_CPM_VERSION}) than the current project (${CPM_VERSION}). \
-It is recommended to upgrade CPM to the most recent version. \
-See https://github.com/TheLartians/CPM for more information.\
-")  
+      CPM_HANDLE_OLD_VERSION(${CURRENT_CPM_VERSION})  
     endif()
     return()
   endif()
 endif()
 
 set(CPM_VERSION ${CURRENT_CPM_VERSION} CACHE INTERNAL "")
-
 set(CPM_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "")
 set(CPM_PACKAGES "" CACHE INTERNAL "")
 
@@ -54,35 +49,21 @@ option(CPM_LOCAL_PACKAGES_ONLY "Use only locally installed packages" OFF)
 include(FetchContent)
 include(CMakeParseArguments)
 
+# Initialize logging prefix
 if(NOT CPM_INDENT)
   set(CPM_INDENT "CPM:")
 endif()
 
-function(CPMRegisterPackage PACKAGE VERSION)
-  list(APPEND CPM_PACKAGES ${PACKAGE})
-  set(CPM_PACKAGES ${CPM_PACKAGES} CACHE INTERNAL "")
-  set("CPM_PACKAGE_${PACKAGE}_VERSION" ${VERSION} CACHE INTERNAL "")
-endfunction()
-
-function(CPM_GET_PACKAGE_VERSION PACKAGE)
-  set(CPM_PACKAGE_VERSION "${CPM_PACKAGE_${PACKAGE}_VERSION}" PARENT_SCOPE)
-endfunction()
-
-function(CPM_PARSE_OPTION OPTION)
-  string(REGEX MATCH "^[^ ]+" OPTION_KEY ${OPTION})
-  string(LENGTH ${OPTION_KEY} OPTION_KEY_LENGTH)
-  math(EXPR OPTION_KEY_LENGTH "${OPTION_KEY_LENGTH}+1")
-  string(SUBSTRING ${OPTION} "${OPTION_KEY_LENGTH}" "-1" OPTION_VALUE)
-  set(OPTION_KEY "${OPTION_KEY}" PARENT_SCOPE)
-  set(OPTION_VALUE "${OPTION_VALUE}" PARENT_SCOPE)
-endfunction()
-
+# The main workhorse of CPM
 function(CPMAddPackage)
+
   set(oneValueArgs
     NAME
     VERSION
     GIT_TAG
     DOWNLOAD_ONLY
+    GITHUB_REPOSITORY
+    GITLAB_REPOSITORY
   )
 
   set(multiValueArgs
@@ -188,4 +169,33 @@ function (CPMGetProperties PACKAGE)
   string(TOLOWER ${PACKAGE} lpackage)
   SET(${PACKAGE}_SOURCE_DIR "${${lpackage}_SOURCE_DIR}" PARENT_SCOPE)
   SET(${PACKAGE}_BINARY_DIR "${${lpackage}_BINARY_DIR}" PARENT_SCOPE)
+endfunction()
+
+function(CPMRegisterPackage PACKAGE VERSION)
+  list(APPEND CPM_PACKAGES ${PACKAGE})
+  set(CPM_PACKAGES ${CPM_PACKAGES} CACHE INTERNAL "")
+  set("CPM_PACKAGE_${PACKAGE}_VERSION" ${VERSION} CACHE INTERNAL "")
+endfunction()
+
+function(CPM_GET_PACKAGE_VERSION PACKAGE)
+  set(CPM_PACKAGE_VERSION "${CPM_PACKAGE_${PACKAGE}_VERSION}" PARENT_SCOPE)
+endfunction()
+
+function(CPM_PARSE_OPTION OPTION)
+  string(REGEX MATCH "^[^ ]+" OPTION_KEY ${OPTION})
+  string(LENGTH ${OPTION_KEY} OPTION_KEY_LENGTH)
+  math(EXPR OPTION_KEY_LENGTH "${OPTION_KEY_LENGTH}+1")
+  string(SUBSTRING ${OPTION} "${OPTION_KEY_LENGTH}" "-1" OPTION_VALUE)
+  set(OPTION_KEY "${OPTION_KEY}" PARENT_SCOPE)
+  set(OPTION_VALUE "${OPTION_VALUE}" PARENT_SCOPE)
+endfunction()
+
+function (CPM_HANDLE_OLD_VERSION NEW_CPM_VERSION)
+  
+  message(AUTHOR_WARNING "${CPM_INDENT} \
+A dependency is using a more recent CPM (${NEW_CPM_VERSION}) than the current project (${CPM_VERSION}). \
+It is recommended to upgrade CPM to the most recent version. \
+See https://github.com/TheLartians/CPM for more information."
+  )
+
 endfunction()
