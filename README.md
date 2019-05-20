@@ -128,9 +128,11 @@ if (nlohmann_json_ADDED)
 endif()
 ```
 
+Adding large repos works as well, but takes a while for the initial clone.
+
 ### [Lua](https://www.lua.org)
 
-Library without CMakeLists.txt, target must be created manually.
+Lua does not oficially support CMake, so we query the sources and create our own target.
 
 ```cmake
 CPMAddPackage(
