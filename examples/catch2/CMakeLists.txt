@@ -10,13 +10,13 @@ include(../../cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME fibonacci
-  GITHUB_REPOSITORY TheLartians/Fibonacci
+  GIT_REPOSITORY https://github.com/TheLartians/Fibonacci.git
   VERSION 1.0
 )
 
 CPMAddPackage(
   NAME Catch2
-  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GITHUB_REPOSITORY catchorg/Catch2
   VERSION 2.5.0
 )
 

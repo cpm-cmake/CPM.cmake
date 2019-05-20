@@ -85,12 +85,13 @@ Has a CMakeLists.txt that supports `add_subdirectory`.
 ```cmake
 CPMAddPackage(
   NAME Catch2
-  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GITHUB_REPOSITORY catchorg/Catch2
   VERSION 2.5.0
 )
 ```
 
 See [here](https://github.com/TheLartians/CPM/blob/master/examples/doctest/CMakeLists.txt) for doctest example.
+Note that we can shorten Github and Gitlab URLs by using `GITHUB_REPOSITORY` or `GITLAB_REPOSITORY`, respectively.
 
 ### [google/benchmark](https://github.com/google/benchmark.git)
 
@@ -99,7 +100,7 @@ Has a CMakeLists.txt that supports `add_subdirectory`, but needs some configurin
 ```cmake
 CPMAddPackage(
   NAME benchmark
-  GIT_REPOSITORY https://github.com/google/benchmark.git
+  GITHUB_REPOSITORY google/benchmark
   VERSION 1.4.1
   OPTIONS
     "BENCHMARK_ENABLE_TESTING Off"
