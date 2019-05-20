@@ -6,7 +6,7 @@ include(../../cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME fibonacci
-  GIT_REPOSITORY https://github.com/TheLartians/Fibonacci.git
+  GITHUB_REPOSITORY TheLartians/Fibonacci
   VERSION 1.0
 )
 
