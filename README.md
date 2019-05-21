@@ -172,8 +172,9 @@ If `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will error when dependency is not found
 
 ## Limitations
 
+- **Dependency names** Shared dependencies must always be added with the exact same name as otherwise the same target may be added twice to the project.
 - **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit an error. This can be resolved by updating the outermost dependency version.
 - **No auto-update** To update a dependency, version must be adapted manually and there is no way for CPM to figure out the most recent version.
-- **No pre-built binaries** Unless they are installed or included in the linked repository. 
+- **No pre-built binaries** Unless they are installed or included in the linked repository.
 
 For projects with more complex needs and where an extra setup step doesn't matter, it is worth to check out fully featured C++ package managers such as [conan](https://conan.io) or [hunter](https://github.com/ruslo/hunter).
