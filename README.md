@@ -26,7 +26,7 @@ CPMAddPackage(
 )
 ```
 
-The origin is usually specified by a `GIT_REPOSITORY`, but [svn revisions and direct URLs are also supported](https://cmake.org/cmake/help/latest/module/FetchContent.html#declaring-content-details).
+The origin is usually specified by a `GIT_REPOSITORY`, but [svn revisions and direct URLs are also supported](https://cmake.org/cmake/help/v3.11/module/ExternalProject.html#external-project-definition).
 If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for github projects.
 `GIT_TAG` can also be set to a branch name such as `master` to download the most recent version.
 
@@ -76,6 +76,26 @@ wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master
 
 To update CPM to the newest version, simply update the script in the project's cmake directory, for example by running the command above. Dependencies using CPM will automatically use the updated script of the outermost project.
 
+## Advantages
+
+- **Small and reusable projects** CPM takes care of project dependencies, allowing developers to focus on creating small, well-tested frameworks.
+- **Cross-Plattform** CPM adds projects via `add_subdirectory`, which is compatible with all cmake toolchains and generators.
+- **Reproducable builds** By using versioning via git tags it is ensured that a project will always be in the same state everywhere.
+- **Recursive dependencies** Ensures that no dependency is added twice and is added in the minimum required version.
+- **Plug-and-play** No need to install anything. Just add the script to your project and you're good to go.
+- **No packaging required** There is a good chance your existing projects already work as CPM dependencies.
+- **Simple source distribution** CPM makes including projects with source files and dependencies easy, reducing the need for monolithic header files.
+
+## Limitations
+
+- **Dependency names** Shared dependencies must always be added with the exact same name as otherwise the same target may be added twice to the project.
+- **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit an error. This can be resolved by updating the outermost dependency version.
+- **No auto-update** To update a dependency, version must be adapted manually and there is no way for CPM to figure out the most recent version.
+- **No pre-built binaries by default** For every new project, all dependencies must be built from scratch. A possible workaround is to use CPM to fetch a pre-built binary.
+
+For projects with more complex needs and where an extra setup step doesn't matter, it is worth to check out fully featured C++ package managers such as [conan](https://conan.io) or [hunter](https://github.com/ruslo/hunter).
+
+
 ## Snipplets
 
 These examples demonstrate how to include some well-known projects with CPM.
@@ -97,7 +117,7 @@ Note that we can shorten Github and Gitlab URLs by using `GITHUB_REPOSITORY` or 
 
 ### [Range-v3](https://github.com/ericniebler/range-v3)
 
-For very large repositories it is usually best to add the release URL.
+For very large repositories it is usually best to add the release archive.
 
 ```cmake
 CPMAddPackage(
@@ -173,21 +193,3 @@ endif()
 CPM can be configured to use `find_package` to search for locally installed dependencies first.
 If `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will error when dependency is not found locally.
 
-## Advantages
-
-- **Small and reusable projects** CPM takes care of project dependencies, allowing developers to focus on creating small, well-tested frameworks.
-- **Cross-Plattform** CPM adds projects via `add_subdirectory`, which is compatible with all cmake toolchains and generators.
-- **Reproducable builds** By using versioning via git tags it is ensured that a project will always be in the same state everywhere.
-- **Recursive dependencies** Ensures that no dependency is added twice and is added in the minimum required version.
-- **Plug-and-play** No need to install anything. Just add the script to your project and you're good to go.
-- **No packaging required** There is a good chance your existing projects already work as CPM dependencies.
-- **Simple source distribution** CPM makes including projects with source files and dependencies easy, reducing the need for monolithic header files.
-
-## Limitations
-
-- **Dependency names** Shared dependencies must always be added with the exact same name as otherwise the same target may be added twice to the project.
-- **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit an error. This can be resolved by updating the outermost dependency version.
-- **No auto-update** To update a dependency, version must be adapted manually and there is no way for CPM to figure out the most recent version.
-- **No pre-built binaries** Unless they are installed or included in the linked repository.
-
-For projects with more complex needs and where an extra setup step doesn't matter, it is worth to check out fully featured C++ package managers such as [conan](https://conan.io) or [hunter](https://github.com/ruslo/hunter).
