@@ -88,13 +88,17 @@ To update CPM to the newest version, simply update the script in the project's c
 
 ## Limitations
 
+- **No pre-built binaries** For every new project, all dependencies must be downloaded and built from scratch. A possible workaround is to use CPM to fetch a pre-built binary or to enable local packages (see below).
 - **Dependency names** Shared dependencies must always be added with the exact same name as otherwise the same target may be added twice to the project. It is therefore highly recommended to choose the name exactly as the target defined in the dependency.
 - **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit an error. This can be resolved by updating the outermost dependency version.
 - **No auto-update** To update a dependency, version must be adapted manually and there is no way for CPM to figure out the most recent version.
-- **No pre-built binaries by default** For every new project, all dependencies must be built from scratch. A possible workaround is to use CPM to fetch a pre-built binary.
 
 For projects with more complex needs and where an extra setup step doesn't matter, it is worth to check out fully featured C++ package managers such as [conan](https://conan.io) or [hunter](https://github.com/ruslo/hunter).
 
+## Local packages
+
+CPM can be configured to use `find_package` to search for locally installed dependencies first by setting the CMake option `CPM_USE_LOCAL_PACKAGES`.
+If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will emit an error when dependency is not found locally.
 
 ## Snipplets
 
@@ -188,8 +192,6 @@ if (lua_ADDED)
 endif()
 ```
 
-## Local packages
+### Examples
 
-CPM can be configured to use `find_package` to search for locally installed dependencies first.
-If `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will error when dependency is not found locally.
-
+See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for more examples with source code.
