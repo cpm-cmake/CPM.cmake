@@ -115,7 +115,7 @@ set_target_properties(benchmark PROPERTIES CXX_STANDARD 17)
 ### [nlohmann/json](https://github.com/nlohmann/json)
 
 Header-only library with a huge git repositoy.
-Instead of downloading the whole repositoy, we fetch the zip included with the release and create our own target.
+Instead of downloading the whole repositoy which would take a long time, we fetch the zip included with the release and create our own target.
 
 ```cmake
 CPMAddPackage(
@@ -131,7 +131,7 @@ if (nlohmann_json_ADDED)
 endif()
 ```
 
-Adding large repos works as well, but takes a while for the initial clone.
+Note the check for `nlohmann_json_ADDED`, before creating the target. This ensures that the same target is not added twice by another dependency. 
 
 ### [Lua](https://www.lua.org)
 
