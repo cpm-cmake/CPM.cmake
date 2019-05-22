@@ -167,7 +167,7 @@ if (nlohmann_json_ADDED)
 endif()
 ```
 
-Note the check for `nlohmann_json_ADDED`, before creating the target. This ensures that the same target is not added twice by another dependency. 
+Note the check for `nlohmann_json_ADDED`, before creating the target. This ensures that the target hasn't been added before by another dependency. 
 
 ### [Lua](https://www.lua.org)
 
