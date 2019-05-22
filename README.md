@@ -78,7 +78,7 @@ To update CPM to the newest version, simply update the script in the project's c
 
 ## Advantages
 
-- **Small and reusable projects** CPM takes care of project dependencies, allowing developers to focus on creating small, well-tested frameworks.
+- **Small and reusable projects** CPM takes care of project dependencies, no matter where they reside, allowing developers to focus on creating small, well-tested frameworks.
 - **Cross-Plattform** CPM adds projects via `add_subdirectory`, which is compatible with all cmake toolchains and generators.
 - **Reproducable builds** By using versioning via git tags it is ensured that a project will always be in the same state everywhere.
 - **Recursive dependencies** Ensures that no dependency is added twice and is added in the minimum required version.
@@ -88,7 +88,7 @@ To update CPM to the newest version, simply update the script in the project's c
 
 ## Limitations
 
-- **Dependency names** Shared dependencies must always be added with the exact same name as otherwise the same target may be added twice to the project.
+- **Dependency names** Shared dependencies must always be added with the exact same name as otherwise the same target may be added twice to the project. It is therefore highly recommended to choose the name exactly as the target defined in the dependency.
 - **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit an error. This can be resolved by updating the outermost dependency version.
 - **No auto-update** To update a dependency, version must be adapted manually and there is no way for CPM to figure out the most recent version.
 - **No pre-built binaries by default** For every new project, all dependencies must be built from scratch. A possible workaround is to use CPM to fetch a pre-built binary.
