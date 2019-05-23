@@ -90,6 +90,7 @@ To update CPM to the newest version, simply update the script in the project's c
 
 - **No pre-built binaries** For every new project, all dependencies must be downloaded and built from scratch. A possible workaround is to use CPM to fetch a pre-built binary or to enable local packages (see below).
 - **Dependency names** Shared dependencies must always be added with the exact same name as otherwise the same target may be added twice to the project. It is therefore highly recommended to choose the name exactly as the target defined in the dependency.
+- **Dependent on good CmakeLists** Many libraries do not have CMakeLists that work well for subprojects. Luckily this is slowly changing, however, until then, some manual configuration may be required (see below).
 - **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit an error. This can be resolved by updating the outermost dependency version.
 - **No auto-update** To update a dependency, version must be adapted manually and there is no way for CPM to figure out the most recent version.
 
