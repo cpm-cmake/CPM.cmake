@@ -8,6 +8,7 @@ CPMAddPackage(
   NAME range-v3
   URL https://github.com/ericniebler/range-v3/archive/0.5.0.zip
   VERSION 0.5.0
+  # the original range-v3 CMakeLists screws with configuration options
   DOWNLOAD_ONLY True
 )
 
