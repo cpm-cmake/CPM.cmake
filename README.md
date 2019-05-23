@@ -119,18 +119,6 @@ CPMAddPackage(
 See [here](https://github.com/TheLartians/CPM/blob/master/examples/doctest/CMakeLists.txt) for doctest example.
 Note that we can shorten Github and Gitlab URLs by using `GITHUB_REPOSITORY` or `GITLAB_REPOSITORY`, respectively.
 
-### [Range-v3](https://github.com/ericniebler/range-v3)
-
-For very large repositories it is usually best to add the release archive.
-
-```cmake
-CPMAddPackage(
-  NAME range-v3
-  URL https://github.com/ericniebler/range-v3/archive/0.5.0.zip
-  VERSION 0.5.0
-)
-```
-
 ### [google/benchmark](https://github.com/google/benchmark.git)
 
 Has a CMakeLists.txt that supports `add_subdirectory`, but needs some configuring to work without external dependencies.
@@ -162,7 +150,7 @@ CPMAddPackage(
 )
 
 if (nlohmann_json_ADDED)
-  add_library(nlohmann_json INTERFACE)
+  add_library(nlohmann_json INTERFACE IMPORTED)
   target_include_directories(nlohmann_json INTERFACE ${nlohmann_json_SOURCE_DIR})
 endif()
 ```
