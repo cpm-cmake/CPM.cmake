@@ -157,6 +157,23 @@ endif()
 
 Note the check for `nlohmann_json_ADDED`, before creating the target. This ensures that the target hasn't been added before by another dependency. 
 
+### [Range-v3](https://github.com/ericniebler/range-v3)
+
+```Cmake
+CPMAddPackage(
+  NAME range-v3
+  URL https://github.com/ericniebler/range-v3/archive/0.5.0.zip
+  VERSION 0.5.0
+  # the range-v3 CMakeLists screws with configuration options
+  DOWNLOAD_ONLY True
+)
+
+if(range-v3_ADDED) 
+  add_library(range-v3 INTERFACE IMPORTED)
+  target_include_directories(range-v3 INTERFACE "${range-v3_SOURCE_DIR}/include")
+endif()
+```
+
 ### [Lua](https://www.lua.org)
 
 Lua does not oficially support CMake, so we query the sources and create our own target.
