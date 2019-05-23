@@ -22,7 +22,7 @@ Afterwards all targets defined in the dependencies can be used.
 
 ```cmake
 CPMAddPackage(
-  NAME          # The name of the dependency (should be chosen to match the main target's name)
+  NAME          # The unique name of the dependency (usually the main target's name)
   VERSION       # The minimum version of the dependency (optional, defaults to 0)
   OPTIONS       # Configuration options passed to the dependency (optional)
   DOWNLOAD_ONLY # If set, the project is downloaded, but not configured (optional)
@@ -93,10 +93,8 @@ To update CPM to the newest version, simply update the script in the project's c
 ## Limitations
 
 - **No pre-built binaries** For every new project, all dependencies must be downloaded and built from scratch. A possible workaround is to use CPM to fetch a pre-built binary or to enable local packages (see below).
-- **Dependency names** Shared dependencies must always be added with the exact same name as otherwise the same target may be added twice to the project. It is therefore highly recommended to choose the name exactly as the target defined in the dependency.
 - **Dependent on good CmakeLists** Many libraries do not have CMakeLists that work well for subprojects. Luckily this is slowly changing, however, until then, some manual configuration may be required (see below).
 - **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit an error. This can be resolved by updating the outermost dependency version.
-- **No auto-update** To update a dependency, version must be adapted manually and there is no way for CPM to figure out the most recent version.
 
 For projects with more complex needs and where an extra setup step doesn't matter, it is worth to check out fully featured C++ package managers such as [conan](https://conan.io) or [hunter](https://github.com/ruslo/hunter).
 
@@ -109,9 +107,7 @@ If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will emit an error when depe
 
 These examples demonstrate how to include some well-known projects with CPM.
 
-### [Catch2](https://github.com/catchorg/Catch2.git)
-
-Has a CMakeLists.txt that supports `add_subdirectory`.
+### [Catch2](https://github.com/catchorg/Catch2)
 
 ```cmake
 CPMAddPackage(
@@ -121,12 +117,18 @@ CPMAddPackage(
 )
 ```
 
-See [here](https://github.com/TheLartians/CPM/blob/master/examples/doctest/CMakeLists.txt) for doctest example.
-Note that we can shorten Github and Gitlab URLs by using `GITHUB_REPOSITORY` or `GITLAB_REPOSITORY`, respectively.
+### [Doctest](https://github.com/onqtam/doctest)
 
-### [google/benchmark](https://github.com/google/benchmark.git)
+```cmake
+CPMAddPackage(
+  NAME doctest
+  GITHUB_REPOSITORY onqtam/doctest
+  VERSION 2.3.2
+  GIT_TAG 2.3.2
+)
+```
 
-Has a CMakeLists.txt that supports `add_subdirectory`, but needs some configuring to work without external dependencies.
+### [google/benchmark](https://github.com/google/benchmark)
 
 ```cmake
 CPMAddPackage(
@@ -137,19 +139,19 @@ CPMAddPackage(
     "BENCHMARK_ENABLE_TESTING Off"
 )
 
-# needed to compile with C++17
-set_target_properties(benchmark PROPERTIES CXX_STANDARD 17)
+if (benchmark_ADDED)
+  # compile with C++17
+  set_target_properties(benchmark PROPERTIES CXX_STANDARD 17)
+endif()
 ```
 
 ### [nlohmann/json](https://github.com/nlohmann/json)
-
-Header-only library with a huge git repositoy.
-Instead of downloading the whole repositoy which would take a long time, we fetch the zip included with the release and create our own target.
 
 ```cmake
 CPMAddPackage(
   NAME nlohmann_json
   VERSION 3.6.1  
+  # the git repo is incredibly large, so we download the archived include directory
   URL https://github.com/nlohmann/json/releases/download/v3.6.1/include.zip
   URL_HASH SHA256=69cc88207ce91347ea530b227ff0776db82dcb8de6704e1a3d74f4841bc651cf
 )
@@ -159,8 +161,6 @@ if (nlohmann_json_ADDED)
   target_include_directories(nlohmann_json INTERFACE ${nlohmann_json_SOURCE_DIR})
 endif()
 ```
-
-Note the check for `nlohmann_json_ADDED`, before creating the target. This ensures that the target hasn't been added before by another dependency. 
 
 ### [Range-v3](https://github.com/ericniebler/range-v3)
 
@@ -179,9 +179,24 @@ if(range-v3_ADDED)
 endif()
 ```
 
-### [Lua](https://www.lua.org)
+### [Yaml-cpp](https://github.com/jbeder/yaml-cpp)
 
-Lua does not oficially support CMake, so we query the sources and create our own target.
+```CMake
+CPMAddPackage(
+  NAME yaml-cpp
+  GITHUB_REPOSITORY jbeder/yaml-cpp
+  # 0.6.2 uses depricated CMake syntax
+  VERSION 0.6.3                                  
+  # 0.6.3 is not released yet, so use a recent commit
+  GIT_TAG 012269756149ae99745b6dafefd415843d7420bb 
+  OPTIONS
+    "YAML_CPP_BUILD_TESTS Off"
+    "YAML_CPP_BUILD_CONTRIB Off"
+    "YAML_CPP_BUILD_TOOLS Off"
+)
+```
+
+### [Lua](https://www.lua.org)
 
 ```cmake
 CPMAddPackage(
@@ -192,6 +207,8 @@ CPMAddPackage(
 )
 
 if (lua_ADDED)
+  # lua has no CMakeLists, so we create our own target
+
   FILE(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
   add_library(lua STATIC ${lua_sources})
 
