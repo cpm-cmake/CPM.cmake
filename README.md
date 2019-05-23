@@ -1,5 +1,9 @@
 [![Build Status](https://travis-ci.com/TheLartians/CPM.svg?branch=master)](https://travis-ci.com/TheLartians/CPM)
 
+<p align="center">
+  <img src="./logo/CPM.svg" height="100">
+</p>
+
 # CPM
 
 CPM is a CMake script that adds dependency management capabilities to CMake. 
