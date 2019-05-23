@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.com/TheLartians/CPM.svg?branch=master)](https://travis-ci.com/TheLartians/CPM)
 
 <p align="center">
-  <img src="./logo/CPM.svg" height="100" />
+  <img src="./logo/CPM.png" height="100" />
 </p>
 
 # CPM
