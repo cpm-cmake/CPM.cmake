@@ -6,13 +6,14 @@
 
 # CPM
 
-CPM is a CMake script that adds dependency management capabilities to CMake. 
+CPM is a CMake script that adds dependency management capabilities to CMake.
 It's built as an extension of CMake's [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module that adds version control and simpler usage.
 
-## Supported projects
+## No packaging required
 
-Any project that you can add via `add_subdirectory` should already work with CPM.
-For everything else, targets can be created manually (see below).
+Almost anything can be added as a version-controlled dependency though CPM.
+Projects using CMake are configured automatically and can be directly added as an target.
+For everything else, a target must be created manually (see below).
 
 ## Usage
 
@@ -30,7 +31,7 @@ CPMAddPackage(
 )
 ```
 
-The origin is usually specified by a `GIT_REPOSITORY`, but [Subversion repositories and direct URLs are also supported](https://cmake.org/cmake/help/v3.11/module/ExternalProject.html#external-project-definition).
+The origin may be specified by a `GIT_REPOSITORY`, but other options, such as direct URLs, are [also supported](https://cmake.org/cmake/help/v3.11/module/ExternalProject.html#external-project-definition).
 If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for git projects.
 `GIT_TAG` can also be set to a specific commit or a branch name such as `master` to download the most recent version.
 
@@ -102,7 +103,7 @@ For projects with more complex needs and where an extra setup step doesn't matte
 ## Local packages
 
 CPM can be configured to use `find_package` to search for locally installed dependencies first by setting the CMake option `CPM_USE_LOCAL_PACKAGES`.
-If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will emit an error when dependency is not found locally.
+If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will emit an error if the dependency is not found locally.
 
 ## Snipplets
 
