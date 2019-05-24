@@ -12,7 +12,7 @@ It's built as an extension of CMake's [FetchContent](https://cmake.org/cmake/hel
 ## Supported projects
 
 Any project that you can add via `add_subdirectory` should already work with CPM.
-For everything else, targets must be created manually (see below).
+For everything else, targets can be created manually (see below).
 
 ## Usage
 
