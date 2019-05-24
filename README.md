@@ -12,8 +12,8 @@ It's built as a wrapper around CMake's [FetchContent](https://cmake.org/cmake/he
 ## Manage everything
 
 Anything can be added as a version-controlled dependency though CPM, no packaging required.
-Projects using CMake are configured automatically and can be used immediately.
-For everything else, a target must be created manually (see below).
+Projects using CMake are automatically configured and their targets can be used immediately.
+For everything else, a target can be created manually (see below).
 
 ## Usage
 
@@ -84,7 +84,7 @@ To update CPM to the newest version, simply update the script in the project's c
 
 ## Advantages
 
-- **Small and reusable projects** CPM takes care of project dependencies, no matter where they reside, allowing developers to focus on creating small, well-tested frameworks.
+- **Small and reusable projects** CPM takes care of all project dependencies, allowing developers to focus on creating small, well-tested frameworks.
 - **Cross-Plattform** CPM adds projects via `add_subdirectory`, which is compatible with all cmake toolchains and generators.
 - **Reproducable builds** By using versioning via git tags it is ensured that a project will always be in the same state everywhere.
 - **Recursive dependencies** Ensures that no dependency is added twice and is added in the minimum required version.
@@ -99,6 +99,7 @@ To update CPM to the newest version, simply update the script in the project's c
 - **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit an error. This can be resolved by updating the outermost dependency version.
 
 For projects with more complex needs and where an extra setup step doesn't matter, it is worth to check out fully featured C++ package managers such as [conan](https://conan.io), [vcpkg](https://github.com/microsoft/vcpkg) or [hunter](https://github.com/ruslo/hunter).
+Support for package managers is also [planned](https://github.com/TheLartians/CPM/issues/51) for a future version of CPM.
 
 ## Local packages
 
