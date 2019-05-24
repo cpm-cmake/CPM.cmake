@@ -4,22 +4,22 @@
   <img src="./logo/CPM.png" height="100" />
 </p>
 
-# CPM
+# Setup-free CMake dependency management
 
 CPM is a CMake script that adds dependency management capabilities to CMake.
-It's built as an extension of CMake's [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module that adds version control and simpler usage.
+It's built as a wrapper around CMake's [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module that adds version control and a simple API.
 
-## No packaging required
+## Manage everything
 
-Almost anything can be added as a version-controlled dependency though CPM.
+Anything can be added as a version-controlled dependency though CPM, no packaging required.
 Projects using CMake are configured automatically and can be used immediately.
 For everything else, a target must be created manually (see below).
 
 ## Usage
 
-After `CPM.cmake` has been added to your project, the function `CPMAddPackage` can be used to fetch and configure all dependencies.
-Afterwards all targets defined in the dependencies can be used.
-`CPMAddPackage` takes the following named arguments.
+After `CPM.cmake` has been added to your project, the function `CPMAddPackage` can be used to fetch and configure a dependency.
+Afterwards, any targets defined in the dependency can be used directly.
+`CPMAddPackage` takes the following named paramters.
 
 ```cmake
 CPMAddPackage(
@@ -31,7 +31,7 @@ CPMAddPackage(
 )
 ```
 
-The origin may be specified by a `GIT_REPOSITORY`, but other options, such as direct URLs, are [also supported](https://cmake.org/cmake/help/v3.11/module/ExternalProject.html#external-project-definition).
+The origin may be specified by a `GIT_REPOSITORY`, but other sources, such as direct URLs, are [also supported](https://cmake.org/cmake/help/v3.11/module/ExternalProject.html#external-project-definition).
 If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for git projects.
 `GIT_TAG` can also be set to a specific commit or a branch name such as `master` to download the most recent version.
 
