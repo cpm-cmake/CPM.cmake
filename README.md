@@ -22,7 +22,7 @@ Afterwards all targets defined in the dependencies can be used.
 
 ```cmake
 CPMAddPackage(
-  NAME          # The unique name of the dependency (usually the main target's name)
+  NAME          # The unique name of the dependency (should be the main target's name)
   VERSION       # The minimum version of the dependency (optional, defaults to 0)
   OPTIONS       # Configuration options passed to the dependency (optional)
   DOWNLOAD_ONLY # If set, the project is downloaded, but not configured (optional)
@@ -30,9 +30,9 @@ CPMAddPackage(
 )
 ```
 
-The origin is usually specified by a `GIT_REPOSITORY`, but [svn revisions and direct URLs are also supported](https://cmake.org/cmake/help/v3.11/module/ExternalProject.html#external-project-definition).
-If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for github projects.
-`GIT_TAG` can also be set to a branch name such as `master` to download the most recent version.
+The origin is usually specified by a `GIT_REPOSITORY`, but [Subversion repositories and direct URLs are also supported](https://cmake.org/cmake/help/v3.11/module/ExternalProject.html#external-project-definition).
+If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for git projects.
+`GIT_TAG` can also be set to a specific commit or a branch name such as `master` to download the most recent version.
 
 Besides downloading and to configuring the dependency, the following variables are defined in the local scope, where `(DEPENDENCY)` is the name of the dependency.
 
@@ -40,7 +40,7 @@ Besides downloading and to configuring the dependency, the following variables a
 - `(DEPENDENCY)_BINARY_DIR` is the path to the build directory of the dependency.
 - `(DEPENDENCY)_ADDED` is set to `YES` if the dependency has not been added before, otherwise it is set to `NO`.
 
-## Full Example
+## Full CMakeLists Example
 
 ```cmake
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
