@@ -12,7 +12,7 @@ It's built as an extension of CMake's [FetchContent](https://cmake.org/cmake/hel
 ## No packaging required
 
 Almost anything can be added as a version-controlled dependency though CPM.
-Projects using CMake are configured automatically and can be directly added as an target.
+Projects using CMake are configured automatically and can be used immediately.
 For everything else, a target must be created manually (see below).
 
 ## Usage
