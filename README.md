@@ -48,6 +48,10 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 # create project
 project(MyProject)
 
+# add executable
+add_executable(myProject myProject.cpp)
+set_target_properties(myProject PROPERTIES CXX_STANDARD 17)
+
 # add dependencies
 include(cmake/CPM.cmake)
 
@@ -59,9 +63,6 @@ CPMAddPackage(
     "LARS_PARSER_BUILD_GLUE_EXTENSION ON"
 )
 
-# add executable
-add_executable(myProject myProject.cpp)
-set_target_properties(myProject PROPERTIES CXX_STANDARD 17)
 target_link_libraries(myProject LarsParser)
 ```
 
