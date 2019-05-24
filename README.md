@@ -4,25 +4,26 @@
   <img src="./logo/CPM.png" height="100" />
 </p>
 
-# CPM
+# Setup-free CMake dependency management
 
-CPM is a CMake script that adds dependency management capabilities to CMake. 
-It's built as an extension of CMake's [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module that adds version control and simpler usage.
+CPM is a CMake script that adds dependency management capabilities to CMake.
+It's built as a wrapper around CMake's [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module that adds version control and a simple API.
 
-## Supported projects
+## Manage everything
 
-Any project that you can add via `add_subdirectory` should already work with CPM.
-For everything else, targets must be created manually (see below).
+Anything can be added as a version-controlled dependency though CPM, no packaging required.
+Projects using CMake are automatically configured and their targets can be used immediately.
+For everything else, a target can be created manually (see below).
 
 ## Usage
 
-After `CPM.cmake` has been added to your project, the function `CPMAddPackage` can be used to fetch and configure all dependencies.
-Afterwards all targets defined in the dependencies can be used.
-`CPMAddPackage` takes the following named arguments.
+After `CPM.cmake` has been added to your project, the function `CPMAddPackage` can be used to fetch and configure a dependency.
+Afterwards, any targets defined in the dependency can be used directly.
+`CPMAddPackage` takes the following named paramters.
 
 ```cmake
 CPMAddPackage(
-  NAME          # The unique name of the dependency (usually the main target's name)
+  NAME          # The unique name of the dependency (should be the main target's name)
   VERSION       # The minimum version of the dependency (optional, defaults to 0)
   OPTIONS       # Configuration options passed to the dependency (optional)
   DOWNLOAD_ONLY # If set, the project is downloaded, but not configured (optional)
@@ -30,9 +31,9 @@ CPMAddPackage(
 )
 ```
 
-The origin is usually specified by a `GIT_REPOSITORY`, but [svn revisions and direct URLs are also supported](https://cmake.org/cmake/help/v3.11/module/ExternalProject.html#external-project-definition).
-If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for github projects.
-`GIT_TAG` can also be set to a branch name such as `master` to download the most recent version.
+The origin may be specified by a `GIT_REPOSITORY`, but other sources, such as direct URLs, are [also supported](https://cmake.org/cmake/help/v3.11/module/ExternalProject.html#external-project-definition).
+If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for git projects.
+`GIT_TAG` can also be set to a specific commit or a branch name such as `master` to download the most recent version.
 
 Besides downloading and to configuring the dependency, the following variables are defined in the local scope, where `(DEPENDENCY)` is the name of the dependency.
 
@@ -40,13 +41,17 @@ Besides downloading and to configuring the dependency, the following variables a
 - `(DEPENDENCY)_BINARY_DIR` is the path to the build directory of the dependency.
 - `(DEPENDENCY)_ADDED` is set to `YES` if the dependency has not been added before, otherwise it is set to `NO`.
 
-## Full Example
+## Full CMakeLists Example
 
 ```cmake
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 # create project
 project(MyProject)
+
+# add executable
+add_executable(myProject myProject.cpp)
+set_target_properties(myProject PROPERTIES CXX_STANDARD 17)
 
 # add dependencies
 include(cmake/CPM.cmake)
@@ -59,9 +64,6 @@ CPMAddPackage(
     "LARS_PARSER_BUILD_GLUE_EXTENSION ON"
 )
 
-# add executable
-add_executable(myProject myProject.cpp)
-set_target_properties(myProject PROPERTIES CXX_STANDARD 17)
 target_link_libraries(myProject LarsParser)
 ```
 
@@ -82,7 +84,7 @@ To update CPM to the newest version, simply update the script in the project's c
 
 ## Advantages
 
-- **Small and reusable projects** CPM takes care of project dependencies, no matter where they reside, allowing developers to focus on creating small, well-tested frameworks.
+- **Small and reusable projects** CPM takes care of all project dependencies, allowing developers to focus on creating small, well-tested frameworks.
 - **Cross-Plattform** CPM adds projects via `add_subdirectory`, which is compatible with all cmake toolchains and generators.
 - **Reproducable builds** By using versioning via git tags it is ensured that a project will always be in the same state everywhere.
 - **Recursive dependencies** Ensures that no dependency is added twice and is added in the minimum required version.
@@ -97,11 +99,12 @@ To update CPM to the newest version, simply update the script in the project's c
 - **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit an error. This can be resolved by updating the outermost dependency version.
 
 For projects with more complex needs and where an extra setup step doesn't matter, it is worth to check out fully featured C++ package managers such as [conan](https://conan.io), [vcpkg](https://github.com/microsoft/vcpkg) or [hunter](https://github.com/ruslo/hunter).
+Support for package managers is also [planned](https://github.com/TheLartians/CPM/issues/51) for a future version of CPM.
 
 ## Local packages
 
 CPM can be configured to use `find_package` to search for locally installed dependencies first by setting the CMake option `CPM_USE_LOCAL_PACKAGES`.
-If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will emit an error when dependency is not found locally.
+If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will emit an error if the dependency is not found locally.
 
 ## Snipplets
 
