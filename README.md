@@ -222,6 +222,8 @@ if (lua_ADDED)
 endif()
 ```
 
+For a full example how to use CPM to download and configure lua with sol2 see [here](examples/sol2).
+
 ### Examples
 
 See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for more examples with source code.
