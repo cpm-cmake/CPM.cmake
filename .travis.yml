@@ -44,5 +44,9 @@ before_install:
   - cmake --version
 
 script:
+  # unit tests
+  - cmake -Htest -Bbuild/test
+  - CTEST_OUTPUT_ON_FAILURE=1 cmake --build build/test --target test
+  # examples
   - python3 examples/run_all.py
  

@@ -7,7 +7,8 @@ include(../../cmake/CPM.cmake)
 CPMAddPackage(
   NAME lua
   GIT_REPOSITORY https://github.com/lua/lua.git
-  VERSION 5-3-4
+  VERSION 5.3.4
+  GIT_TAG v5-3-4
   DOWNLOAD_ONLY YES
 )
 

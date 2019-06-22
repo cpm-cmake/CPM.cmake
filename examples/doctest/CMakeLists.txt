@@ -17,7 +17,6 @@ CPMAddPackage(
 CPMAddPackage(
   NAME doctest
   GITHUB_REPOSITORY onqtam/doctest
-  VERSION 2.3.2
   GIT_TAG 2.3.2
 )
 
