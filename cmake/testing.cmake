@@ -1,5 +1,4 @@
 
-
 function(ASSERT_EQUAL)
   if (NOT ARGC EQUAL 2) 
     message(FATAL_ERROR "assertion failed: invalid argument count: ${ARGC}")
