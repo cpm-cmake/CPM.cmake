@@ -66,7 +66,6 @@ function(CPMAddPackage)
     DOWNLOAD_ONLY
     GITHUB_REPOSITORY
     GITLAB_REPOSITORY
-    DRY # for testing
   )
 
   set(multiValueArgs
