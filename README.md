@@ -19,7 +19,7 @@ For everything else, a target can be created manually (see below).
 
 After `CPM.cmake` has been added to your project, the function `CPMAddPackage` can be used to fetch and configure a dependency.
 Afterwards, any targets defined in the dependency can be used directly.
-`CPMAddPackage` takes the following named paramters.
+`CPMAddPackage` takes the following named parameters.
 
 ```cmake
 CPMAddPackage(
@@ -85,7 +85,7 @@ To update CPM to the newest version, simply update the script in the project's c
 ## Advantages
 
 - **Small and reusable projects** CPM takes care of all project dependencies, allowing developers to focus on creating small, well-tested frameworks.
-- **Cross-Plattform** CPM adds projects via `add_subdirectory`, which is compatible with all cmake toolchains and generators.
+- **Cross-Platform** CPM adds projects via `add_subdirectory`, which is compatible with all cmake toolchains and generators.
 - **Reproducable builds** By using versioning via git tags it is ensured that a project will always be in the same state everywhere.
 - **Recursive dependencies** Ensures that no dependency is added twice and is added in the minimum required version.
 - **Plug-and-play** No need to install anything. Just add the script to your project and you're good to go.
@@ -106,7 +106,7 @@ Support for package managers is also [planned](https://github.com/TheLartians/CP
 CPM can be configured to use `find_package` to search for locally installed dependencies first by setting the CMake option `CPM_USE_LOCAL_PACKAGES`.
 If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will emit an error if the dependency is not found locally.
 
-## Snipplets
+## Snippets
 
 These examples demonstrate how to include some well-known projects with CPM.
 
