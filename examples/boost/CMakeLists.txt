@@ -15,4 +15,4 @@ CPMAddPackage(
   VERSION 1.67.0
 )
 
-target_link_libraries(CPMExampleBoost PRIVATE Boost::system)
+target_link_libraries(CPMExampleBoost PRIVATE Boost::system pthread)
