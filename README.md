@@ -141,6 +141,23 @@ CPMAddPackage(
 )
 ```
 
+### [Yaml-cpp](https://github.com/jbeder/yaml-cpp)
+
+```CMake
+CPMAddPackage(
+  NAME yaml-cpp
+  GITHUB_REPOSITORY jbeder/yaml-cpp
+  # 0.6.2 uses depricated CMake syntax
+  VERSION 0.6.3                                  
+  # 0.6.3 is not released yet, so use a recent commit
+  GIT_TAG 012269756149ae99745b6dafefd415843d7420bb 
+  OPTIONS
+    "YAML_CPP_BUILD_TESTS Off"
+    "YAML_CPP_BUILD_CONTRIB Off"
+    "YAML_CPP_BUILD_TOOLS Off"
+)
+```
+
 ### [google/benchmark](https://github.com/google/benchmark)
 
 ```cmake
@@ -190,23 +207,6 @@ if(range-v3_ADDED)
   add_library(range-v3 INTERFACE IMPORTED)
   target_include_directories(range-v3 INTERFACE "${range-v3_SOURCE_DIR}/include")
 endif()
-```
-
-### [Yaml-cpp](https://github.com/jbeder/yaml-cpp)
-
-```CMake
-CPMAddPackage(
-  NAME yaml-cpp
-  GITHUB_REPOSITORY jbeder/yaml-cpp
-  # 0.6.2 uses depricated CMake syntax
-  VERSION 0.6.3                                  
-  # 0.6.3 is not released yet, so use a recent commit
-  GIT_TAG 012269756149ae99745b6dafefd415843d7420bb 
-  OPTIONS
-    "YAML_CPP_BUILD_TESTS Off"
-    "YAML_CPP_BUILD_CONTRIB Off"
-    "YAML_CPP_BUILD_TOOLS Off"
-)
 ```
 
 ### [Lua](https://www.lua.org)
