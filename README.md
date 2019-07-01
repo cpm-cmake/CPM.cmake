@@ -130,6 +130,17 @@ CPMAddPackage(
 )
 ```
 
+
+### [Boost (via boost-cmake)](https://github.com/Orphis/boost-cmake)
+
+```CMake
+CPMAddPackage(
+  NAME boost-cmake
+  GITHUB_REPOSITORY Orphis/boost-cmake
+  VERSION 1.67.0
+)
+```
+
 ### [google/benchmark](https://github.com/google/benchmark)
 
 ```cmake
