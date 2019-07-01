@@ -10,5 +10,4 @@ foreach(test ${tests})
     NAME ${test} 
     COMMAND ${CMAKE_COMMAND} -DCPM_PATH=${CMAKE_CURRENT_SOURCE_DIR}/../cmake -P "${test}"
   )
-
 endforeach()
