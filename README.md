@@ -150,7 +150,7 @@ CPMAddPackage(
   NAME yaml-cpp
   GITHUB_REPOSITORY jbeder/yaml-cpp
   # 0.6.2 uses depricated CMake syntax
-  VERSION 0.6.3                                  
+  VERSION 0.6.3
   # 0.6.3 is not released yet, so use a recent commit
   GIT_TAG 012269756149ae99745b6dafefd415843d7420bb 
   OPTIONS
@@ -222,7 +222,7 @@ CPMAddPackage(
 )
 
 if (lua_ADDED)
-  # lua has no CMakeLists, so we create our own target
+  # lua has CMake support, so we create our own target
 
   FILE(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
   add_library(lua STATIC ${lua_sources})
