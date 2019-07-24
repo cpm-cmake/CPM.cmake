@@ -215,8 +215,7 @@ endif()
 CPMAddPackage(
   NAME lua
   GIT_REPOSITORY https://github.com/lua/lua.git
-  GIT_TAG v5-3-4
-  VERSION 5.3.4
+  VERSION 5.3.5
   DOWNLOAD_ONLY YES
 )
 
