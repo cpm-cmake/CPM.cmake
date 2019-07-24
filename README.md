@@ -222,7 +222,7 @@ CPMAddPackage(
 )
 
 if (lua_ADDED)
-  # lua has CMake support, so we create our own target
+  # lua has no CMake support, so we create our own target
 
   FILE(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
   add_library(lua STATIC ${lua_sources})
