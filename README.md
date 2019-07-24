@@ -120,17 +120,6 @@ CPMAddPackage(
 )
 ```
 
-### [Doctest](https://github.com/onqtam/doctest)
-
-```cmake
-CPMAddPackage(
-  NAME doctest
-  GITHUB_REPOSITORY onqtam/doctest
-  GIT_TAG 2.3.2
-)
-```
-
-
 ### [Boost (via boost-cmake)](https://github.com/Orphis/boost-cmake)
 
 ```CMake
@@ -141,6 +130,19 @@ CPMAddPackage(
 )
 ```
 
+### [cxxopts](https://github.com/jarro2783/cxxopts)
+
+```cmake
+CPMAddPackage(
+  NAME cxxopts
+  GITHUB_REPOSITORY jarro2783/cxxopts
+  VERSION 2.2.0
+  OPTIONS
+    "CXXOPTS_BUILD_EXAMPLES Off"
+    "CXXOPTS_BUILD_TESTS Off"
+)
+```
+
 ### [Yaml-cpp](https://github.com/jbeder/yaml-cpp)
 
 ```CMake
@@ -148,7 +150,7 @@ CPMAddPackage(
   NAME yaml-cpp
   GITHUB_REPOSITORY jbeder/yaml-cpp
   # 0.6.2 uses depricated CMake syntax
-  VERSION 0.6.3                                  
+  VERSION 0.6.3
   # 0.6.3 is not released yet, so use a recent commit
   GIT_TAG 012269756149ae99745b6dafefd415843d7420bb 
   OPTIONS
@@ -215,13 +217,12 @@ endif()
 CPMAddPackage(
   NAME lua
   GIT_REPOSITORY https://github.com/lua/lua.git
-  GIT_TAG v5-3-4
-  VERSION 5.3.4
+  VERSION 5.3.5
   DOWNLOAD_ONLY YES
 )
 
 if (lua_ADDED)
-  # lua has no CMakeLists, so we create our own target
+  # lua has no CMake support, so we create our own target
 
   FILE(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
   add_library(lua STATIC ${lua_sources})
