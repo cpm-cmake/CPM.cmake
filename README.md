@@ -120,17 +120,6 @@ CPMAddPackage(
 )
 ```
 
-### [Doctest](https://github.com/onqtam/doctest)
-
-```cmake
-CPMAddPackage(
-  NAME doctest
-  GITHUB_REPOSITORY onqtam/doctest
-  GIT_TAG 2.3.2
-)
-```
-
-
 ### [Boost (via boost-cmake)](https://github.com/Orphis/boost-cmake)
 
 ```CMake
@@ -138,6 +127,19 @@ CPMAddPackage(
   NAME boost-cmake
   GITHUB_REPOSITORY Orphis/boost-cmake
   VERSION 1.67.0
+)
+```
+
+### [cxxopts](https://github.com/jarro2783/cxxopts)
+
+```cmake
+CPMAddPackage(
+  NAME cxxopts
+  GITHUB_REPOSITORY jarro2783/cxxopts
+  VERSION 2.2.0
+  OPTIONS
+    "CXXOPTS_BUILD_EXAMPLES Off"
+    "CXXOPTS_BUILD_TESTS Off"
 )
 ```
 
