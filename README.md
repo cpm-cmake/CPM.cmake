@@ -78,6 +78,8 @@ mkdir -p cmake
 wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master/cmake/CPM.cmake
 ```
 
+You can also use CMake to download CPM for you. See the [wiki](https://github.com/TheLartians/CPM/wiki/Adding-CPM) for more details.
+
 ## Updating CPM
 
 To update CPM to the newest version, simply update the script in the project's cmake directory, for example by running the command above. Dependencies using CPM will automatically use the updated script of the outermost project.
