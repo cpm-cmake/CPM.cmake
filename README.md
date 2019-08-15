@@ -17,6 +17,22 @@ For everything else, a target can be created manually (see below).
 
 ## Usage
 
+### Including CPM
+The most simple way to include CPM is to download `CPM.cmake` directory and add it to your project. 
+
+Another way to do this is to have CMAKE download it for you:
+
+````cmake
+set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM.cmake")
+
+if(NOT EXISTS ${CPM_DOWNLOAD_LOCATION})
+	message(STATUS "Downloading CPM.cmake")
+	file(DOWNLOAD https://raw.githubusercontent.com/TheLartians/CPM/master/cmake/CPM.cmake ${CPM_DOWNLOAD_LOCATION})
+endif(NOT EXISTS ${CPM_DOWNLOAD_LOCATION})
+
+include(${CPM_DOWNLOAD_LOCATION})
+````
+
 After `CPM.cmake` has been added to your project, the function `CPMAddPackage` can be used to fetch and configure a dependency.
 Afterwards, any targets defined in the dependency can be used directly.
 `CPMAddPackage` takes the following named parameters.
