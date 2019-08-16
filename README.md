@@ -17,7 +17,7 @@ For everything else, a target can be created manually (see below).
 
 ## Usage
 
-After `CPM.cmake` has been added to your project, the function `CPMAddPackage` can be used to fetch and configure a dependency.
+After `CPM.cmake` has been [added](#adding-cpm) to your project, the function `CPMAddPackage` can be used to fetch and configure a dependency.
 Afterwards, any targets defined in the dependency can be used directly.
 `CPMAddPackage` takes the following named parameters.
 
@@ -111,6 +111,7 @@ If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will emit an error if the de
 ## Snippets
 
 These examples demonstrate how to include some well-known projects with CPM.
+See the [wiki](https://github.com/TheLartians/CPM/wiki/More-Snippets) for more snippets.
 
 ### [Catch2](https://github.com/catchorg/Catch2)
 
@@ -238,6 +239,6 @@ endif()
 
 For a full example on using CPM to download and configure lua with sol2 see [here](examples/sol2).
 
-### Examples
+### Full Examples
 
-See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for more examples with source code.
+See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for full examples with source code.
