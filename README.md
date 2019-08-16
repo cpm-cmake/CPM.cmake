@@ -17,7 +17,7 @@ For everything else, a target can be created manually (see below).
 
 ## Usage
 
-After `CPM.cmake` has been added to your project, the function `CPMAddPackage` can be used to fetch and configure a dependency.
+After `CPM.cmake` has been [added](#adding-cpm) to your project, the function `CPMAddPackage` can be used to fetch and configure a dependency.
 Afterwards, any targets defined in the dependency can be used directly.
 `CPMAddPackage` takes the following named parameters.
 
@@ -96,8 +96,8 @@ To update CPM to the newest version, simply update the script in the project's c
 
 ## Limitations
 
-- **No pre-built binaries** For every new project, all dependencies must be downloaded and built from scratch. A possible workaround is to use CPM to fetch a pre-built binary or to enable local packages (see below).
-- **Dependent on good CMakeLists** Many libraries do not have CMakeLists that work well for subprojects. Luckily this is slowly changing, however, until then, some manual configuration may be required (see below).
+- **No pre-built binaries** For every new project, all dependencies must be downloaded and built from scratch. A possible workaround is to use CPM to fetch a pre-built binary or to enable local packages (see [below](#local-packages)).
+- **Dependent on good CMakeLists** Many libraries do not have CMakeLists that work well for subprojects. Luckily this is slowly changing, however, until then, some manual configuration may be required (see the snippets [below](#snippets)). For best practices on preparing your projects for CPM, see the [wiki](https://github.com/TheLartians/CPM/wiki/Preparing-projects-for-CPM). 
 - **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit an error. This can be resolved by updating the outermost dependency version.
 
 For projects with more complex needs and where an extra setup step doesn't matter, it is worth to check out fully featured C++ package managers such as [conan](https://conan.io), [vcpkg](https://github.com/microsoft/vcpkg) or [hunter](https://github.com/ruslo/hunter).
@@ -111,6 +111,7 @@ If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will emit an error if the de
 ## Snippets
 
 These examples demonstrate how to include some well-known projects with CPM.
+See the [wiki](https://github.com/TheLartians/CPM/wiki/More-Snippets) for more snippets.
 
 ### [Catch2](https://github.com/catchorg/Catch2)
 
@@ -238,6 +239,6 @@ endif()
 
 For a full example on using CPM to download and configure lua with sol2 see [here](examples/sol2).
 
-### Examples
+### Full Examples
 
-See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for more examples with source code.
+See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for full examples with source code.
