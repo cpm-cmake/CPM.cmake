@@ -5,11 +5,18 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     
     steps:
     - uses: actions/checkout@v1
     
+    - name: install updates
+      run:
+      - wget -O cmake.sh https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh 
+      - sudo sh cmake.sh --skip-license --exclude-subdir --prefix=/usr/local
+      - export PATH=/usr/local/bin:$PATH
+      - cmake --version
+
     - name: configure
       run: cmake -Htest -Bbuild/test
       
