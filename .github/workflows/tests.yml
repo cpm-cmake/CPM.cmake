@@ -22,3 +22,7 @@ jobs:
       
     - name: run
       run: CTEST_OUTPUT_ON_FAILURE=1 cmake --build build/test --target test
+
+    - name: build examples
+      run: python3 examples/run_all.py
+      
