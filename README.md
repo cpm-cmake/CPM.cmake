@@ -103,7 +103,13 @@ To update CPM to the newest version, simply update the script in the project's c
 For projects with more complex needs and where an extra setup step doesn't matter, it is worth to check out fully featured C++ package managers such as [conan](https://conan.io), [vcpkg](https://github.com/microsoft/vcpkg) or [hunter](https://github.com/ruslo/hunter).
 Support for package managers is also [planned](https://github.com/TheLartians/CPM/issues/51) for a future version of CPM.
 
-## Local packages
+## Options
+
+### CPM_SOURCE_ROOT
+
+To avoid re-downloading dependencies, configure the project with the cmake option `-DCPM_SOURCE_ROOT=<path to an external download directory>`.
+
+### CPM_USE_LOCAL_PACKAGES
 
 CPM can be configured to use `find_package` to search for locally installed dependencies first by setting the CMake option `CPM_USE_LOCAL_PACKAGES`.
 If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will emit an error if the dependency is not found locally.

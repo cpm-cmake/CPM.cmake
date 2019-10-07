@@ -28,7 +28,7 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-set(CURRENT_CPM_VERSION 0.12) 
+set(CURRENT_CPM_VERSION 0.13) 
 
 if(CPM_DIRECTORY)
   if(NOT ${CPM_DIRECTORY} MATCHES ${CMAKE_CURRENT_LIST_DIR})
@@ -46,7 +46,7 @@ set(CPM_DRY_RUN OFF CACHE INTERNAL "Don't download or configure dependencies (fo
 
 option(CPM_USE_LOCAL_PACKAGES "Use locally installed packages (find_package)" OFF)
 option(CPM_LOCAL_PACKAGES_ONLY "Use only locally installed packages" OFF)
-
+set(CPM_SOURCE_ROOT OFF CACHE PATH "Directory to downlaod CPM dependencies")
 
 include(FetchContent)
 include(CMakeParseArguments)
@@ -66,6 +66,7 @@ function(CPMAddPackage)
     DOWNLOAD_ONLY
     GITHUB_REPOSITORY
     GITLAB_REPOSITORY
+    SOURCE_DIR
   )
 
   set(multiValueArgs
@@ -102,6 +103,14 @@ function(CPMAddPackage)
 
   if (NOT DEFINED CPM_ARGS_GIT_TAG)
     set(CPM_ARGS_GIT_TAG v${CPM_ARGS_VERSION})
+  endif()
+
+  set(FETCH_CONTENT_DECLARE_EXTRA_OPTS "")
+
+  if (CPM_SOURCE_ROOT AND NOT DEFINED CPM_ARGS_SOURCE_DIR)
+    string(TOLOWER ${CPM_ARGS_NAME} lname)
+    string(REPLACE "-" "_" source_path_name ${lname})
+    list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS SOURCE_DIR ${CPM_SOURCE_ROOT}/${source_path_name})
   endif()
 
   list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_TAG ${CPM_ARGS_GIT_TAG})
@@ -150,7 +159,7 @@ function(CPMAddPackage)
     endforeach()
   endif()
 
-  CPM_DECLARE_PACKAGE(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} ${CPM_ARGS_GIT_TAG} "${CPM_ARGS_UNPARSED_ARGUMENTS}")
+  CPM_DECLARE_PACKAGE(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} ${CPM_ARGS_GIT_TAG} "${CPM_ARGS_UNPARSED_ARGUMENTS}" ${FETCH_CONTENT_DECLARE_EXTRA_OPTS})
   CPM_FETCH_PACKAGE(${CPM_ARGS_NAME} ${DOWNLOAD_ONLY})
   CPMGetProperties(${CPM_ARGS_NAME})
   SET(${CPM_ARGS_NAME}_SOURCE_DIR "${${CPM_ARGS_NAME}_SOURCE_DIR}" PARENT_SCOPE)
