@@ -108,7 +108,7 @@ Support for package managers is also [planned](https://github.com/TheLartians/CP
 ### CPM_SOURCE_ROOT
 
 To avoid re-downloading dependencies, configure the project with the cmake option `-DCPM_SOURCE_ROOT=<path to an external download directory>`.
-It may also be defined as an environmental variable.
+It may also be defined as an environmental variable, for example by adding `export CPM_SOURCE_ROOT=$HOME/.cache/CPM` to your `.bashrc` or `.bash_profile`.
 
 ### CPM_USE_LOCAL_PACKAGES
 
