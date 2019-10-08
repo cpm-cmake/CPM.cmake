@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
+project(CPMTests)
+
 file(GLOB tests "${CMAKE_CURRENT_SOURCE_DIR}/unit/*.cmake")
 
 enable_testing()
