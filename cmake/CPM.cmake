@@ -74,6 +74,7 @@ function(CPMAddPackage)
     GITHUB_REPOSITORY
     GITLAB_REPOSITORY
     SOURCE_DIR
+    DOWNLOAD_COMMAND
   )
 
   set(multiValueArgs
@@ -149,15 +150,6 @@ function(CPMAddPackage)
     return()
   endif()
 
-  set(FETCH_CONTENT_DECLARE_EXTRA_OPTS "")
-
-  if (CPM_SOURCE_ROOT AND NOT DEFINED CPM_ARGS_SOURCE_DIR)
-    string(TOLOWER ${CPM_ARGS_NAME} lname)
-    string(REPLACE "-" "_" source_path_name ${lname})
-    string(SHA1 ORIGIN_HASH "${CPM_ARGS_VERSION} ${CPM_ARGS_GIT_TAG} ${CPM_ARGS_UNPARSED_ARGUMENTS}")
-    list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS SOURCE_DIR ${CPM_SOURCE_ROOT}/${source_path_name}/${ORIGIN_HASH})
-  endif()
-
   CPMRegisterPackage(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION})
 
   if (CPM_ARGS_OPTIONS)
@@ -165,6 +157,23 @@ function(CPMAddPackage)
       CPM_PARSE_OPTION(${OPTION})
       set(${OPTION_KEY} ${OPTION_VALUE} CACHE INTERNAL "")
     endforeach()
+  endif()
+
+  set(FETCH_CONTENT_DECLARE_EXTRA_OPTS "")
+
+  if (DEFINED CPM_ARGS_DOWNLOAD_COMMAND)
+    set(FETCH_CONTENT_DECLARE_EXTRA_OPTS DOWNLOAD_COMMAND ${CPM_ARGS_DOWNLOAD_COMMAND})
+  else()
+    if (CPM_SOURCE_ROOT AND NOT DEFINED CPM_ARGS_SOURCE_DIR)
+      string(TOLOWER ${CPM_ARGS_NAME} lower_case_name)
+      string(REPLACE "-" "_" source_path_name ${lower_case_name})
+      string(SHA1 ORIGIN_HASH "${CPM_ARGS_VERSION} ${CPM_ARGS_GIT_TAG} ${CPM_ARGS_UNPARSED_ARGUMENTS}")
+      set(download_directory ${CPM_SOURCE_ROOT}/${source_path_name}/${ORIGIN_HASH})
+      list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS SOURCE_DIR ${download_directory})
+      if (EXISTS ${download_directory})
+        list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS DOWNLOAD_COMMAND ":")
+      endif()
+    endif()
   endif()
 
   CPM_DECLARE_PACKAGE(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} ${CPM_ARGS_GIT_TAG} "${CPM_ARGS_UNPARSED_ARGUMENTS}" ${FETCH_CONTENT_DECLARE_EXTRA_OPTS})
