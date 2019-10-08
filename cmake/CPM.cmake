@@ -46,7 +46,14 @@ set(CPM_DRY_RUN OFF CACHE INTERNAL "Don't download or configure dependencies (fo
 
 option(CPM_USE_LOCAL_PACKAGES "Use locally installed packages (find_package)" OFF)
 option(CPM_LOCAL_PACKAGES_ONLY "Use only locally installed packages" OFF)
-set(CPM_SOURCE_ROOT OFF CACHE PATH "Directory to downlaod CPM dependencies")
+
+if(DEFINED ENV{CPM_SOURCE_ROOT})
+  set(CPM_SOURCE_ROOT_DEFAULT $ENV{CPM_SOURCE_ROOT})
+else()
+  set(CPM_SOURCE_ROOT_DEFAULT OFF)
+endif()
+
+set(CPM_SOURCE_ROOT ${CPM_SOURCE_ROOT_DEFAULT} CACHE PATH "Directory to downlaod CPM dependencies")
 
 include(FetchContent)
 include(CMakeParseArguments)
@@ -105,14 +112,6 @@ function(CPMAddPackage)
     set(CPM_ARGS_GIT_TAG v${CPM_ARGS_VERSION})
   endif()
 
-  set(FETCH_CONTENT_DECLARE_EXTRA_OPTS "")
-
-  if (CPM_SOURCE_ROOT AND NOT DEFINED CPM_ARGS_SOURCE_DIR)
-    string(TOLOWER ${CPM_ARGS_NAME} lname)
-    string(REPLACE "-" "_" source_path_name ${lname})
-    list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS SOURCE_DIR ${CPM_SOURCE_ROOT}/${source_path_name})
-  endif()
-
   list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_TAG ${CPM_ARGS_GIT_TAG})
 
   if(CPM_ARGS_DOWNLOAD_ONLY)
@@ -148,6 +147,15 @@ function(CPMAddPackage)
     SET(${CPM_ARGS_NAME}_BINARY_DIR "${${CPM_ARGS_NAME}_BINARY_DIR}" PARENT_SCOPE)  
     SET(${CPM_ARGS_NAME}_ADDED NO PARENT_SCOPE)  
     return()
+  endif()
+
+  set(FETCH_CONTENT_DECLARE_EXTRA_OPTS "")
+
+  if (CPM_SOURCE_ROOT AND NOT DEFINED CPM_ARGS_SOURCE_DIR)
+    string(TOLOWER ${CPM_ARGS_NAME} lname)
+    string(REPLACE "-" "_" source_path_name ${lname})
+    string(SHA1 ORIGIN_HASH "${CPM_ARGS_VERSION} ${CPM_ARGS_GIT_TAG} ${CPM_ARGS_UNPARSED_ARGUMENTS}")
+    list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS SOURCE_DIR ${CPM_SOURCE_ROOT}/${source_path_name}/${ORIGIN_HASH})
   endif()
 
   CPMRegisterPackage(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION})
