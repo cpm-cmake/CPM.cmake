@@ -2,10 +2,6 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 project(CPMExampleCereal)
 
-# ---- Options ----
-
-option(ENABLE_TEST_COVERAGE "Enable test coverage" OFF)
-
 # ---- Dependencies ----
 
 include(../../cmake/CPM.cmake)
