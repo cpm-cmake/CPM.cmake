@@ -24,10 +24,3 @@ CPMAddPackage(
 add_executable(CPMExampleCereal main.cpp)
 target_link_libraries(CPMExampleCereal cereal )
 set_target_properties(CPMExampleCereal PROPERTIES CXX_STANDARD 17)
-
-# ---- Add code coverage ----
-
-if (${ENABLE_TEST_COVERAGE})
-  set_target_properties(CPMExampleCereal PROPERTIES CXX_STANDARD 17 COMPILE_FLAGS "-O0 -g -fprofile-arcs -ftest-coverage --coverage")
-  target_link_options(CPMExampleCereal PUBLIC "--coverage")
-endif()
