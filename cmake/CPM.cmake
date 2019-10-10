@@ -181,8 +181,8 @@ function(CPMAddPackage)
         list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS DOWNLOAD_COMMAND ":")
         set(PACKAGE_INFO "${download_directory}")
       else()
-        # remove timestamp so CMake will re-download the dependency
-        file(REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/_deps/${lower_case_name}-subbuild)
+        # remove timestamps so CMake will re-download the dependency
+        file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/_deps/${lower_case_name}-subbuild)
         set(PACKAGE_INFO "${PACKAGE_INFO} -> ${download_directory}")
       endif()
     endif()
