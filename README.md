@@ -65,7 +65,7 @@ CPMAddPackage(
 target_link_libraries(tests Catch2)
 ```
 
-See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for more many examples with source code or the [wiki](https://github.com/TheLartians/CPM/wiki/More-Snippets) many example snippets.
+See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for more many examples with source code or the [wiki](https://github.com/TheLartians/CPM/wiki/More-Snippets) for many example snippets.
 
 ## Adding CPM
 
@@ -76,16 +76,16 @@ mkdir -p cmake
 wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master/cmake/CPM.cmake
 ```
 
-You can also use CMake to download CPM for you. See the [wiki](https://github.com/TheLartians/CPM/wiki/Adding-CPM) for more details.
+You can even use CMake to download CPM for you. See the [wiki](https://github.com/TheLartians/CPM/wiki/Adding-CPM) for more details.
 
 ## Updating CPM
 
-To update CPM to the newest version, simply update the script in the project's cmake directory, for example by running the command above. Dependencies using CPM will automatically use the updated script of the outermost project.
+To update CPM to the newest version, update the script in the project's root directory, for example by running the command above. Dependencies using CPM will automatically use the updated script of the outermost project.
 
 ## Advantages
 
 - **Small and reusable projects** CPM takes care of all project dependencies, allowing developers to focus on creating small, well-tested frameworks.
-- **Cross-Platform** CPM adds projects via `add_subdirectory`, which is compatible with all cmake toolchains and generators.
+- **Cross-Platform** CPM adds projects via `add_subdirectory`, which is compatible with all CMake toolchains and generators.
 - **Reproducable builds** By using versioning via git tags it is ensured that a project will always be in the same state everywhere.
 - **Recursive dependencies** Ensures that no dependency is added twice and is added in the minimum required version.
 - **Plug-and-play** No need to install anything. Just add the script to your project and you're good to go.
@@ -94,12 +94,12 @@ To update CPM to the newest version, simply update the script in the project's c
 
 ## Limitations
 
-- **No pre-built binaries** For every new build directory, all dependencies are initially downloaded and built from scratch. To avoid extra downloads we recommend to set the [`CPM_SOURCE_CACHE`](#CPM_SOURCE_CACHE) environmental variable. Using a caching compiler such as [sccahe](https://github.com/mozilla/sccache) can drastically reduce build time.
+- **No pre-built binaries** For every new build directory, all dependencies are initially downloaded and built from scratch. To avoid extra downloads it is recommend to set the [`CPM_SOURCE_CACHE`](#CPM_SOURCE_CACHE) environmental variable. Using a caching compiler such as [sccahe](https://github.com/mozilla/sccache) can drastically reduce build time.
 - **Dependent on good CMakeLists** Many libraries do not have CMakeLists that work well for subprojects. Luckily this is slowly changing, however, until then, some manual configuration may be required (see the snippets [below](#snippets)). For best practices on preparing your projects for CPM, see the [wiki](https://github.com/TheLartians/CPM/wiki/Preparing-projects-for-CPM). 
 - **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit an error. This can be resolved by updating the outermost dependency version.
 
 For projects with more complex needs and where an extra setup step doesn't matter, it is worth to check out fully featured C++ package managers such as [conan](https://conan.io), [vcpkg](https://github.com/microsoft/vcpkg) or [hunter](https://github.com/ruslo/hunter).
-Support for package managers is also [planned](https://github.com/TheLartians/CPM/issues/51) for a future version of CPM.
+Support for these package managers is also [planned](https://github.com/TheLartians/CPM/issues/51) for a future version of CPM.
 
 ## Options
 
@@ -247,4 +247,4 @@ For a full example on using CPM to download and configure lua with sol2 see [her
 
 ### Full Examples
 
-See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for full examples with source code.
+See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for full examples with source code and check out the [wiki](https://github.com/TheLartians/CPM/wiki/More-Snippets) for many more example snippets.
