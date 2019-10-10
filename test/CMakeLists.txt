@@ -13,3 +13,5 @@ foreach(test ${tests})
     COMMAND ${CMAKE_COMMAND} -DCPM_PATH=${CMAKE_CURRENT_SOURCE_DIR}/../cmake -P "${test}"
   )
 endforeach()
+
+add_custom_target(test-verbose COMMAND ${CMAKE_CTEST_COMMAND} --verbose)

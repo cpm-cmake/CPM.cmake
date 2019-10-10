@@ -1,0 +1,101 @@
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+
+include(${CPM_PATH}/testing.cmake)
+include(CMakePackageConfigHelpers)
+
+
+set(CPM_SOURCE_CACHE_DIR "${CMAKE_CURRENT_BINARY_DIR}/CPM")
+set(TEST_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/cache)
+
+function(clear_cache)
+  FILE(REMOVE_RECURSE ${CPM_SOURCE_CACHE_DIR})
+  
+  if (EXISTS "${CPM_SOURCE_CACHE_DIR}")
+    ASSERTION_FAILED("cache not cleared")
+  endif()
+endfunction()
+
+function(update_cmake_lists)
+  configure_package_config_file(
+    "${CMAKE_CURRENT_LIST_DIR}/cache/CMakeLists.txt.in"
+    "${CMAKE_CURRENT_LIST_DIR}/cache/CMakeLists.txt"
+    INSTALL_DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/junk
+  )
+endfunction()
+
+function(reset_test)
+  clear_cache()
+  FILE(REMOVE_RECURSE ${TEST_BUILD_DIR})
+  update_cmake_lists()
+endfunction()
+
+set(CATCH2_VERSION 2.8.0)
+
+## Read CPM_SOURCE_CACHE from arguments
+
+reset_test()
+
+execute_process(
+  COMMAND 
+  ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/cache" "-B${TEST_BUILD_DIR}" "-DCPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}"
+  RESULT_VARIABLE ret
+)
+
+ASSERT_EQUAL(${ret} "0")
+
+if (NOT EXISTS "${CPM_SOURCE_CACHE_DIR}/catch2")
+  ASSERTION_FAILED("catch2 not in cache")
+endif()
+
+FILE(GLOB catch2_versions "${CPM_SOURCE_CACHE_DIR}/catch2/*")
+list(LENGTH catch2_versions catch2_version_count)
+ASSERT_EQUAL(${catch2_version_count} "1")
+
+## Update dependency and keep CPM_SOURCE_CACHE
+
+set(CATCH2_VERSION 2.9.0)
+update_cmake_lists()
+
+execute_process(
+  COMMAND 
+  ${CMAKE_COMMAND} ${TEST_BUILD_DIR}
+  RESULT_VARIABLE ret
+)
+
+ASSERT_EQUAL(${ret} "0")
+
+FILE(GLOB catch2_versions "${CPM_SOURCE_CACHE_DIR}/catch2/*")
+list(LENGTH catch2_versions catch2_version_count)
+ASSERT_EQUAL(${catch2_version_count} "2")
+
+## Clear cache and update
+
+clear_cache()
+
+execute_process(
+  COMMAND 
+  ${CMAKE_COMMAND} ${TEST_BUILD_DIR}
+  RESULT_VARIABLE ret
+)
+
+ASSERT_EQUAL(${ret} "0")
+
+if (NOT EXISTS "${CPM_SOURCE_CACHE_DIR}/catch2")
+  ASSERTION_FAILED("catch2 not in cache")
+endif()
+
+## Read CPM_SOURCE_CACHE from environment
+
+reset_test()
+
+execute_process(
+  COMMAND 
+  ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/cache" "-B${TEST_BUILD_DIR}"
+  RESULT_VARIABLE ret
+)
+
+ASSERT_EQUAL(${ret} "0")
+
+if (NOT EXISTS "${CPM_SOURCE_CACHE_DIR}/catch2")
+  ASSERTION_FAILED("catch2 not in cache")
+endif()
