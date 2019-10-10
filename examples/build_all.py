@@ -22,7 +22,7 @@ for example in examples:
   print("running example %s" % example.name)
   print("================" + ('=' * len(example.name)))
   project = Path(".") / 'build' / example.name
-  configure = runCommand('cmake -H%s -B%s -DCMAKE_BUILD_TYPE=RelWithDebInfo' % (example, project))
+  configure = runCommand('cmake -H%s -B%s' % (example, project))
   print('  ' + '\n  '.join([line for line in configure.split('\n') if 'CPM:' in line]))
   build = runCommand('cmake --build %s -j4' % (project))
   print('  ' + '\n  '.join([line for line in build.split('\n') if 'Built target' in line]))
