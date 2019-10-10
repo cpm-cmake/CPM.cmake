@@ -51,6 +51,10 @@ FILE(GLOB catch2_versions "${CPM_SOURCE_CACHE_DIR}/catch2/*")
 list(LENGTH catch2_versions catch2_version_count)
 ASSERT_EQUAL(${catch2_version_count} "1")
 
+FILE(GLOB fibonacci_versions "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
+list(LENGTH fibonacci_versions fibonacci_version_count)
+ASSERT_EQUAL(${fibonacci_version_count} "1")
+
 ## Update dependency and keep CPM_SOURCE_CACHE
 
 set(CATCH2_VERSION 2.9.0)
@@ -67,6 +71,10 @@ ASSERT_EQUAL(${ret} "0")
 FILE(GLOB catch2_versions "${CPM_SOURCE_CACHE_DIR}/catch2/*")
 list(LENGTH catch2_versions catch2_version_count)
 ASSERT_EQUAL(${catch2_version_count} "2")
+
+FILE(GLOB fibonacci_versions "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
+list(LENGTH fibonacci_versions fibonacci_version_count)
+ASSERT_EQUAL(${fibonacci_version_count} "1")
 
 ## Clear cache and update
 
@@ -91,6 +99,22 @@ reset_test()
 execute_process(
   COMMAND 
   ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/cache" "-B${TEST_BUILD_DIR}"
+  RESULT_VARIABLE ret
+)
+
+ASSERT_EQUAL(${ret} "0")
+
+if (NOT EXISTS "${CPM_SOURCE_CACHE_DIR}/catch2")
+  ASSERTION_FAILED("catch2 not in cache")
+endif()
+
+## Overwrite CPM_SOURCE_CACHE with argument
+
+reset_test()
+
+execute_process(
+  COMMAND 
+  ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CMAKE_CURRENT_BINARY_DIR}/junk" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/cache" "-B${TEST_BUILD_DIR}" "-DCPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}"
   RESULT_VARIABLE ret
 )
 

@@ -20,7 +20,7 @@ CPMAddPackage(
   NAME Catch2
   GITHUB_REPOSITORY catchorg/Catch2
   VERSION @CATCH2_VERSION@
-  GIT_SHALLOW true
+  GIT_SHALLOW YES
 )
 
 # ---- Create binary ----
