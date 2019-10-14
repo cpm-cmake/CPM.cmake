@@ -7,13 +7,13 @@
 # Setup-free CMake dependency management
 
 CPM is a CMake script that adds dependency management capabilities to CMake.
-It's built as a wrapper around CMake's [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module that adds version control and a simple API.
+It's built as a wrapper around CMake's [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module that adds version control, caching and a simple API.
 
 ## Manage everything
 
-Anything can be added as a version-controlled dependency though CPM, no packaging required.
-Projects using CMake are automatically configured and their targets can be used immediately.
-For everything else, a target can be created manually (see below).
+Any downloadable project or resource can be added as a version-controlled dependency though CPM, it is not necessary to modify or package anything.
+Projects using modern CMake are automatically configured and their targets can be used immediately.
+For everything else, the targets can be created manually after the dependency has been downloaded (see the [snippets](#snippets) below for examples).
 
 ## Usage
 
@@ -33,13 +33,13 @@ CPMAddPackage(
 
 The origin may be specified by a `GIT_REPOSITORY`, but other sources, such as direct URLs, are [also supported](https://cmake.org/cmake/help/v3.11/module/ExternalProject.html#external-project-definition).
 If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for git projects.
-`GIT_TAG` can also be set to a specific commit or a branch name such as `master` to download the most recent version.
+`GIT_TAG` can also be set to a specific commit or a branch name such as `master` to always download the most recent version.
 
-Besides downloading and to configuring the dependency, the following variables are defined in the local scope, where `(DEPENDENCY)` is the name of the dependency.
+After calling `CPMAddPackage`, the following variables are defined in the local scope, where `<dependency>` is the name of the dependency.
 
-- `(DEPENDENCY)_SOURCE_DIR` is the path to the source of the dependency.
-- `(DEPENDENCY)_BINARY_DIR` is the path to the build directory of the dependency.
-- `(DEPENDENCY)_ADDED` is set to `YES` if the dependency has not been added before, otherwise it is set to `NO`.
+- `<dependency>_SOURCE_DIR` is the path to the source of the dependency.
+- `<dependency>_BINARY_DIR` is the path to the build directory of the dependency.
+- `<dependency>_ADDED` is set to `YES` if the dependency has not been added before, otherwise it is set to `NO`.
 
 ## Full CMakeLists Example
 
@@ -65,7 +65,7 @@ CPMAddPackage(
 target_link_libraries(tests Catch2)
 ```
 
-See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for more many examples with source code or the [wiki](https://github.com/TheLartians/CPM/wiki/More-Snippets) for many example snippets.
+See the [examples directory](https://github.com/TheLartians/CPM/tree/master/examples) for complete examples with source code or the [wiki](https://github.com/TheLartians/CPM/wiki/More-Snippets) for example snippets.
 
 ## Adding CPM
 
@@ -76,29 +76,30 @@ mkdir -p cmake
 wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master/cmake/CPM.cmake
 ```
 
-You can even use CMake to download CPM for you. See the [wiki](https://github.com/TheLartians/CPM/wiki/Adding-CPM) for more details.
+You can also use CMake to download CPM for you. See the [wiki](https://github.com/TheLartians/CPM/wiki/Adding-CPM) for more details.
 
 ## Updating CPM
 
-To update CPM to the newest version, update the script in the project's root directory, for example by running the command above. Dependencies using CPM will automatically use the updated script of the outermost project.
+To update CPM to the newest version, update the script in the project's root directory, for example by running the command above.
+Dependencies using CPM will automatically use the updated script of the outermost project.
 
 ## Advantages
 
-- **Small and reusable projects** CPM takes care of all project dependencies, allowing developers to focus on creating small, well-tested frameworks.
-- **Cross-Platform** CPM adds projects via `add_subdirectory`, which is compatible with all CMake toolchains and generators.
-- **Reproducable builds** By using versioning via git tags it is ensured that a project will always be in the same state everywhere.
-- **Recursive dependencies** Ensures that no dependency is added twice and is added in the minimum required version.
+- **Small and reusable projects** CPM takes care of all project dependencies, allowing developers to focus on creating small, well-tested libraries.
+- **Cross-Platform** CPM adds projects directly at the configure stage and is compatible with all CMake toolchains and generators.
+- **Reproducable builds** By versioning dependencies via git commits or tags it is ensured that a project will always be buildable.
+- **Recursive dependencies** Ensures that no dependency is added twice and all are added in the minimum required version.
 - **Plug-and-play** No need to install anything. Just add the script to your project and you're good to go.
-- **No packaging required** There is a good chance your existing projects already work as CPM dependencies.
+- **No packaging required** Simply add all external sources as a dependency.
 - **Simple source distribution** CPM makes including projects with source files and dependencies easy, reducing the need for monolithic header files or git submodules.
 
 ## Limitations
 
 - **No pre-built binaries** For every new build directory, all dependencies are initially downloaded and built from scratch. To avoid extra downloads it is recommend to set the [`CPM_SOURCE_CACHE`](#CPM_SOURCE_CACHE) environmental variable. Using a caching compiler such as [sccahe](https://github.com/mozilla/sccache) can drastically reduce build time.
-- **Dependent on good CMakeLists** Many libraries do not have CMakeLists that work well for subprojects. Luckily this is slowly changing, however, until then, some manual configuration may be required (see the snippets [below](#snippets)). For best practices on preparing your projects for CPM, see the [wiki](https://github.com/TheLartians/CPM/wiki/Preparing-projects-for-CPM). 
-- **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit an error. This can be resolved by updating the outermost dependency version.
+- **Dependent on good CMakeLists** Many libraries do not have CMakeLists that work well for subprojects. Luckily this is slowly changing, however, until then, some manual configuration may be required (see the snippets [below](#snippets) for examples). For best practices on preparing projects for CPM, see the [wiki](https://github.com/TheLartians/CPM/wiki/Preparing-projects-for-CPM). 
+- **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit a warning. This can be resolved by adding a new version of the dependency in the outermost project.
 
-For projects with more complex needs and where an extra setup step doesn't matter, it is worth to check out fully featured C++ package managers such as [conan](https://conan.io), [vcpkg](https://github.com/microsoft/vcpkg) or [hunter](https://github.com/ruslo/hunter).
+For projects with more complex needs and where an extra setup step doesn't matter, it may be worth to check out a fully featured C++ package manager such as [conan](https://conan.io), [vcpkg](https://github.com/microsoft/vcpkg) or [hunter](https://github.com/ruslo/hunter).
 Support for these package managers is also [planned](https://github.com/TheLartians/CPM/issues/51) for a future version of CPM.
 
 ## Options
@@ -106,7 +107,13 @@ Support for these package managers is also [planned](https://github.com/TheLarti
 ### CPM_SOURCE_CACHE
 
 To avoid re-downloading dependencies, CPM has an option `CPM_SOURCE_CACHE` that can be passed to CMake as `-DCPM_SOURCE_CACHE=<path to an external download directory>`.
-It can also be defined system-wide as an environmental variable, by adding `export CPM_SOURCE_CACHE=$HOME/.cache/CPM` to your `.bashrc` or `.bash_profile`.
+This will also allow projects to be configured offline, as long as the dependencies have been added to the cache before.
+It may also be defined system-wide as an environmental variable, e.g. by exporting `CPM_SOURCE_CACHE` in your `.bashrc` or `.bash_profile`.
+
+```bash
+export CPM_SOURCE_CACHE=$HOME/.cache/CPM
+```
+
 Note that passing the variable as a configure option to CMake will always override the value set by the environmental variable.
 
 ### CPM_USE_LOCAL_PACKAGES
