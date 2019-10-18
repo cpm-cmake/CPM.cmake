@@ -73,7 +73,7 @@ To add CPM to your current project, simply add `cmake/CPM.cmake` to your project
 
 ```bash
 mkdir -p cmake
-wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM/master/cmake/CPM.cmake
+wget -O cmake/CPM.cmake https://raw.githubusercontent.com/TheLartians/CPM.cmake/master/cmake/CPM.cmake
 ```
 
 You can also use CMake to download CPM for you. See the [wiki](https://github.com/TheLartians/CPM/wiki/Adding-CPM) for more details.
