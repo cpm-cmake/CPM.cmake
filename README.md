@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/TheLartians/CPM.svg?branch=master)](https://travis-ci.com/TheLartians/CPM)
+[![Build Status](https://travis-ci.com/TheLartians/CPM.cmake.svg?branch=master)](https://travis-ci.com/TheLartians/CPM.cmake)
 
 <p align="center">
   <img src="./logo/CPM.png" height="100" />
