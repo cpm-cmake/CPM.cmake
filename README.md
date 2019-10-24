@@ -17,29 +17,33 @@ For everything else, the targets can be created manually after the dependency ha
 
 ## Usage
 
-After `CPM.cmake` has been [added](#adding-cpm) to your project, the function `CPMAddPackage` can be used to fetch and configure a dependency.
+After `CPM.cmake` has been [added](#adding-cpm) to your project, the function `CPMAddPackage` or `CPMFindPackage` can be used to fetch and configure a dependency.
 Afterwards, any targets defined in the dependency can be used directly.
-`CPMAddPackage` takes the following named parameters.
+`CPMFindPackage` and `CPMAddPackage` take the following named parameters.
 
 ```cmake
 CPMAddPackage(
-  NAME          # The unique name of the dependency (should be the main target's name)
+  NAME          # The unique name of the dependency (should be the exported target's name)
   VERSION       # The minimum version of the dependency (optional, defaults to 0)
   OPTIONS       # Configuration options passed to the dependency (optional)
   DOWNLOAD_ONLY # If set, the project is downloaded, but not configured (optional)
-  [...]         # Origin paramters forwarded to FetchContent_Declare, see below
+  [...]         # Origin parameters forwarded to FetchContent_Declare, see below
 )
 ```
 
 The origin may be specified by a `GIT_REPOSITORY`, but other sources, such as direct URLs, are [also supported](https://cmake.org/cmake/help/v3.11/module/ExternalProject.html#external-project-definition).
 If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for git projects.
 `GIT_TAG` can also be set to a specific commit or a branch name such as `master` to always download the most recent version.
+The optional argument `FIND_PACKAGE_ARGUMENTS` can be specified to a string of parameters that will be passed to `find_package` if enabled (see below).
 
-After calling `CPMAddPackage`, the following variables are defined in the local scope, where `<dependency>` is the name of the dependency.
+After calling `CPMAddPackage` or `CPMFindPackage`, the following variables are defined in the local scope, where `<dependency>` is the name of the dependency.
 
 - `<dependency>_SOURCE_DIR` is the path to the source of the dependency.
 - `<dependency>_BINARY_DIR` is the path to the build directory of the dependency.
 - `<dependency>_ADDED` is set to `YES` if the dependency has not been added before, otherwise it is set to `NO`.
+
+The difference between `CPMFindPackage` and `CPMAddPackage` is that `CPMFindPackage` will try to find a local dependency via CMake's `find_package` and fallback to `CPMAddPackage` if the dependency is not found.
+This behaviour can be also modified globally via [CPM options](#options).
 
 ## Full CMakeLists Example
 
@@ -100,7 +104,7 @@ Dependencies using CPM will automatically use the updated script of the outermos
 - **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit a warning. This can be resolved by adding a new version of the dependency in the outermost project.
 
 For projects with more complex needs and where an extra setup step doesn't matter, it may be worth to check out a fully featured C++ package manager such as [conan](https://conan.io), [vcpkg](https://github.com/microsoft/vcpkg) or [hunter](https://github.com/ruslo/hunter).
-Support for these package managers is also [planned](https://github.com/TheLartians/CPM/issues/51) for a future version of CPM.
+Packages added with `CPMFindPackages` should work with C++ package managers.
 
 ## Options
 
@@ -116,10 +120,17 @@ export CPM_SOURCE_CACHE=$HOME/.cache/CPM
 
 Note that passing the variable as a configure option to CMake will always override the value set by the environmental variable.
 
+### CPM_DOWNLOAD_ALL
+
+If set, CPM will forward all calls to `CPMFindPackage` as `CPMAddPackage`.
+This is useful to create reproducible builds or to determine if the source parameters have all been set correctly.
+This can also be set as an environmental variable.
+
 ### CPM_USE_LOCAL_PACKAGES
 
 CPM can be configured to use `find_package` to search for locally installed dependencies first by setting the CMake option `CPM_USE_LOCAL_PACKAGES`.
 If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will emit an error if the dependency is not found locally.
+These options can also be set as environmental variables.
 
 ## Snippets
 
