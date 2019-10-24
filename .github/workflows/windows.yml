@@ -13,4 +13,4 @@ jobs:
     - name: run tests
       run: |
         cmake -Htest -Bbuild/test
-        CTEST_OUTPUT_ON_FAILURE=1 cmake --build build/test --target test
+        cmake --build build/test --target test-verbose
