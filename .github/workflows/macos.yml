@@ -1,0 +1,16 @@
+name: MacOS
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: macOS-10.14
+    
+    steps:
+    - uses: actions/checkout@v1
+    
+    - name: run tests
+      run: |
+        cmake -Htest -Bbuild/test
+        CTEST_OUTPUT_ON_FAILURE=1 cmake --build build/test --target test

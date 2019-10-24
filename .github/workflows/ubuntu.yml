@@ -1,11 +1,11 @@
-name: Test MacOS
+name: Ubuntu
 
 on: [push]
 
 jobs:
   build:
 
-    runs-on: macOS-10.14
+    runs-on: ubuntu-18.04
     
     steps:
     - uses: actions/checkout@v1
@@ -14,6 +14,3 @@ jobs:
       run: |
         cmake -Htest -Bbuild/test
         CTEST_OUTPUT_ON_FAILURE=1 cmake --build build/test --target test
-
-    - name: build examples
-      run: python3 examples/build_all.py
