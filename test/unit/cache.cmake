@@ -29,7 +29,7 @@ function(reset_test)
   update_cmake_lists()
 endfunction()
 
-set(CATCH2_VERSION 2.8.0)
+set(FIBONACCI_VERSION 1.0)
 
 ## Read CPM_SOURCE_CACHE from arguments
 
@@ -43,13 +43,13 @@ execute_process(
 
 ASSERT_EQUAL(${ret} "0")
 
-if (NOT EXISTS "${CPM_SOURCE_CACHE_DIR}/catch2")
-  ASSERTION_FAILED("catch2 not in cache")
+if (NOT EXISTS "${CPM_SOURCE_CACHE_DIR}/fibonacci")
+  ASSERTION_FAILED("fibonacci not in cache")
 endif()
 
-FILE(GLOB catch2_versions "${CPM_SOURCE_CACHE_DIR}/catch2/*")
-list(LENGTH catch2_versions catch2_version_count)
-ASSERT_EQUAL(${catch2_version_count} "1")
+FILE(GLOB FIBONACCI_VERSIONs "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
+list(LENGTH FIBONACCI_VERSIONs FIBONACCI_VERSION_count)
+ASSERT_EQUAL(${FIBONACCI_VERSION_count} "1")
 
 FILE(GLOB fibonacci_versions "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
 list(LENGTH fibonacci_versions fibonacci_version_count)
@@ -57,7 +57,7 @@ ASSERT_EQUAL(${fibonacci_version_count} "1")
 
 ## Update dependency and keep CPM_SOURCE_CACHE
 
-set(CATCH2_VERSION 2.9.0)
+set(FIBONACCI_VERSION 2.0)
 update_cmake_lists()
 
 execute_process(
@@ -68,13 +68,9 @@ execute_process(
 
 ASSERT_EQUAL(${ret} "0")
 
-FILE(GLOB catch2_versions "${CPM_SOURCE_CACHE_DIR}/catch2/*")
-list(LENGTH catch2_versions catch2_version_count)
-ASSERT_EQUAL(${catch2_version_count} "2")
-
-FILE(GLOB fibonacci_versions "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
-list(LENGTH fibonacci_versions fibonacci_version_count)
-ASSERT_EQUAL(${fibonacci_version_count} "1")
+FILE(GLOB FIBONACCI_VERSIONs "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
+list(LENGTH FIBONACCI_VERSIONs FIBONACCI_VERSION_count)
+ASSERT_EQUAL(${FIBONACCI_VERSION_count} "2")
 
 ## Clear cache and update
 
@@ -88,8 +84,8 @@ execute_process(
 
 ASSERT_EQUAL(${ret} "0")
 
-if (NOT EXISTS "${CPM_SOURCE_CACHE_DIR}/catch2")
-  ASSERTION_FAILED("catch2 not in cache")
+if (NOT EXISTS "${CPM_SOURCE_CACHE_DIR}/fibonacci")
+  ASSERTION_FAILED("fibonacci not in cache")
 endif()
 
 ## Read CPM_SOURCE_CACHE from environment
@@ -104,8 +100,8 @@ execute_process(
 
 ASSERT_EQUAL(${ret} "0")
 
-if (NOT EXISTS "${CPM_SOURCE_CACHE_DIR}/catch2")
-  ASSERTION_FAILED("catch2 not in cache")
+if (NOT EXISTS "${CPM_SOURCE_CACHE_DIR}/fibonacci")
+  ASSERTION_FAILED("fibonacci not in cache")
 endif()
 
 ## Overwrite CPM_SOURCE_CACHE with argument
@@ -120,6 +116,6 @@ execute_process(
 
 ASSERT_EQUAL(${ret} "0")
 
-if (NOT EXISTS "${CPM_SOURCE_CACHE_DIR}/catch2")
-  ASSERTION_FAILED("catch2 not in cache")
+if (NOT EXISTS "${CPM_SOURCE_CACHE_DIR}/fibonacci")
+  ASSERTION_FAILED("fibonacci not in cache")
 endif()
