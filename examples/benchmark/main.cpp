@@ -15,14 +15,14 @@ std::vector<unsigned> createTestNumbers(){
   return v;
 }
 
-void fibonnacci(benchmark::State& state) {
+void fibonacci(benchmark::State& state) {
   auto numbers = createTestNumbers();
   for (auto _ : state) {
-    for (auto v: numbers) benchmark::DoNotOptimize(fibonnacci(v));
+    for (auto v: numbers) benchmark::DoNotOptimize(fibonacci(v));
   }
 }
 
-BENCHMARK(fibonnacci);
+BENCHMARK(fibonacci);
 
 void fastFibonacci(benchmark::State& state) {
   auto numbers = createTestNumbers();

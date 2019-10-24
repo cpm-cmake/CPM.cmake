@@ -6,7 +6,7 @@ project(CPMSimpleMatchExample)
 
 include(../../cmake/CPM.cmake)
 
-CPMAddPackage(
+CPMFindPackage(
   NAME simple_match
   GIT_REPOSITORY https://github.com/jbandela/simple_match.git
   GIT_TAG a3ab17f3d98db302de68ad85ed399a42ae41889e

@@ -6,7 +6,7 @@ project(CPMRangev3Example)
 
 include(../../cmake/CPM.cmake)
 
-CPMAddPackage(
+CPMFindPackage(
   NAME range-v3
   URL https://github.com/ericniebler/range-v3/archive/0.5.0.zip
   VERSION 0.5.0

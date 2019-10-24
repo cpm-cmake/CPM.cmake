@@ -6,7 +6,7 @@ project(CPMSol2Example)
 
 include(../../cmake/CPM.cmake)
 
-CPMAddPackage(
+CPMFindPackage(
   NAME lua
   GIT_REPOSITORY https://github.com/lua/lua.git
   VERSION 5.3.5
@@ -26,7 +26,7 @@ if (lua_ADDED)
 endif()
 
 
-CPMAddPackage(
+CPMFindPackage(
   NAME sol2
   URL https://github.com/ThePhD/sol2/archive/v3.0.2.zip
   VERSION 3.0.2

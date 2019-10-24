@@ -6,7 +6,7 @@ project(CPMlinenoiseExample)
 
 include(../../cmake/CPM.cmake)
 
-CPMAddPackage(
+CPMFindPackage(
   NAME linenoise
   GIT_TAG 1.0
   GITHUB_REPOSITORY antirez/linenoise

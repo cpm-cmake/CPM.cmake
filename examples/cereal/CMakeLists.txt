@@ -6,7 +6,7 @@ project(CPMExampleCereal)
 
 include(../../cmake/CPM.cmake)
 
-CPMAddPackage(
+CPMFindPackage(
   NAME cereal
   VERSION 1.2.2
   GITHUB_REPOSITORY USCiLab/cereal
