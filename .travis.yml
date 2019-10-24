@@ -45,6 +45,6 @@ before_install:
 script:
   # unit tests
   - cmake -Htest -Bbuild/test
-  - CTEST_OUTPUT_ON_FAILURE=1 cmake --build build/test --target test
+  - cmake --build build/test --target test-verbose
   # build examples
   - python3 examples/build_all.py
