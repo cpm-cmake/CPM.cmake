@@ -14,4 +14,4 @@ foreach(test ${tests})
   )
 endforeach()
 
-add_custom_target(test-verbose COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
+add_custom_target(test-verbose COMMAND ${CMAKE_CTEST_COMMAND} -C Debug --verbose)
