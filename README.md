@@ -7,7 +7,7 @@
 # Setup-free CMake dependency management
 
 CPM.cmake is a CMake script that adds dependency management capabilities to CMake.
-It's built as a wrapper around CMake's [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module that adds version control, caching and a simple API.
+It's built as a thin wrapper around CMake's [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module that adds version control, caching and a simple API.
 
 ## Manage everything
 
