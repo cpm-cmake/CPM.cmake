@@ -10,7 +10,7 @@ option(ENABLE_TEST_COVERAGE "Enable test coverage" OFF)
 
 include(../../cmake/CPM.cmake)
 
-CPMFindPackage(
+CPMAddPackage(
   NAME cxxopts
   GITHUB_REPOSITORY jarro2783/cxxopts
   VERSION 2.2.0

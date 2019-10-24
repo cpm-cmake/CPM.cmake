@@ -6,7 +6,7 @@ project(CPMEnTTExample)
 
 include(../../cmake/CPM.cmake)
 
-CPMFindPackage(
+CPMAddPackage(
   NAME EnTT
   VERSION 3.1.1
   GITHUB_REPOSITORY skypjack/entt

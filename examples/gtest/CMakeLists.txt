@@ -16,7 +16,7 @@ CPMAddPackage(
   VERSION 2.0
 )
 
-CPMFindPackage(
+CPMAddPackage(
   NAME googletest
   GITHUB_REPOSITORY google/googletest
   GIT_TAG release-1.8.1

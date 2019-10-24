@@ -48,5 +48,3 @@ script:
   - CTEST_OUTPUT_ON_FAILURE=1 cmake --build build/test --target test
   # build examples
   - python3 examples/build_all.py
-  # build examples (always download dependencies)
-  - CPM_DOWNLOAD_ALL=YES python3 examples/build_all.py

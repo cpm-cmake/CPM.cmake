@@ -16,7 +16,7 @@ CPMAddPackage(
   VERSION 2.0
 )
 
-CPMFindPackage(
+CPMAddPackage(
   NAME doctest
   GITHUB_REPOSITORY onqtam/doctest
   GIT_TAG 2.3.2

@@ -6,7 +6,7 @@ project(CPMJSONExample)
 
 include(../../cmake/CPM.cmake)
 
-CPMFindPackage(
+CPMAddPackage(
   NAME nlohmann_json
   VERSION 3.6.1  
   # not using the repo as it takes forever to clone
