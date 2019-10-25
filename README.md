@@ -107,8 +107,8 @@ Dependencies using CPM will automatically use the updated script of the outermos
 - **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit a warning. This can be resolved by adding a new version of the dependency in the outermost project.
 
 For projects with more complex needs and where an extra setup step doesn't matter, it may be worth to check out an external C++ package manager such as [vcpkg](https://github.com/microsoft/vcpkg), [conan](https://conan.io) or [hunter](https://github.com/ruslo/hunter).
-Dependencies added with `CPMFindPackages` should work with external package managers.
-This can also be enabled for all CPM dependencies by enabling [`CPM_USE_LOCAL_PACKAGES`](#cpmuselocalpackages).
+Dependencies added with `CPMFindPackage` should work with external package managers.
+Additionally, the option [`CPM_USE_LOCAL_PACKAGES`](#cpmuselocalpackages) will enable `find_package` for all CPM dependencies.
 
 ## Options
 
