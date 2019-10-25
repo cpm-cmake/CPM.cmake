@@ -36,7 +36,7 @@ if(CPM_DIRECTORY)
       message(AUTHOR_WARNING "${CPM_INDENT} \
 A dependency is using a more recent CPM version (${CURRENT_CPM_VERSION}) than the current project (${CPM_VERSION}). \
 It is recommended to upgrade CPM to the most recent version. \
-See https://github.com/TheLartians/CPM for more information."
+See https://github.com/TheLartians/CPM.cmake for more information."
       )
     endif()
     return()
