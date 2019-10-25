@@ -28,7 +28,7 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-set(CURRENT_CPM_VERSION 0.15) 
+set(CURRENT_CPM_VERSION 0.15.1)
 
 if(CPM_DIRECTORY)
   if(NOT ${CPM_DIRECTORY} MATCHES ${CMAKE_CURRENT_LIST_DIR})
@@ -39,6 +39,7 @@ It is recommended to upgrade CPM to the most recent version. \
 See https://github.com/TheLartians/CPM for more information."
       )
     endif()
+    return()
   endif()
 endif()
 
