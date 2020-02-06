@@ -28,7 +28,7 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-set(CURRENT_CPM_VERSION 0.15.1)
+set(CURRENT_CPM_VERSION 0.16)
 
 if(CPM_DIRECTORY)
   if(NOT ${CPM_DIRECTORY} MATCHES ${CMAKE_CURRENT_LIST_DIR})
@@ -303,9 +303,15 @@ endfunction()
 # splits a package option
 function(cpm_parse_option OPTION)
   string(REGEX MATCH "^[^ ]+" OPTION_KEY ${OPTION})
+  string(LENGTH ${OPTION} OPTION_LENGTH)
   string(LENGTH ${OPTION_KEY} OPTION_KEY_LENGTH)
-  math(EXPR OPTION_KEY_LENGTH "${OPTION_KEY_LENGTH}+1")
-  string(SUBSTRING ${OPTION} "${OPTION_KEY_LENGTH}" "-1" OPTION_VALUE)
+  if (OPTION_KEY_LENGTH STREQUAL OPTION_LENGTH)
+    # no value for key provided, assume user wants to set option to "ON"
+    set(OPTION_VALUE "ON")
+  else()
+    math(EXPR OPTION_KEY_LENGTH "${OPTION_KEY_LENGTH}+1")
+    string(SUBSTRING ${OPTION} "${OPTION_KEY_LENGTH}" "-1" OPTION_VALUE)
+  endif()
   set(OPTION_KEY "${OPTION_KEY}" PARENT_SCOPE)
   set(OPTION_VALUE "${OPTION_VALUE}" PARENT_SCOPE)
 endfunction()
