@@ -305,7 +305,7 @@ function(cpm_parse_option OPTION)
   string(REGEX MATCH "^[^ ]+" OPTION_KEY ${OPTION})
   string(LENGTH ${OPTION} OPTION_LENGTH)
   string(LENGTH ${OPTION_KEY} OPTION_KEY_LENGTH)
-  if (OPTION_KEY_LENGTH STREQUAL OPTION_KEY_LENGTH)
+  if (OPTION_KEY_LENGTH STREQUAL OPTION_LENGTH)
     # no value for key provided, assume user wants to set option to "ON"
     set(OPTION_VALUE "ON")
   else()
