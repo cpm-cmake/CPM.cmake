@@ -23,7 +23,7 @@ CPMAddPackage(
   VERSION 1.8.1
   OPTIONS
       "INSTALL_GTEST OFF"
-      "gtest_force_shared_crt ON"
+      "gtest_force_shared_crt"
 )
 
 # ---- Create binary ----
