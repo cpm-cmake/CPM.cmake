@@ -10,6 +10,7 @@ jobs:
     name: Publish CPM.cmake
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v1
       - name: Upload CPM.cmake to release
         uses: svenstaro/upload-release-action@v1-release
         with:
