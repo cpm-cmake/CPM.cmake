@@ -111,7 +111,6 @@ function(CPMAddPackage)
   set(oneValueArgs
     NAME
     VERSION
-    VERSION_PREFIX
     GIT_TAG
     DOWNLOAD_ONLY
     GITHUB_REPOSITORY
@@ -125,7 +124,7 @@ function(CPMAddPackage)
     OPTIONS
   )
 
-  cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
+  cmake_parse_arguments(CPM_ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
   if(CPM_USE_LOCAL_PACKAGES OR CPM_LOCAL_PACKAGES_ONLY)
     cpm_find_package(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" ${CPM_ARGS_FIND_PACKAGE_ARGUMENTS})
@@ -139,10 +138,6 @@ function(CPMAddPackage)
     endif()
   endif()
 
-  if (NOT DEFINED CPM_ARGS_VERSION_PREFIX AND NOT "VERSION_PREFIX" IN_LIST CPM_ARGS_KEYWORDS_MISSING_VALUES)
-    set(CPM_ARGS_VERSION_PREFIX "v")
-  endif()
-
   if (NOT DEFINED CPM_ARGS_VERSION)
     if (DEFINED CPM_ARGS_GIT_TAG) 
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
@@ -153,7 +148,7 @@ function(CPMAddPackage)
   endif()
 
   if (NOT DEFINED CPM_ARGS_GIT_TAG)
-    set(CPM_ARGS_GIT_TAG ${CPM_ARGS_VERSION_PREFIX}${CPM_ARGS_VERSION})
+    set(CPM_ARGS_GIT_TAG v${CPM_ARGS_VERSION})
   endif()
 
   list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_TAG ${CPM_ARGS_GIT_TAG})

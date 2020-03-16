@@ -8,8 +8,7 @@ include(../../cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME fmt
-  VERSION 6.1.2
-  VERSION_PREFIX "" # fmt uses non-prefixed git tags
+  GIT_TAG 6.1.2
   GITHUB_REPOSITORY fmtlib/fmt
 )
 
