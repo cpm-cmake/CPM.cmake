@@ -219,7 +219,7 @@ function(CPMAddPackage)
     list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS SOURCE_DIR ${download_directory})
     if (EXISTS ${download_directory})
       # disable the download command to allow offline builds
-      list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS DOWNLOAD_COMMAND "${CMAKE_COMMAND};-E;true")
+      list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS DOWNLOAD_COMMAND "${CMAKE_COMMAND}")
       set(PACKAGE_INFO "${download_directory}")
     else()
       # remove timestamps so CMake will re-download the dependency
