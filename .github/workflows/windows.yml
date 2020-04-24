@@ -20,12 +20,3 @@ jobs:
       run: |
         cmake -Htest -Bbuild/test
         cmake --build build/test --target test-verbose
-
-    - name: build an example with cache
-      shell: bash
-      run: |
-        CPM_SOURCE_CACHE="$(pwd)/cache" cmake -Hexamples/doctest -Bbuild/doctest
-        cmake --build build/doctest
-        rm -rf build/doctest
-        CPM_SOURCE_CACHE="$(pwd)/cache" cmake -Hexamples/doctest -Bbuild/doctest
-        cmake --build build/doctest
