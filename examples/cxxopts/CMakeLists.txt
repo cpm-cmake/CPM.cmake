@@ -2,10 +2,6 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 project(CPMExampleCXXOpts)
 
-# ---- Options ----
-
-option(ENABLE_TEST_COVERAGE "Enable test coverage" OFF)
-
 # ---- Dependencies ----
 
 include(../../cmake/CPM.cmake)
@@ -23,4 +19,4 @@ CPMAddPackage(
 
 add_executable(CPMExampleCXXOpts main.cpp)
 target_link_libraries(CPMExampleCXXOpts cxxopts)
-set_target_properties(CPMExampleCXXOpts PROPERTIES CXX_STANDARD 17 COMPILE_FLAGS "-Wall -pedantic -Wextra -Werror")
+set_target_properties(CPMExampleCXXOpts PROPERTIES CXX_STANDARD 17)
