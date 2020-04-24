@@ -28,7 +28,7 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-set(CURRENT_CPM_VERSION 0.19)
+set(CURRENT_CPM_VERSION 0.20)
 
 if(CPM_DIRECTORY)
   if(NOT ${CPM_DIRECTORY} MATCHES ${CMAKE_CURRENT_LIST_DIR})
@@ -218,7 +218,8 @@ function(CPMAddPackage)
     set(download_directory ${CPM_SOURCE_CACHE}/${lower_case_name}/${origin_hash})
     list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS SOURCE_DIR ${download_directory})
     if (EXISTS ${download_directory})
-      list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS DOWNLOAD_COMMAND ";")
+      # disable the download command to allow offline builds
+      list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS DOWNLOAD_COMMAND "${CMAKE_COMMAND}")
       set(PACKAGE_INFO "${download_directory}")
     else()
       # remove timestamps so CMake will re-download the dependency
