@@ -218,7 +218,7 @@ function(CPMAddPackage)
     set(download_directory ${CPM_SOURCE_CACHE}/${lower_case_name}/${origin_hash})
     list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS SOURCE_DIR ${download_directory})
     if (EXISTS ${download_directory})
-      list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS DOWNLOAD_COMMAND ":")
+      list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS DOWNLOAD_COMMAND ";")
       set(PACKAGE_INFO "${download_directory}")
     else()
       # remove timestamps so CMake will re-download the dependency

@@ -1,11 +1,11 @@
 name: MacOS
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
 
-    runs-on: macOS-10.14
+    runs-on: macos-latest
     
     steps:
     - uses: actions/checkout@v1

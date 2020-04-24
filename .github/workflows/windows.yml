@@ -1,11 +1,11 @@
 name: Windows
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
 
-    runs-on: windows-2019
+    runs-on: windows-latest
     
     steps:
     - uses: actions/checkout@v1
@@ -14,3 +14,12 @@ jobs:
       run: |
         cmake -Htest -Bbuild/test
         cmake --build build/test --target test-verbose
+
+    - name: build an example with cache
+      shell: bash
+      run: |
+        CPM_SOURCE_CACHE="$(pwd)/cache" cmake -Hexamples/doctest -Bbuild/doctest
+        cmake --build build/doctest
+        rm -rf build/doctest
+        CPM_SOURCE_CACHE="$(pwd)/cache" cmake -Hexamples/doctest -Bbuild/doctest
+        cmake --build build/doctest
