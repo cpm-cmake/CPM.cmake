@@ -8,6 +8,7 @@ set(CPM_SOURCE_CACHE_DIR "${CMAKE_CURRENT_BINARY_DIR}/CPM")
 set(TEST_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/cache)
 
 function(clear_cache)
+  message(STATUS "clearing CPM cache")
   FILE(REMOVE_RECURSE ${CPM_SOURCE_CACHE_DIR})
   
   if (EXISTS "${CPM_SOURCE_CACHE_DIR}")
@@ -103,6 +104,16 @@ ASSERT_EQUAL(${ret} "0")
 if (NOT EXISTS "${CPM_SOURCE_CACHE_DIR}/fibonacci")
   ASSERTION_FAILED("fibonacci not in cache")
 endif()
+
+## Reuse cached packages for other build
+
+execute_process(
+  COMMAND 
+  ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/cache" "-B${TEST_BUILD_DIR}-2"
+  RESULT_VARIABLE ret
+)
+
+ASSERT_EQUAL(${ret} "0")
 
 ## Overwrite CPM_SOURCE_CACHE with argument
 
