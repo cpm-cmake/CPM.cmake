@@ -84,7 +84,7 @@ mkdir -p cmake
 wget -O cmake/CPM.cmake https://github.com/TheLartians/CPM.cmake/releases/latest/download/CPM.cmake
 ```
 
-You can also use CMake to download CPM for you. See the [wiki](https://github.com/TheLartians/CPM/wiki/Adding-CPM) for more details.
+You can also use CMake to download CPM for you. See the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/Downloading-CPM.cmake-in-CMake) for more details.
 
 ## Updating CPM
 
