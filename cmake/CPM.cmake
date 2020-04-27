@@ -67,7 +67,7 @@ if (NOT CPM_DONT_UPDATE_MODULE_PATH)
   FILE(REMOVE_RECURSE ${CPM_MODULE_PATH})
   file(MAKE_DIRECTORY ${CPM_MODULE_PATH})
   # locally added CPM modules should override global packages
-  list(PREPEND CMAKE_MODULE_PATH "${CPM_MODULE_PATH}")
+  set(CMAKE_MODULE_PATH "${CPM_MODULE_PATH};${CMAKE_MODULE_PATH}")
 endif()
 
 include(FetchContent)
