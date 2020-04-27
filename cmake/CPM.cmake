@@ -48,7 +48,6 @@ See https://github.com/TheLartians/CPM.cmake for more information."
   endif()
 endif()
 
-message("init")
 set_property(GLOBAL PROPERTY CPM_INITIALIZED true) 
 
 option(CPM_USE_LOCAL_PACKAGES "Always try to use `find_package` to get dependencies" $ENV{CPM_USE_LOCAL_PACKAGES})
@@ -58,6 +57,7 @@ option(CPM_DONT_UPDATE_MODULE_PATH "Don't update the module path to allow using 
 
 set(CPM_VERSION ${CURRENT_CPM_VERSION} CACHE INTERNAL "")
 set(CPM_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "")
+set(CPM_FILE ${CMAKE_CURRENT_LIST_FILE} CACHE INTERNAL "")
 set(CPM_PACKAGES "" CACHE INTERNAL "")
 set(CPM_DRY_RUN OFF CACHE INTERNAL "Don't download or configure dependencies (for testing)")
 
@@ -102,8 +102,8 @@ endfunction()
 # This prevents `find_package(NAME)` from finding the system library
 function(CPMCreateModuleFile Name)
   if (NOT CPM_DONT_UPDATE_MODULE_PATH)
-  # erase any previous modules
-  FILE(WRITE ${CPM_MODULE_PATH}/Find${Name}.cmake "${ARGN}\nset(${Name}_FOUND TRUE)")
+    # erase any previous modules
+    FILE(WRITE ${CPM_MODULE_PATH}/Find${Name}.cmake "include(${CPM_FILE})\n${ARGN}\nset(${Name}_FOUND TRUE)")
   endif()
 endfunction()
 
