@@ -41,7 +41,15 @@ See https://github.com/TheLartians/CPM.cmake for more information."
     endif()
     return()
   endif()
+
+  get_property(CPM_INITIALIZED GLOBAL "" PROPERTY CPM_INITIALIZED SET)   
+  if (CPM_INITIALIZED)
+    return()
+  endif()
 endif()
+
+message("init")
+set_property(GLOBAL PROPERTY CPM_INITIALIZED true) 
 
 option(CPM_USE_LOCAL_PACKAGES "Always try to use `find_package` to get dependencies" $ENV{CPM_USE_LOCAL_PACKAGES})
 option(CPM_LOCAL_PACKAGES_ONLY "Only use `find_package` to get dependencies" $ENV{CPM_LOCAL_PACKAGES_ONLY})
