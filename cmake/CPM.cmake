@@ -1,6 +1,6 @@
-# TheLartians/CPM - A simple Git dependency manager
+# CPM.cmake - A simple Git dependency manager
 # =================================================
-# See https://github.com/TheLartians/CPM for usage and update instructions.
+# See https://github.com/TheLartians/CPM.cmake for usage and update instructions.
 #
 # MIT License
 # ----------- 
