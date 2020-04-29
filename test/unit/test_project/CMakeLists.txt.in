@@ -11,9 +11,15 @@ option(ENABLE_TEST_COVERAGE "Enable test coverage" OFF)
 include(@CPM_PATH@/CPM.cmake)
 
 CPMAddPackage(
-  NAME Dependency
+  NAME @TEST_DEPENDENCY_NAME@
   SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/dependency
 )
+
+# ---- check if generated modules override find_package ----
+
+if (@test_check_find_package@)
+  find_package(@TEST_DEPENDENCY_NAME@ REQUIRED)
+endif()
 
 # ---- Call dependency method to validate correct addition of directory ----
 
