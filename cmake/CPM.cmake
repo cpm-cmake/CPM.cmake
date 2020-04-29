@@ -1,5 +1,5 @@
-# CPM.cmake - A simple Git dependency manager
-# =================================================
+# CPM.cmake - CMake's missing package manager
+# ===========================================
 # See https://github.com/TheLartians/CPM.cmake for usage and update instructions.
 #
 # MIT License
