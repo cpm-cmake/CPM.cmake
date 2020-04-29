@@ -1,6 +1,6 @@
-# TheLartians/CPM - A simple Git dependency manager
-# =================================================
-# See https://github.com/TheLartians/CPM for usage and update instructions.
+# CPM.cmake - CMake's missing package manager
+# ===========================================
+# See https://github.com/TheLartians/CPM.cmake for usage and update instructions.
 #
 # MIT License
 # ----------- 
@@ -28,7 +28,7 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-set(CURRENT_CPM_VERSION 0.21)
+set(CURRENT_CPM_VERSION 0.22)
 
 if(CPM_DIRECTORY)
   if(NOT ${CPM_DIRECTORY} MATCHES ${CMAKE_CURRENT_LIST_DIR})
@@ -320,7 +320,8 @@ function (cpm_fetch_package PACKAGE DOWNLOAD_ONLY)
   set(CPM_OLD_INDENT "${CPM_INDENT}")
   set(CPM_INDENT "${CPM_INDENT} ${PACKAGE}:")
   if(${DOWNLOAD_ONLY})
-    if(NOT "${PACKAGE}_POPULATED")
+    FetchContent_GetProperties(${PACKAGE})
+    if(NOT ${PACKAGE}_POPULATED)
       FetchContent_Populate(${PACKAGE})
     endif()
   else()
