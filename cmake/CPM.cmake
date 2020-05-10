@@ -31,7 +31,7 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 set(CURRENT_CPM_VERSION 0.23)
 
 if(CPM_DIRECTORY)
-  if(NOT ${CPM_DIRECTORY} MATCHES ${CMAKE_CURRENT_LIST_DIR})
+  if(NOT ${CPM_DIRECTORY} STREQUAL ${CMAKE_CURRENT_LIST_DIR})
     if (${CPM_VERSION} VERSION_LESS ${CURRENT_CPM_VERSION})
       message(AUTHOR_WARNING "${CPM_INDENT} \
 A dependency is using a more recent CPM version (${CURRENT_CPM_VERSION}) than the current project (${CPM_VERSION}). \
