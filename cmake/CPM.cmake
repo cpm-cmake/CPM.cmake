@@ -28,11 +28,11 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-set(CURRENT_CPM_VERSION 0.23)
+set(CURRENT_CPM_VERSION 0.24)
 
 if(CPM_DIRECTORY)
-  if(NOT ${CPM_DIRECTORY} STREQUAL ${CMAKE_CURRENT_LIST_DIR})
-    if (${CPM_VERSION} VERSION_LESS ${CURRENT_CPM_VERSION})
+  if(NOT CPM_DIRECTORY STREQUAL CMAKE_CURRENT_LIST_DIR)
+    if (CPM_VERSION VERSION_LESS CURRENT_CPM_VERSION)
       message(AUTHOR_WARNING "${CPM_INDENT} \
 A dependency is using a more recent CPM version (${CURRENT_CPM_VERSION}) than the current project (${CPM_VERSION}). \
 It is recommended to upgrade CPM to the most recent version. \
@@ -162,10 +162,7 @@ function(CPMCheckIfPackageAlreadyAdded CPM_ARGS_NAME CPM_ARGS_VERSION CPM_ARGS_O
         endif()
       endforeach()
     endif()
-    cpm_fetch_package(${CPM_ARGS_NAME} ${DOWNLOAD_ONLY})
     cpm_get_fetch_properties(${CPM_ARGS_NAME})
-    SET(${CPM_ARGS_NAME}_SOURCE_DIR "${${CPM_ARGS_NAME}_SOURCE_DIR}")
-    SET(${CPM_ARGS_NAME}_BINARY_DIR "${${CPM_ARGS_NAME}_BINARY_DIR}")  
     SET(${CPM_ARGS_NAME}_ADDED NO)
     SET(CPM_PACKAGE_ALREADY_ADDED YES PARENT_SCOPE)
     cpm_export_variables()
