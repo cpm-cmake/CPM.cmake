@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-project(CPMExampleCatch2)
+project(CPMTest)
 
 # ---- Options ----
 
@@ -9,17 +9,11 @@ option(ENABLE_TEST_COVERAGE "Enable test coverage" OFF)
 # ---- Dependencies ----
 
 include(@CPM_PATH@/CPM.cmake)
+CPMUsePackageLock(package-lock.cmake)
 
-CPMAddPackage(
-  NAME @TEST_DEPENDENCY_NAME@
-  SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/dependency
-)
+@PREPARE_CODE@
 
-# ---- check if generated modules override find_package ----
-
-if (@test_check_find_package@)
-  find_package(@TEST_DEPENDENCY_NAME@ REQUIRED)
-endif()
+CPMGetPackage(Dependency)
 
 # ---- Call dependency method to validate correct addition of directory ----
 
