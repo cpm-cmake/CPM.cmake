@@ -217,11 +217,11 @@ function(CPMAddPackage)
   endif()
 
   if (CPM_ARGS_GITHUB_REPOSITORY)
-    list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_REPOSITORY "https://github.com/${CPM_ARGS_GITHUB_REPOSITORY}.git")
+    set(CPM_ARGS_GIT_REPOSITORY "https://github.com/${CPM_ARGS_GITHUB_REPOSITORY}.git")
   endif()
 
   if (CPM_ARGS_GITLAB_REPOSITORY)
-    list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_REPOSITORY "https://gitlab.com/${CPM_ARGS_GITLAB_REPOSITORY}.git")
+    list(CPM_ARGS_GIT_REPOSITORY "https://gitlab.com/${CPM_ARGS_GITLAB_REPOSITORY}.git")
   endif()
 
   if (DEFINED CPM_ARGS_GIT_REPOSITORY)
@@ -244,7 +244,6 @@ function(CPMAddPackage)
 
   # Check for available declaration
   if (DEFINED "CPM_DECLARATION_${CPM_ARGS_NAME}" AND NOT "${CPM_DECLARATION_${CPM_ARGS_NAME}}" STREQUAL "")
-    message("is declared: ${CPM_DECLARATION_${CPM_ARGS_NAME}}")
     set(declaration ${CPM_DECLARATION_${CPM_ARGS_NAME}})
     set(CPM_DECLARATION_${CPM_ARGS_NAME} "")
     CPMAddPackage(${declaration})
@@ -276,8 +275,6 @@ function(CPMAddPackage)
       set(${OPTION_KEY} ${OPTION_VALUE} CACHE INTERNAL "")
     endforeach()
   endif()
-
-  set(CPM_ARGS_UNPARSED_ARGUMENTS "")
 
   if (DEFINED CPM_ARGS_GIT_TAG)
     set(PACKAGE_INFO "${CPM_ARGS_GIT_TAG}")
@@ -311,7 +308,9 @@ function(CPMAddPackage)
   cpm_fetch_package(${CPM_ARGS_NAME} ${DOWNLOAD_ONLY})
   cpm_get_fetch_properties(${CPM_ARGS_NAME})
   CPMCreateModuleFile(${CPM_ARGS_NAME} "CPMAddPackage(${ARGN})")
-  cpm_add_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
+  if (TARGET cpm-update-package-lock)
+    cpm_add_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
+  endif()
   SET(${CPM_ARGS_NAME}_ADDED YES)
   cpm_export_variables(${CPM_ARGS_NAME})
 endfunction()
@@ -329,7 +328,6 @@ endmacro()
 macro(CPMDeclarePackage Name)
   if (NOT DEFINED "CPM_DECLARATION_${CPM_ARGS_NAME}")
     set("CPM_DECLARATION_${Name}" "${ARGN}")
-    message("declare: CPM_DECLARATION_${Name}: ${CPM_DECLARATION_${Name}}")
   endif()
 endmacro()
 
@@ -368,9 +366,6 @@ endfunction()
 # declares a package in FetchContent_Declare 
 function (cpm_declare_fetch PACKAGE VERSION INFO)
   message(STATUS "${CPM_INDENT} adding package ${PACKAGE}@${VERSION} (${INFO})")
-  message("test: FetchContent_Declare(${PACKAGE}
-  ${ARGN}
-)")
 
   if (${CPM_DRY_RUN}) 
     message(STATUS "${CPM_INDENT} package not declared (dry run)")
