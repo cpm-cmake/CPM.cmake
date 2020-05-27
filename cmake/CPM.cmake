@@ -187,6 +187,7 @@ function(CPMAddPackage)
     DOWNLOAD_ONLY
     GITHUB_REPOSITORY
     GITLAB_REPOSITORY
+    GIT_REPOSITORY
     SOURCE_DIR
     DOWNLOAD_COMMAND
     FIND_PACKAGE_ARGUMENTS
@@ -198,6 +199,8 @@ function(CPMAddPackage)
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
+  # Set default values for arguments
+
   if (NOT DEFINED CPM_ARGS_VERSION)
     if (DEFINED CPM_ARGS_GIT_TAG) 
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
@@ -206,12 +209,6 @@ function(CPMAddPackage)
       set(CPM_ARGS_VERSION 0)
     endif()
   endif()
-
-  if (NOT DEFINED CPM_ARGS_GIT_TAG)
-    set(CPM_ARGS_GIT_TAG v${CPM_ARGS_VERSION})
-  endif()
-
-  list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_TAG ${CPM_ARGS_GIT_TAG})
 
   if(CPM_ARGS_DOWNLOAD_ONLY)
     set(DOWNLOAD_ONLY ${CPM_ARGS_DOWNLOAD_ONLY})
@@ -227,13 +224,27 @@ function(CPMAddPackage)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_REPOSITORY "https://gitlab.com/${CPM_ARGS_GITLAB_REPOSITORY}.git")
   endif()
 
+  if (DEFINED CPM_ARGS_GIT_REPOSITORY)
+    list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_REPOSITORY ${CPM_ARGS_GIT_REPOSITORY})
+    if (NOT DEFINED CPM_ARGS_GIT_TAG)
+      set(CPM_ARGS_GIT_TAG v${CPM_ARGS_VERSION})
+    endif()
+  endif()
+
+  if (CPM_ARGS_GIT_TAG)
+    list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_TAG ${CPM_ARGS_GIT_TAG})
+  endif()
+
+  # Check if package has been added before
   CPMCheckIfPackageAlreadyAdded(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" "${CPM_ARGS_OPTIONS}")
   if (CPM_PACKAGE_ALREADY_ADDED)
     cpm_export_variables(${CPM_ARGS_NAME})
     return()
   endif()
 
+  # Check for available declaration
   if (DEFINED "CPM_DECLARATION_${CPM_ARGS_NAME}" AND NOT "${CPM_DECLARATION_${CPM_ARGS_NAME}}" STREQUAL "")
+    message("is declared: ${CPM_DECLARATION_${CPM_ARGS_NAME}}")
     set(declaration ${CPM_DECLARATION_${CPM_ARGS_NAME}})
     set(CPM_DECLARATION_${CPM_ARGS_NAME} "")
     CPMAddPackage(${declaration})
@@ -266,7 +277,7 @@ function(CPMAddPackage)
     endforeach()
   endif()
 
-  set(FETCH_CONTENT_DECLARE_EXTRA_OPTS "")
+  set(CPM_ARGS_UNPARSED_ARGUMENTS "")
 
   if (DEFINED CPM_ARGS_GIT_TAG)
     set(PACKAGE_INFO "${CPM_ARGS_GIT_TAG}")
@@ -275,19 +286,19 @@ function(CPMAddPackage)
   endif()
 
   if (DEFINED CPM_ARGS_DOWNLOAD_COMMAND)
-    set(FETCH_CONTENT_DECLARE_EXTRA_OPTS DOWNLOAD_COMMAND ${CPM_ARGS_DOWNLOAD_COMMAND})
+    list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS DOWNLOAD_COMMAND ${CPM_ARGS_DOWNLOAD_COMMAND})
   elseif(DEFINED CPM_ARGS_SOURCE_DIR)
-    set(FETCH_CONTENT_DECLARE_EXTRA_OPTS SOURCE_DIR ${CPM_ARGS_SOURCE_DIR})
+    list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${CPM_ARGS_SOURCE_DIR})
   elseif (CPM_SOURCE_CACHE)
     string(TOLOWER ${CPM_ARGS_NAME} lower_case_name)
     set(origin_parameters ${CPM_ARGS_UNPARSED_ARGUMENTS})
     list(SORT origin_parameters)
     string(SHA1 origin_hash "${origin_parameters}")
     set(download_directory ${CPM_SOURCE_CACHE}/${lower_case_name}/${origin_hash})
-    list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS SOURCE_DIR ${download_directory})
+    list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${download_directory})
     if (EXISTS ${download_directory})
       # disable the download command to allow offline builds
-      list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS DOWNLOAD_COMMAND "${CMAKE_COMMAND}")
+      list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS DOWNLOAD_COMMAND "${CMAKE_COMMAND}")
       set(PACKAGE_INFO "${download_directory}")
     else()
       # remove timestamps so CMake will re-download the dependency
@@ -296,13 +307,11 @@ function(CPMAddPackage)
     endif()
   endif()
 
-  cpm_declare_fetch(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} ${PACKAGE_INFO} "${CPM_ARGS_UNPARSED_ARGUMENTS}" ${FETCH_CONTENT_DECLARE_EXTRA_OPTS})
+  cpm_declare_fetch(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} ${PACKAGE_INFO} ${CPM_ARGS_UNPARSED_ARGUMENTS})
   cpm_fetch_package(${CPM_ARGS_NAME} ${DOWNLOAD_ONLY})
   cpm_get_fetch_properties(${CPM_ARGS_NAME})
   CPMCreateModuleFile(${CPM_ARGS_NAME} "CPMAddPackage(${ARGN})")
-  if (NOT DEFINED CPM_ARGS_SOURCE_DIR)
-    cpm_add_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
-  endif()
+  cpm_add_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
   SET(${CPM_ARGS_NAME}_ADDED YES)
   cpm_export_variables(${CPM_ARGS_NAME})
 endfunction()
@@ -320,6 +329,7 @@ endmacro()
 macro(CPMDeclarePackage Name)
   if (NOT DEFINED "CPM_DECLARATION_${CPM_ARGS_NAME}")
     set("CPM_DECLARATION_${Name}" "${ARGN}")
+    message("declare: CPM_DECLARATION_${Name}: ${CPM_DECLARATION_${Name}}")
   endif()
 endmacro()
 
@@ -358,14 +368,16 @@ endfunction()
 # declares a package in FetchContent_Declare 
 function (cpm_declare_fetch PACKAGE VERSION INFO)
   message(STATUS "${CPM_INDENT} adding package ${PACKAGE}@${VERSION} (${INFO})")
+  message("test: FetchContent_Declare(${PACKAGE}
+  ${ARGN}
+)")
 
   if (${CPM_DRY_RUN}) 
     message(STATUS "${CPM_INDENT} package not declared (dry run)")
     return()
   endif()
 
-  FetchContent_Declare(
-    ${PACKAGE}
+  FetchContent_Declare(${PACKAGE}
     ${ARGN}
   )
 endfunction()
@@ -383,23 +395,22 @@ endfunction()
 
 # downloads a previously declared package via FetchContent
 function (cpm_fetch_package PACKAGE DOWNLOAD_ONLY)  
-
   if (${CPM_DRY_RUN}) 
     message(STATUS "${CPM_INDENT} package ${PACKAGE} not fetched (dry run)")
     return()
   endif()
 
-  set(CPM_OLD_INDENT "${CPM_INDENT}")
-  set(CPM_INDENT "${CPM_INDENT} ${PACKAGE}:")
-  if(${DOWNLOAD_ONLY})
+  if(DOWNLOAD_ONLY)
     FetchContent_GetProperties(${PACKAGE})
     if(NOT ${PACKAGE}_POPULATED)
       FetchContent_Populate(${PACKAGE})
     endif()
   else()
+    set(CPM_OLD_INDENT "${CPM_INDENT}")
+    set(CPM_INDENT "${CPM_INDENT} ${PACKAGE}:")
     FetchContent_MakeAvailable(${PACKAGE})
+    set(CPM_INDENT "${CPM_OLD_INDENT}")
   endif()
-  set(CPM_INDENT "${CPM_OLD_INDENT}")
 endfunction()
 
 # splits a package option
