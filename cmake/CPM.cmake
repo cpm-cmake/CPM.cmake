@@ -28,7 +28,7 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-set(CURRENT_CPM_VERSION 0.24)
+set(CURRENT_CPM_VERSION 0.25)
 
 if(CPM_DIRECTORY)
   if(NOT CPM_DIRECTORY STREQUAL CMAKE_CURRENT_LIST_DIR)
@@ -54,6 +54,7 @@ option(CPM_USE_LOCAL_PACKAGES "Always try to use `find_package` to get dependenc
 option(CPM_LOCAL_PACKAGES_ONLY "Only use `find_package` to get dependencies" $ENV{CPM_LOCAL_PACKAGES_ONLY})
 option(CPM_DOWNLOAD_ALL "Always download dependencies from source" $ENV{CPM_DOWNLOAD_ALL})
 option(CPM_DONT_UPDATE_MODULE_PATH "Don't update the module path to allow using find_package" $ENV{CPM_DONT_UPDATE_MODULE_PATH})
+option(CPM_DONT_CREATE_PACKAGE_LOCK "Don't create a package lock file in the binary path" $ENV{CPM_DONT_CREATE_PACKAGE_LOCK})
 
 set(CPM_VERSION ${CURRENT_CPM_VERSION} CACHE INTERNAL "")
 set(CPM_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "")
@@ -76,6 +77,11 @@ if (NOT CPM_DONT_UPDATE_MODULE_PATH)
   file(MAKE_DIRECTORY ${CPM_MODULE_PATH})
   # locally added CPM modules should override global packages
   set(CMAKE_MODULE_PATH "${CPM_MODULE_PATH};${CMAKE_MODULE_PATH}")
+endif()
+
+if (NOT CPM_DONT_CREATE_PACKAGE_LOCK)
+  set(CPM_PACKAGE_LOCK_FILE "${CMAKE_BINARY_DIR}/cpm-package-lock.cmake" CACHE INTERNAL "")
+  file(WRITE ${CPM_PACKAGE_LOCK_FILE} "# CPM Package Lock\n\n")
 endif()
 
 include(FetchContent)
@@ -128,13 +134,13 @@ function(CPMFindPackage)
 
   if (CPM_DOWNLOAD_ALL)
     CPMAddPackage(${ARGN})
-    cpm_export_variables()
+    cpm_export_variables(${CPM_ARGS_NAME})
     return()
   endif()
 
   CPMCheckIfPackageAlreadyAdded(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" "${CPM_ARGS_OPTIONS}")
   if (CPM_PACKAGE_ALREADY_ADDED)
-    cpm_export_variables()
+    cpm_export_variables(${CPM_ARGS_NAME})
     return()
   endif()
 
@@ -142,7 +148,7 @@ function(CPMFindPackage)
 
   if(NOT CPM_PACKAGE_FOUND)
     CPMAddPackage(${ARGN})
-    cpm_export_variables()
+    cpm_export_variables(${CPM_ARGS_NAME})
   endif()
 
 endfunction()
@@ -165,7 +171,7 @@ function(CPMCheckIfPackageAlreadyAdded CPM_ARGS_NAME CPM_ARGS_VERSION CPM_ARGS_O
     cpm_get_fetch_properties(${CPM_ARGS_NAME})
     SET(${CPM_ARGS_NAME}_ADDED NO)
     SET(CPM_PACKAGE_ALREADY_ADDED YES PARENT_SCOPE)
-    cpm_export_variables()
+    cpm_export_variables(${CPM_ARGS_NAME})
   else()
     SET(CPM_PACKAGE_ALREADY_ADDED NO PARENT_SCOPE)
   endif()
@@ -223,7 +229,18 @@ function(CPMAddPackage)
 
   CPMCheckIfPackageAlreadyAdded(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" "${CPM_ARGS_OPTIONS}")
   if (CPM_PACKAGE_ALREADY_ADDED)
-    cpm_export_variables()
+    cpm_export_variables(${CPM_ARGS_NAME})
+    return()
+  endif()
+
+  if (DEFINED "CPM_DECLARATION_${CPM_ARGS_NAME}" AND NOT "${CPM_DECLARATION_${CPM_ARGS_NAME}}" STREQUAL "")
+    set(declaration ${CPM_DECLARATION_${CPM_ARGS_NAME}})
+    set(CPM_DECLARATION_${CPM_ARGS_NAME} "")
+    CPMAddPackage(${declaration})
+    set(CPM_DECLARATION_${CPM_ARGS_NAME} "${declaration}")
+    cpm_export_variables(${CPM_ARGS_NAME})
+    # checking again to ensure version and option compatibility
+    CPMCheckIfPackageAlreadyAdded(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" "${CPM_ARGS_OPTIONS}")
     return()
   endif()
 
@@ -231,6 +248,7 @@ function(CPMAddPackage)
     cpm_find_package(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" ${CPM_ARGS_FIND_PACKAGE_ARGUMENTS})
 
     if(CPM_PACKAGE_FOUND)
+      cpm_export_variables(${CPM_ARGS_NAME})
       return()
     endif()
 
@@ -282,19 +300,50 @@ function(CPMAddPackage)
   cpm_fetch_package(${CPM_ARGS_NAME} ${DOWNLOAD_ONLY})
   cpm_get_fetch_properties(${CPM_ARGS_NAME})
   CPMCreateModuleFile(${CPM_ARGS_NAME} "CPMAddPackage(${ARGN})")
+  if (NOT DEFINED CPM_ARGS_SOURCE_DIR)
+    cpm_add_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
+  endif()
   SET(${CPM_ARGS_NAME}_ADDED YES)
-  cpm_export_variables()
+  cpm_export_variables(${CPM_ARGS_NAME})
 endfunction()
 
 # export variables available to the caller to the parent scope
 # expects ${CPM_ARGS_NAME} to be set
-macro(cpm_export_variables)
-  SET(${CPM_ARGS_NAME}_SOURCE_DIR "${${CPM_ARGS_NAME}_SOURCE_DIR}" PARENT_SCOPE)
-  SET(${CPM_ARGS_NAME}_BINARY_DIR "${${CPM_ARGS_NAME}_BINARY_DIR}" PARENT_SCOPE)
-  SET(${CPM_ARGS_NAME}_ADDED "${${CPM_ARGS_NAME}_ADDED}" PARENT_SCOPE)
+macro(cpm_export_variables name)
+  SET(${name}_SOURCE_DIR "${${CPM_ARGS_NAME}_SOURCE_DIR}" PARENT_SCOPE)
+  SET(${name}_BINARY_DIR "${${CPM_ARGS_NAME}_BINARY_DIR}" PARENT_SCOPE)
+  SET(${name}_ADDED "${${CPM_ARGS_NAME}_ADDED}" PARENT_SCOPE)
 endmacro()
 
-# declares that a package has been added to CPM
+# declares a package, so that any call to CPMAddPackage for the 
+# package name will use these arguments instead 
+macro(CPMDeclarePackage Name)
+  if (NOT DEFINED "CPM_DECLARATION_${CPM_ARGS_NAME}")
+    set("CPM_DECLARATION_${Name}" "${ARGN}")
+  endif()
+endmacro()
+
+function(cpm_add_to_package_lock Name)
+  if (NOT CPM_DONT_CREATE_PACKAGE_LOCK)
+    file(APPEND ${CPM_PACKAGE_LOCK_FILE} "# ${Name}\nCPMDeclarePackage(${Name} \"${ARGN}\")\n")
+  endif()
+endfunction()
+
+# includes the package lock file, if it exists, and creates a target
+# `cpm-write-package-lock` to update it
+macro(CPMUsePackageLock file)
+  if (NOT CPM_DONT_CREATE_PACKAGE_LOCK)
+    get_filename_component(CPM_ABSOLUTE_PACKAGE_LOCK_PATH ${file} ABSOLUTE)
+    if(EXISTS ${CPM_ABSOLUTE_PACKAGE_LOCK_PATH})
+      include(${CPM_ABSOLUTE_PACKAGE_LOCK_PATH})
+    endif()
+    if (NOT TARGET cpm-write-package-lock)
+      add_custom_target(cpm-write-package-lock COMMAND ${CMAKE_COMMAND} -E copy ${CPM_PACKAGE_LOCK_FILE} ${CPM_ABSOLUTE_PACKAGE_LOCK_PATH})
+    endif()
+  endif()
+endmacro()
+
+# registers a package has been added to CPM
 function(CPMRegisterPackage PACKAGE VERSION)
   list(APPEND CPM_PACKAGES ${PACKAGE})
   set(CPM_PACKAGES ${CPM_PACKAGES} CACHE INTERNAL "")
