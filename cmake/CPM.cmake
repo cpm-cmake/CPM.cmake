@@ -315,6 +315,17 @@ function(CPMAddPackage)
   cpm_export_variables(${CPM_ARGS_NAME})
 endfunction()
 
+# Fetch a previously declared package
+macro(CPMGetPackage Name)
+  if (DEFINED "CPM_DECLARATION_${Name}")
+    CPMAddPackage(
+      NAME ${Name}
+    )
+  else()
+    message(SEND_ERROR "Cannot retrieve package ${Name}: no declaration available")
+  endif()
+endmacro()
+
 # export variables available to the caller to the parent scope
 # expects ${CPM_ARGS_NAME} to be set
 macro(cpm_export_variables name)
@@ -326,7 +337,7 @@ endmacro()
 # declares a package, so that any call to CPMAddPackage for the 
 # package name will use these arguments instead 
 macro(CPMDeclarePackage Name)
-  if (NOT DEFINED "CPM_DECLARATION_${CPM_ARGS_NAME}")
+  if (NOT DEFINED "CPM_DECLARATION_${Name}")
     set("CPM_DECLARATION_${Name}" "${ARGN}")
   endif()
 endmacro()

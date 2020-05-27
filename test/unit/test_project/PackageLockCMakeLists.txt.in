@@ -13,9 +13,7 @@ CPMUsePackageLock(package-lock.cmake)
 
 @PREPARE_CODE@
 
-CPMAddPackage(
-  NAME Dependency
-)
+CPMGetPackage(Dependency)
 
 # ---- Call dependency method to validate correct addition of directory ----
 
