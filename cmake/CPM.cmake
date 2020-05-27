@@ -310,9 +310,9 @@ endfunction()
 # export variables available to the caller to the parent scope
 # expects ${CPM_ARGS_NAME} to be set
 macro(cpm_export_variables name)
-  SET(${name}_SOURCE_DIR "${${CPM_ARGS_NAME}_SOURCE_DIR}" PARENT_SCOPE)
-  SET(${name}_BINARY_DIR "${${CPM_ARGS_NAME}_BINARY_DIR}" PARENT_SCOPE)
-  SET(${name}_ADDED "${${CPM_ARGS_NAME}_ADDED}" PARENT_SCOPE)
+  SET(${name}_SOURCE_DIR "${${name}_SOURCE_DIR}" PARENT_SCOPE)
+  SET(${name}_BINARY_DIR "${${name}_BINARY_DIR}" PARENT_SCOPE)
+  SET(${name}_ADDED "${${name}_ADDED}" PARENT_SCOPE)
 endmacro()
 
 # declares a package, so that any call to CPMAddPackage for the 
