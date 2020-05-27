@@ -81,7 +81,7 @@ endif()
 
 if (NOT CPM_DONT_CREATE_PACKAGE_LOCK)
   set(CPM_PACKAGE_LOCK_FILE "${CMAKE_BINARY_DIR}/cpm-package-lock.cmake" CACHE INTERNAL "")
-  file(WRITE ${CPM_PACKAGE_LOCK_FILE} "# CPM Package Lock\n\n")
+  file(WRITE ${CPM_PACKAGE_LOCK_FILE} "# CPM Package Lock\n# This file should be committed to version control\n\n")
 endif()
 
 include(FetchContent)
@@ -329,7 +329,7 @@ function(cpm_add_to_package_lock Name)
   endif()
 endfunction()
 
-# includes the package lock file, if it exists, and creates a target
+# includes the package lock file if it exists and creates a target
 # `cpm-write-package-lock` to update it
 macro(CPMUsePackageLock file)
   if (NOT CPM_DONT_CREATE_PACKAGE_LOCK)
@@ -337,13 +337,13 @@ macro(CPMUsePackageLock file)
     if(EXISTS ${CPM_ABSOLUTE_PACKAGE_LOCK_PATH})
       include(${CPM_ABSOLUTE_PACKAGE_LOCK_PATH})
     endif()
-    if (NOT TARGET cpm-write-package-lock)
-      add_custom_target(cpm-write-package-lock COMMAND ${CMAKE_COMMAND} -E copy ${CPM_PACKAGE_LOCK_FILE} ${CPM_ABSOLUTE_PACKAGE_LOCK_PATH})
+    if (NOT TARGET cpm-update-package-lock)
+      add_custom_target(cpm-update-package-lock COMMAND ${CMAKE_COMMAND} -E copy ${CPM_PACKAGE_LOCK_FILE} ${CPM_ABSOLUTE_PACKAGE_LOCK_PATH})
     endif()
   endif()
 endmacro()
 
-# registers a package has been added to CPM
+# registers a package that has been added to CPM
 function(CPMRegisterPackage PACKAGE VERSION)
   list(APPEND CPM_PACKAGES ${PACKAGE})
   set(CPM_PACKAGES ${CPM_PACKAGES} CACHE INTERNAL "")
