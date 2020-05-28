@@ -28,7 +28,7 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-set(CURRENT_CPM_VERSION 0.25)
+set(CURRENT_CPM_VERSION 0.25.1)
 
 if(CPM_DIRECTORY)
   if(NOT CPM_DIRECTORY STREQUAL CMAKE_CURRENT_LIST_DIR)
@@ -55,6 +55,7 @@ option(CPM_LOCAL_PACKAGES_ONLY "Only use `find_package` to get dependencies" $EN
 option(CPM_DOWNLOAD_ALL "Always download dependencies from source" $ENV{CPM_DOWNLOAD_ALL})
 option(CPM_DONT_UPDATE_MODULE_PATH "Don't update the module path to allow using find_package" $ENV{CPM_DONT_UPDATE_MODULE_PATH})
 option(CPM_DONT_CREATE_PACKAGE_LOCK "Don't create a package lock file in the binary path" $ENV{CPM_DONT_CREATE_PACKAGE_LOCK})
+option(CPM_INCLUDE_ALL_IN_PACKAGE_LOCK "Add all packages added through CPM.cmake to the package lock" $ENV{CPM_INCLUDE_ALL_IN_PACKAGE_LOCK})
 
 set(CPM_VERSION ${CURRENT_CPM_VERSION} CACHE INTERNAL "")
 set(CPM_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "")
@@ -304,13 +305,22 @@ function(CPMAddPackage)
     endif()
   endif()
 
+  CPMCreateModuleFile(${CPM_ARGS_NAME} "CPMAddPackage(${ARGN})")
+
+  if (CPM_PACKAGE_LOCK_ENABLED)
+    if ((CPM_ARGS_VERSION AND NOT CPM_ARGS_SOURCE_DIR) OR CPM_INCLUDE_ALL_IN_PACKAGE_LOCK)
+      cpm_add_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
+    elseif(CPM_ARGS_SOURCE_DIR)
+      cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "local directory")
+    else()
+      cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
+    endif()
+  endif()
+
   cpm_declare_fetch(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} ${PACKAGE_INFO} ${CPM_ARGS_UNPARSED_ARGUMENTS})
   cpm_fetch_package(${CPM_ARGS_NAME} ${DOWNLOAD_ONLY})
   cpm_get_fetch_properties(${CPM_ARGS_NAME})
-  CPMCreateModuleFile(${CPM_ARGS_NAME} "CPMAddPackage(${ARGN})")
-  if (TARGET cpm-update-package-lock)
-    cpm_add_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
-  endif()
+
   SET(${CPM_ARGS_NAME}_ADDED YES)
   cpm_export_variables(${CPM_ARGS_NAME})
 endfunction()
@@ -348,6 +358,12 @@ function(cpm_add_to_package_lock Name)
   endif()
 endfunction()
 
+function(cpm_add_comment_to_package_lock Name)
+  if (NOT CPM_DONT_CREATE_PACKAGE_LOCK)
+    file(APPEND ${CPM_PACKAGE_LOCK_FILE} "# ${Name} (unversioned)\n# CPMDeclarePackage(${Name} \"${ARGN}\")\n")
+  endif()
+endfunction()
+
 # includes the package lock file if it exists and creates a target
 # `cpm-write-package-lock` to update it
 macro(CPMUsePackageLock file)
@@ -359,6 +375,7 @@ macro(CPMUsePackageLock file)
     if (NOT TARGET cpm-update-package-lock)
       add_custom_target(cpm-update-package-lock COMMAND ${CMAKE_COMMAND} -E copy ${CPM_PACKAGE_LOCK_FILE} ${CPM_ABSOLUTE_PACKAGE_LOCK_PATH})
     endif()
+    set(CPM_PACKAGE_LOCK_ENABLED true)
   endif()
 endmacro()
 
