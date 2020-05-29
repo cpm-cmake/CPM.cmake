@@ -28,7 +28,7 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-set(CURRENT_CPM_VERSION 0.27)
+set(CURRENT_CPM_VERSION 0.26.1)
 
 if(CPM_DIRECTORY)
   if(NOT CPM_DIRECTORY STREQUAL CMAKE_CURRENT_LIST_DIR)
@@ -117,7 +117,7 @@ endfunction()
 # a macro that set's all passed arguments to an empty string
 # this is useful to differentiate between arguments passed by the user and 
 # arguments inherited from the parent scope
-macro(cpm_clean_scope PREFIX)
+macro(cpm_clean_argument_scope PREFIX)
   foreach(ARG ${ARGN})
     set("${PREFIX}_${ARG}" "")
   endforeach()
@@ -131,7 +131,7 @@ function(CPMFindPackage)
     FIND_PACKAGE_ARGUMENTS
   )
 
-  cpm_clean_scope(CPM_ARGS ${oneValueArgs} ${multiValueArgs})
+  cpm_clean_argument_scope(CPM_ARGS ${oneValueArgs} ${multiValueArgs})
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "" ${ARGN})
 
   if ("${CPM_ARGS_VERSION}" STREQUAL "")
@@ -206,7 +206,7 @@ function(CPMAddPackage)
     OPTIONS
   )
 
-  cpm_clean_scope(CPM_ARGS ${oneValueArgs} ${multiValueArgs})
+  cpm_clean_argument_scope(CPM_ARGS ${oneValueArgs} ${multiValueArgs})
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
   # Set default values for arguments
