@@ -28,7 +28,7 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-set(CURRENT_CPM_VERSION 0.26.1)
+set(CURRENT_CPM_VERSION 0.26.2)
 
 if(CPM_DIRECTORY)
   if(NOT CPM_DIRECTORY STREQUAL CMAKE_CURRENT_LIST_DIR)
@@ -354,9 +354,10 @@ macro(cpm_export_variables name)
 endmacro()
 
 # declares a package, so that any call to CPMAddPackage for the 
-# package name will use these arguments instead 
+# package name will use these arguments instead.
+# Previous declarations will not be overriden.
 macro(CPMDeclarePackage Name)
-  if (NOT DEFINED "${CPM_DECLARATION_${Name}}")
+  if (NOT DEFINED "CPM_DECLARATION_${Name}")
     set("CPM_DECLARATION_${Name}" "${ARGN}")
   endif()
 endmacro()
