@@ -290,6 +290,8 @@ function(CPMAddPackage)
 
   if (DEFINED CPM_ARGS_GIT_TAG)
     set(PACKAGE_INFO "${CPM_ARGS_GIT_TAG}")
+  elseif(DEFINED CPM_ARGS_SOURCE_DIR)
+    set(PACKAGE_INFO "${CPM_ARGS_SOURCE_DIR}")
   else()
     set(PACKAGE_INFO "${CPM_ARGS_VERSION}")
   endif()
