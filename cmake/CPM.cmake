@@ -114,15 +114,6 @@ function(CPMCreateModuleFile Name)
   endif()
 endfunction()
 
-# a macro that set's all passed arguments to an empty string
-# this is useful to differentiate between arguments passed by the user and 
-# arguments inherited from the parent scope
-macro(cpm_clean_argument_scope PREFIX)
-  foreach(ARG ${ARGN})
-    set("${PREFIX}_${ARG}" "")
-  endforeach()
-endmacro()
-
 # Find a package locally or fallback to CPMAddPackage
 function(CPMFindPackage)
   set(oneValueArgs
@@ -131,11 +122,10 @@ function(CPMFindPackage)
     FIND_PACKAGE_ARGUMENTS
   )
 
-  cpm_clean_argument_scope(CPM_ARGS ${oneValueArgs} ${multiValueArgs})
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "" ${ARGN})
 
-  if ("${CPM_ARGS_VERSION}" STREQUAL "")
-    if (NOT "${CPM_ARGS_GIT_TAG}" STREQUAL "") 
+  if (NOT DEFINED CPM_ARGS_VERSION)
+    if (DEFINED CPM_ARGS_GIT_TAG) 
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
     endif()
   endif()
@@ -206,13 +196,12 @@ function(CPMAddPackage)
     OPTIONS
   )
 
-  cpm_clean_argument_scope(CPM_ARGS ${oneValueArgs} ${multiValueArgs})
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
   # Set default values for arguments
 
-  if ("${CPM_ARGS_VERSION}" STREQUAL "")
-    if (NOT "${CPM_ARGS_GIT_TAG}" STREQUAL "") 
+  if (NOT DEFINED CPM_ARGS_VERSION)
+    if (DEFINED ${CPM_ARGS_GIT_TAG}) 
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
     endif()
   endif()
@@ -295,7 +284,7 @@ function(CPMAddPackage)
     endforeach()
   endif()
 
-  if (NOT "${CPM_ARGS_GIT_TAG}" STREQUAL "")
+  if (DEFINED CPM_ARGS_GIT_TAG)
     set(PACKAGE_INFO "${CPM_ARGS_GIT_TAG}")
   elseif(CPM_ARGS_SOURCE_DIR)
     set(PACKAGE_INFO "${CPM_ARGS_SOURCE_DIR}")
@@ -303,7 +292,7 @@ function(CPMAddPackage)
     set(PACKAGE_INFO "${CPM_ARGS_VERSION}")
   endif()
 
-  if (NOT "${CPM_ARGS_DOWNLOAD_COMMAND}" STREQUAL "")
+  if (DEFINED CPM_ARGS_DOWNLOAD_COMMAND)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS DOWNLOAD_COMMAND ${CPM_ARGS_DOWNLOAD_COMMAND})
   elseif (CPM_ARGS_SOURCE_DIR)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${CPM_ARGS_SOURCE_DIR})
