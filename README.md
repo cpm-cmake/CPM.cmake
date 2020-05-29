@@ -141,7 +141,7 @@ These options can also be set as environmental variables.
 
 Library developers are often in the situation where they work on a locally checked out dependency at the same time as on a consumer project.
 It is possible to override the consumer's dependency with the version by supplying the CMake option `CPM_<dependency name>_SOURCE` set to the absolute path of the local library.
-For example, to use the local version of `Dep` at the path `/path/to/dep`, the consumer can be built with `cmake -H. -Bbuild -DCPM_Dep_SOURCE=/path/to/dep`.
+For example, to use the local version of the dependency `Dep` at the path `/path/to/dep`, the consumer can be built with `cmake -H. -Bbuild -DCPM_Dep_SOURCE=/path/to/dep`.
 
 ## Snippets
 
