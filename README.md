@@ -150,8 +150,8 @@ cmake -Bbuild -DCPM_Dep_SOURCE=/path/to/dep
 ## Package lock
 
 In large projects with many transitive dependencies, it can be useful to introduce a package lock file.
-This will list all CPM.cmake dependencies and can be used to update versions without modifying the original CMakeLists.txt.
-To use a package lock, add the following line after including CPM.camke.
+This will list all CPM.cmake dependencies and can be used to update dependencies without modifying the original `CMakeLists.txt`.
+To use a package lock, add the following line directly after including CPM.cmake.
 
 ```cmake
 CPMUsePackageLock(package-lock.cmake)
