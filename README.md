@@ -105,7 +105,7 @@ Dependencies using CPM will automatically use the updated script of the outermos
 
 - **No pre-built binaries** For every new build directory, all dependencies are initially downloaded and built from scratch. To avoid extra downloads it is recommend to set the [`CPM_SOURCE_CACHE`](#CPM_SOURCE_CACHE) environmental variable. Using a caching compiler such as [ccache](https://github.com/TheLartians/Ccache.cmake) can drastically reduce build time.
 - **Dependent on good CMakeLists** Many libraries do not have CMakeLists that work well for subprojects. Luckily this is slowly changing, however, until then, some manual configuration may be required (see the snippets [below](#snippets) for examples). For best practices on preparing projects for CPM, see the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/Preparing-projects-for-CPM.cmake). 
-- **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit a warning. This can be easily resolved by adding a new version of the dependency in the outermost project, or by introducing a [package lock file](https://github.com/TheLartians/CPM.cmake/wiki/Package-lock).
+- **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit a warning. This can be easily resolved by adding a new version of the dependency in the outermost project, or by introducing a [package lock file](#package-lock).
 
 For projects with more complex needs and where an extra setup step doesn't matter, it may be worth to check out an external C++ package manager such as [vcpkg](https://github.com/microsoft/vcpkg), [conan](https://conan.io) or [hunter](https://github.com/ruslo/hunter).
 Dependencies added with `CPMFindPackage` should work with external package managers.
@@ -141,7 +141,30 @@ These options can also be set as environmental variables.
 
 Library developers are often in the situation where they work on a locally checked out dependency at the same time as on a consumer project.
 It is possible to override the consumer's dependency with the version by supplying the CMake option `CPM_<dependency name>_SOURCE` set to the absolute path of the local library.
-For example, to use the local version of the dependency `Dep` at the path `/path/to/dep`, the consumer can be built with `cmake -H. -Bbuild -DCPM_Dep_SOURCE=/path/to/dep`.
+For example, to use the local version of the dependency `Dep` at the path `/path/to/dep`, the consumer can be built with the following command. 
+
+```bash
+cmake -Bbuild -DCPM_Dep_SOURCE=/path/to/dep
+```
+
+## Package lock
+
+In large projects with many transitive dependencies, it can be useful to introduce a package lock file.
+This will list all CPM.cmake dependencies and can be used to update versions without modifying the original CMakeLists.txt.
+To use a package lock, add the following line after including CPM.camke.
+
+```cmake
+CPMUsePackageLock(package-lock.cmake)
+```
+
+To create or update the package lock file, build the `cpm-update-package-lock` target.
+
+```bash
+cmake -Bbuild
+cmake --build build --target cpm-update-package-lock
+```
+
+See the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/Package-lock) for more info.
 
 ## Snippets
 
