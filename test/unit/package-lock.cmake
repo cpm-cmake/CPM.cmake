@@ -45,4 +45,5 @@ ASSERT_NOT_EXISTS(${CMAKE_CURRENT_LIST_DIR}/test_project/package-lock.cmake)
 updatePackageLock()
 ASSERT_EXISTS(${CMAKE_CURRENT_LIST_DIR}/test_project/package-lock.cmake)
 configureWithDeclare(NO)
+execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f ${CMAKE_CURRENT_LIST_DIR}/test_project/package-lock.cmake)
 

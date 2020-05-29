@@ -137,6 +137,12 @@ CPM can be configured to use `find_package` to search for locally installed depe
 If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will emit an error if the dependency is not found locally.
 These options can also be set as environmental variables.
 
+## Local package override
+
+Library developers are often in the situation where they work on a locally checked out dependency at the same time as on a consumer.
+It is possible to override the consumer's dependency version with the local one by supplying the CMake option `CPM_<dependency name>_SOURCE`.
+For example, to use the local version of `Dep` at the absolute path `/path/to/dep`, the consumer can be build with `cmake -H. -Bbuild -DCPM_Dep_SOURCE=/path/to/dep`.
+
 ## Snippets
 
 These examples demonstrate how to include some well-known projects with CPM.
