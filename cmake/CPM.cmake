@@ -28,7 +28,7 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-set(CURRENT_CPM_VERSION 0.25.1)
+set(CURRENT_CPM_VERSION 0.26)
 
 if(CPM_DIRECTORY)
   if(NOT CPM_DIRECTORY STREQUAL CMAKE_CURRENT_LIST_DIR)
@@ -243,12 +243,23 @@ function(CPMAddPackage)
     return()
   endif()
 
+  # Check for manual overrides
+  if (NOT "${CPM_${CPM_ARGS_NAME}_SOURCE}" STREQUAL "")
+    set(PACKAGE_SOURCE ${CPM_${CPM_ARGS_NAME}_SOURCE})
+    set(CPM_${CPM_ARGS_NAME}_SOURCE "")
+    CPMAddPackage(
+      NAME ${CPM_ARGS_NAME}
+      SOURCE_DIR ${PACKAGE_SOURCE}
+    )
+    cpm_export_variables(${CPM_ARGS_NAME})
+    return()
+  endif()
+
   # Check for available declaration
-  if (DEFINED "CPM_DECLARATION_${CPM_ARGS_NAME}" AND NOT "${CPM_DECLARATION_${CPM_ARGS_NAME}}" STREQUAL "")
+  if (NOT "${CPM_DECLARATION_${CPM_ARGS_NAME}}" STREQUAL "")
     set(declaration ${CPM_DECLARATION_${CPM_ARGS_NAME}})
     set(CPM_DECLARATION_${CPM_ARGS_NAME} "")
     CPMAddPackage(${declaration})
-    set(CPM_DECLARATION_${CPM_ARGS_NAME} "${declaration}")
     cpm_export_variables(${CPM_ARGS_NAME})
     # checking again to ensure version and option compatibility
     CPMCheckIfPackageAlreadyAdded(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" "${CPM_ARGS_OPTIONS}")
@@ -279,6 +290,8 @@ function(CPMAddPackage)
 
   if (DEFINED CPM_ARGS_GIT_TAG)
     set(PACKAGE_INFO "${CPM_ARGS_GIT_TAG}")
+  elseif(DEFINED CPM_ARGS_SOURCE_DIR)
+    set(PACKAGE_INFO "${CPM_ARGS_SOURCE_DIR}")
   else()
     set(PACKAGE_INFO "${CPM_ARGS_VERSION}")
   endif()
