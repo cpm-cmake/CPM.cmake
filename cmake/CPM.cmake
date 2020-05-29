@@ -28,7 +28,7 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-set(CURRENT_CPM_VERSION 0.26)
+set(CURRENT_CPM_VERSION 0.26.1)
 
 if(CPM_DIRECTORY)
   if(NOT CPM_DIRECTORY STREQUAL CMAKE_CURRENT_LIST_DIR)
@@ -128,9 +128,6 @@ function(CPMFindPackage)
     if (DEFINED CPM_ARGS_GIT_TAG) 
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
     endif()
-    if (NOT DEFINED CPM_ARGS_VERSION) 
-      set(CPM_ARGS_VERSION 0)
-    endif()
   endif()
 
   if (CPM_DOWNLOAD_ALL)
@@ -158,13 +155,13 @@ endfunction()
 function(CPMCheckIfPackageAlreadyAdded CPM_ARGS_NAME CPM_ARGS_VERSION CPM_ARGS_OPTIONS)
   if ("${CPM_ARGS_NAME}" IN_LIST CPM_PACKAGES)
     CPMGetPackageVersion(${CPM_ARGS_NAME} CPM_PACKAGE_VERSION)
-    if(${CPM_PACKAGE_VERSION} VERSION_LESS ${CPM_ARGS_VERSION})
+    if("${CPM_PACKAGE_VERSION}" VERSION_LESS "${CPM_ARGS_VERSION}")
       message(WARNING "${CPM_INDENT} requires a newer version of ${CPM_ARGS_NAME} (${CPM_ARGS_VERSION}) than currently included (${CPM_PACKAGE_VERSION}).")
     endif()
     if (CPM_ARGS_OPTIONS)
       foreach(OPTION ${CPM_ARGS_OPTIONS})
         cpm_parse_option(${OPTION})
-        if(NOT "${${OPTION_KEY}}" STREQUAL ${OPTION_VALUE})
+        if(NOT "${${OPTION_KEY}}" STREQUAL "${OPTION_VALUE}")
           message(WARNING "${CPM_INDENT} ignoring package option for ${CPM_ARGS_NAME}: ${OPTION_KEY} = ${OPTION_VALUE} (${${OPTION_KEY}})")
         endif()
       endforeach()
@@ -183,6 +180,7 @@ function(CPMAddPackage)
 
   set(oneValueArgs
     NAME
+    FORCE
     VERSION
     GIT_TAG
     DOWNLOAD_ONLY
@@ -206,9 +204,6 @@ function(CPMAddPackage)
     if (DEFINED CPM_ARGS_GIT_TAG) 
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
     endif()
-    if (NOT DEFINED CPM_ARGS_VERSION) 
-      set(CPM_ARGS_VERSION 0)
-    endif()
   endif()
 
   if(CPM_ARGS_DOWNLOAD_ONLY)
@@ -217,11 +212,11 @@ function(CPMAddPackage)
     set(DOWNLOAD_ONLY NO)
   endif()
 
-  if (CPM_ARGS_GITHUB_REPOSITORY)
+  if (DEFINED CPM_ARGS_GITHUB_REPOSITORY)
     set(CPM_ARGS_GIT_REPOSITORY "https://github.com/${CPM_ARGS_GITHUB_REPOSITORY}.git")
   endif()
 
-  if (CPM_ARGS_GITLAB_REPOSITORY)
+  if (DEFINED CPM_ARGS_GITLAB_REPOSITORY)
     list(CPM_ARGS_GIT_REPOSITORY "https://gitlab.com/${CPM_ARGS_GITLAB_REPOSITORY}.git")
   endif()
 
@@ -232,7 +227,7 @@ function(CPMAddPackage)
     endif()
   endif()
 
-  if (CPM_ARGS_GIT_TAG)
+  if (DEFINED CPM_ARGS_GIT_TAG)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_TAG ${CPM_ARGS_GIT_TAG})
   endif()
 
@@ -244,19 +239,20 @@ function(CPMAddPackage)
   endif()
 
   # Check for manual overrides
-  if (NOT "${CPM_${CPM_ARGS_NAME}_SOURCE}" STREQUAL "")
+  if (NOT CPM_ARGS_FORCE AND NOT "${CPM_${CPM_ARGS_NAME}_SOURCE}" STREQUAL "")
     set(PACKAGE_SOURCE ${CPM_${CPM_ARGS_NAME}_SOURCE})
     set(CPM_${CPM_ARGS_NAME}_SOURCE "")
     CPMAddPackage(
       NAME ${CPM_ARGS_NAME}
       SOURCE_DIR ${PACKAGE_SOURCE}
+      FORCE True
     )
     cpm_export_variables(${CPM_ARGS_NAME})
     return()
   endif()
 
   # Check for available declaration
-  if (NOT "${CPM_DECLARATION_${CPM_ARGS_NAME}}" STREQUAL "")
+  if (NOT CPM_ARGS_FORCE AND NOT "${CPM_DECLARATION_${CPM_ARGS_NAME}}" STREQUAL "")
     set(declaration ${CPM_DECLARATION_${CPM_ARGS_NAME}})
     set(CPM_DECLARATION_${CPM_ARGS_NAME} "")
     CPMAddPackage(${declaration})
@@ -279,7 +275,7 @@ function(CPMAddPackage)
     endif()
   endif()
 
-  CPMRegisterPackage(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION})
+  CPMRegisterPackage("${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}")
 
   if (CPM_ARGS_OPTIONS)
     foreach(OPTION ${CPM_ARGS_OPTIONS})
@@ -290,7 +286,7 @@ function(CPMAddPackage)
 
   if (DEFINED CPM_ARGS_GIT_TAG)
     set(PACKAGE_INFO "${CPM_ARGS_GIT_TAG}")
-  elseif(DEFINED CPM_ARGS_SOURCE_DIR)
+  elseif (DEFINED CPM_ARGS_SOURCE_DIR)
     set(PACKAGE_INFO "${CPM_ARGS_SOURCE_DIR}")
   else()
     set(PACKAGE_INFO "${CPM_ARGS_VERSION}")
@@ -298,7 +294,7 @@ function(CPMAddPackage)
 
   if (DEFINED CPM_ARGS_DOWNLOAD_COMMAND)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS DOWNLOAD_COMMAND ${CPM_ARGS_DOWNLOAD_COMMAND})
-  elseif(DEFINED CPM_ARGS_SOURCE_DIR)
+  elseif (DEFINED CPM_ARGS_SOURCE_DIR)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${CPM_ARGS_SOURCE_DIR})
   elseif (CPM_SOURCE_CACHE)
     string(TOLOWER ${CPM_ARGS_NAME} lower_case_name)
@@ -330,12 +326,12 @@ function(CPMAddPackage)
     endif()
   endif()
 
-  cpm_declare_fetch(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} ${PACKAGE_INFO} ${CPM_ARGS_UNPARSED_ARGUMENTS})
-  cpm_fetch_package(${CPM_ARGS_NAME} ${DOWNLOAD_ONLY})
-  cpm_get_fetch_properties(${CPM_ARGS_NAME})
+  cpm_declare_fetch("${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}")
+  cpm_fetch_package("${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}")
+  cpm_get_fetch_properties("${CPM_ARGS_NAME}")
 
   SET(${CPM_ARGS_NAME}_ADDED YES)
-  cpm_export_variables(${CPM_ARGS_NAME})
+  cpm_export_variables("${CPM_ARGS_NAME}")
 endfunction()
 
 # Fetch a previously declared package
@@ -360,7 +356,7 @@ endmacro()
 # declares a package, so that any call to CPMAddPackage for the 
 # package name will use these arguments instead 
 macro(CPMDeclarePackage Name)
-  if (NOT DEFINED "CPM_DECLARATION_${Name}")
+  if (NOT DEFINED "${CPM_DECLARATION_${Name}}")
     set("CPM_DECLARATION_${Name}" "${ARGN}")
   endif()
 endmacro()
