@@ -28,7 +28,7 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-set(CURRENT_CPM_VERSION 0.26)
+set(CURRENT_CPM_VERSION 0.27)
 
 if(CPM_DIRECTORY)
   if(NOT CPM_DIRECTORY STREQUAL CMAKE_CURRENT_LIST_DIR)
@@ -114,6 +114,15 @@ function(CPMCreateModuleFile Name)
   endif()
 endfunction()
 
+# a macro that set's all passed arguments to an empty string
+# this is useful to differentiate between arguments passed by the user and 
+# arguments inherited from the parent scope
+macro(cpm_clean_scope PREFIX)
+  foreach(ARG ${ARGN})
+    set("${PREFIX}_${ARG}" "")
+  endforeach()
+endmacro()
+
 # Find a package locally or fallback to CPMAddPackage
 function(CPMFindPackage)
   set(oneValueArgs
@@ -122,14 +131,12 @@ function(CPMFindPackage)
     FIND_PACKAGE_ARGUMENTS
   )
 
+  cpm_clean_scope(CPM_ARGS ${oneValueArgs} ${multiValueArgs})
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "" ${ARGN})
 
-  if (NOT DEFINED CPM_ARGS_VERSION)
-    if (DEFINED CPM_ARGS_GIT_TAG) 
+  if ("${CPM_ARGS_VERSION}" STREQUAL "")
+    if (NOT "${CPM_ARGS_GIT_TAG}" STREQUAL "") 
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
-    endif()
-    if (NOT DEFINED CPM_ARGS_VERSION) 
-      set(CPM_ARGS_VERSION 0)
     endif()
   endif()
 
@@ -158,13 +165,13 @@ endfunction()
 function(CPMCheckIfPackageAlreadyAdded CPM_ARGS_NAME CPM_ARGS_VERSION CPM_ARGS_OPTIONS)
   if ("${CPM_ARGS_NAME}" IN_LIST CPM_PACKAGES)
     CPMGetPackageVersion(${CPM_ARGS_NAME} CPM_PACKAGE_VERSION)
-    if(${CPM_PACKAGE_VERSION} VERSION_LESS ${CPM_ARGS_VERSION})
+    if("${CPM_PACKAGE_VERSION}" VERSION_LESS "${CPM_ARGS_VERSION}")
       message(WARNING "${CPM_INDENT} requires a newer version of ${CPM_ARGS_NAME} (${CPM_ARGS_VERSION}) than currently included (${CPM_PACKAGE_VERSION}).")
     endif()
     if (CPM_ARGS_OPTIONS)
       foreach(OPTION ${CPM_ARGS_OPTIONS})
         cpm_parse_option(${OPTION})
-        if(NOT "${${OPTION_KEY}}" STREQUAL ${OPTION_VALUE})
+        if(NOT "${${OPTION_KEY}}" STREQUAL "${OPTION_VALUE}")
           message(WARNING "${CPM_INDENT} ignoring package option for ${CPM_ARGS_NAME}: ${OPTION_KEY} = ${OPTION_VALUE} (${${OPTION_KEY}})")
         endif()
       endforeach()
@@ -183,6 +190,7 @@ function(CPMAddPackage)
 
   set(oneValueArgs
     NAME
+    FORCE
     VERSION
     GIT_TAG
     DOWNLOAD_ONLY
@@ -198,16 +206,14 @@ function(CPMAddPackage)
     OPTIONS
   )
 
+  cpm_clean_scope(CPM_ARGS ${oneValueArgs} ${multiValueArgs})
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
   # Set default values for arguments
 
-  if (NOT DEFINED CPM_ARGS_VERSION)
-    if (DEFINED CPM_ARGS_GIT_TAG) 
+  if ("${CPM_ARGS_VERSION}" STREQUAL "")
+    if (NOT "${CPM_ARGS_GIT_TAG}" STREQUAL "") 
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
-    endif()
-    if (NOT DEFINED CPM_ARGS_VERSION) 
-      set(CPM_ARGS_VERSION 0)
     endif()
   endif()
 
@@ -225,9 +231,9 @@ function(CPMAddPackage)
     list(CPM_ARGS_GIT_REPOSITORY "https://gitlab.com/${CPM_ARGS_GITLAB_REPOSITORY}.git")
   endif()
 
-  if (DEFINED CPM_ARGS_GIT_REPOSITORY)
+  if (CPM_ARGS_GIT_REPOSITORY)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_REPOSITORY ${CPM_ARGS_GIT_REPOSITORY})
-    if (NOT DEFINED CPM_ARGS_GIT_TAG)
+    if (NOT CPM_ARGS_GIT_TAG)
       set(CPM_ARGS_GIT_TAG v${CPM_ARGS_VERSION})
     endif()
   endif()
@@ -244,19 +250,20 @@ function(CPMAddPackage)
   endif()
 
   # Check for manual overrides
-  if (NOT "${CPM_${CPM_ARGS_NAME}_SOURCE}" STREQUAL "")
+  if (NOT CPM_ARGS_FORCE AND NOT "${CPM_${CPM_ARGS_NAME}_SOURCE}" STREQUAL "")
     set(PACKAGE_SOURCE ${CPM_${CPM_ARGS_NAME}_SOURCE})
     set(CPM_${CPM_ARGS_NAME}_SOURCE "")
     CPMAddPackage(
       NAME ${CPM_ARGS_NAME}
       SOURCE_DIR ${PACKAGE_SOURCE}
+      FORCE True
     )
     cpm_export_variables(${CPM_ARGS_NAME})
     return()
   endif()
 
   # Check for available declaration
-  if (NOT "${CPM_DECLARATION_${CPM_ARGS_NAME}}" STREQUAL "")
+  if (NOT CPM_ARGS_FORCE AND NOT "${CPM_DECLARATION_${CPM_ARGS_NAME}}" STREQUAL "")
     set(declaration ${CPM_DECLARATION_${CPM_ARGS_NAME}})
     set(CPM_DECLARATION_${CPM_ARGS_NAME} "")
     CPMAddPackage(${declaration})
@@ -279,7 +286,7 @@ function(CPMAddPackage)
     endif()
   endif()
 
-  CPMRegisterPackage(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION})
+  CPMRegisterPackage("${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}")
 
   if (CPM_ARGS_OPTIONS)
     foreach(OPTION ${CPM_ARGS_OPTIONS})
@@ -288,17 +295,17 @@ function(CPMAddPackage)
     endforeach()
   endif()
 
-  if (DEFINED CPM_ARGS_GIT_TAG)
+  if (NOT "${CPM_ARGS_GIT_TAG}" STREQUAL "")
     set(PACKAGE_INFO "${CPM_ARGS_GIT_TAG}")
-  elseif(DEFINED CPM_ARGS_SOURCE_DIR)
+  elseif(CPM_ARGS_SOURCE_DIR)
     set(PACKAGE_INFO "${CPM_ARGS_SOURCE_DIR}")
   else()
     set(PACKAGE_INFO "${CPM_ARGS_VERSION}")
   endif()
 
-  if (DEFINED CPM_ARGS_DOWNLOAD_COMMAND)
+  if (NOT "${CPM_ARGS_DOWNLOAD_COMMAND}" STREQUAL "")
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS DOWNLOAD_COMMAND ${CPM_ARGS_DOWNLOAD_COMMAND})
-  elseif(DEFINED CPM_ARGS_SOURCE_DIR)
+  elseif (CPM_ARGS_SOURCE_DIR)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${CPM_ARGS_SOURCE_DIR})
   elseif (CPM_SOURCE_CACHE)
     string(TOLOWER ${CPM_ARGS_NAME} lower_case_name)
@@ -330,12 +337,12 @@ function(CPMAddPackage)
     endif()
   endif()
 
-  cpm_declare_fetch(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} ${PACKAGE_INFO} ${CPM_ARGS_UNPARSED_ARGUMENTS})
-  cpm_fetch_package(${CPM_ARGS_NAME} ${DOWNLOAD_ONLY})
-  cpm_get_fetch_properties(${CPM_ARGS_NAME})
+  cpm_declare_fetch("${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}")
+  cpm_fetch_package("${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}")
+  cpm_get_fetch_properties("${CPM_ARGS_NAME}")
 
   SET(${CPM_ARGS_NAME}_ADDED YES)
-  cpm_export_variables(${CPM_ARGS_NAME})
+  cpm_export_variables("${CPM_ARGS_NAME}")
 endfunction()
 
 # Fetch a previously declared package
@@ -360,7 +367,7 @@ endmacro()
 # declares a package, so that any call to CPMAddPackage for the 
 # package name will use these arguments instead 
 macro(CPMDeclarePackage Name)
-  if (NOT DEFINED "CPM_DECLARATION_${Name}")
+  if ("${CPM_DECLARATION_${Name}}" STREQUAL "")
     set("CPM_DECLARATION_${Name}" "${ARGN}")
   endif()
 endmacro()
