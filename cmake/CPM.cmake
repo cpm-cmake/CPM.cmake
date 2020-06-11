@@ -3,7 +3,7 @@
 # See https://github.com/TheLartians/CPM.cmake for usage and update instructions.
 #
 # MIT License
-# ----------- 
+# -----------
 #[[
   Copyright (c) 2019 Lars Melchior
 
@@ -42,13 +42,13 @@ See https://github.com/TheLartians/CPM.cmake for more information."
     return()
   endif()
 
-  get_property(CPM_INITIALIZED GLOBAL "" PROPERTY CPM_INITIALIZED SET)   
+  get_property(CPM_INITIALIZED GLOBAL "" PROPERTY CPM_INITIALIZED SET)
   if (CPM_INITIALIZED)
     return()
   endif()
 endif()
 
-set_property(GLOBAL PROPERTY CPM_INITIALIZED true) 
+set_property(GLOBAL PROPERTY CPM_INITIALIZED true)
 
 option(CPM_USE_LOCAL_PACKAGES "Always try to use `find_package` to get dependencies" $ENV{CPM_USE_LOCAL_PACKAGES})
 option(CPM_LOCAL_PACKAGES_ONLY "Only use `find_package` to get dependencies" $ENV{CPM_LOCAL_PACKAGES_ONLY})
@@ -125,7 +125,7 @@ function(CPMFindPackage)
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "" ${ARGN})
 
   if (NOT DEFINED CPM_ARGS_VERSION)
-    if (DEFINED CPM_ARGS_GIT_TAG) 
+    if (DEFINED CPM_ARGS_GIT_TAG)
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
     endif()
   endif()
@@ -202,7 +202,7 @@ function(CPMAddPackage)
   # Set default values for arguments
 
   if (NOT DEFINED CPM_ARGS_VERSION)
-    if (DEFINED CPM_ARGS_GIT_TAG) 
+    if (DEFINED CPM_ARGS_GIT_TAG)
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
     endif()
   endif()
@@ -226,6 +226,9 @@ function(CPMAddPackage)
     if (NOT DEFINED CPM_ARGS_GIT_TAG)
       set(CPM_ARGS_GIT_TAG v${CPM_ARGS_VERSION})
     endif()
+
+    # Make git clone --depth=1 by default
+    list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_SHALLOW TRUE)
   endif()
 
   if (DEFINED CPM_ARGS_GIT_TAG)
@@ -271,7 +274,7 @@ function(CPMAddPackage)
       return()
     endif()
 
-    if(CPM_LOCAL_PACKAGES_ONLY) 
+    if(CPM_LOCAL_PACKAGES_ONLY)
       message(SEND_ERROR "CPM: ${CPM_ARGS_NAME} not found via find_package(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION})")
     endif()
   endif()
@@ -354,7 +357,7 @@ macro(cpm_export_variables name)
   SET(${name}_ADDED "${${name}_ADDED}" PARENT_SCOPE)
 endmacro()
 
-# declares a package, so that any call to CPMAddPackage for the 
+# declares a package, so that any call to CPMAddPackage for the
 # package name will use these arguments instead.
 # Previous declarations will not be overriden.
 macro(CPMDeclarePackage Name)
@@ -402,11 +405,11 @@ function(CPMGetPackageVersion PACKAGE OUTPUT)
   set(${OUTPUT} "${CPM_PACKAGE_${PACKAGE}_VERSION}" PARENT_SCOPE)
 endfunction()
 
-# declares a package in FetchContent_Declare 
+# declares a package in FetchContent_Declare
 function (cpm_declare_fetch PACKAGE VERSION INFO)
   message(STATUS "${CPM_INDENT} adding package ${PACKAGE}@${VERSION} (${INFO})")
 
-  if (${CPM_DRY_RUN}) 
+  if (${CPM_DRY_RUN})
     message(STATUS "${CPM_INDENT} package not declared (dry run)")
     return()
   endif()
@@ -418,7 +421,7 @@ endfunction()
 
 # returns properties for a package previously defined by cpm_declare_fetch
 function (cpm_get_fetch_properties PACKAGE)
-  if (${CPM_DRY_RUN}) 
+  if (${CPM_DRY_RUN})
     return()
   endif()
   FetchContent_GetProperties(${PACKAGE})
@@ -428,8 +431,8 @@ function (cpm_get_fetch_properties PACKAGE)
 endfunction()
 
 # downloads a previously declared package via FetchContent
-function (cpm_fetch_package PACKAGE DOWNLOAD_ONLY)  
-  if (${CPM_DRY_RUN}) 
+function (cpm_fetch_package PACKAGE DOWNLOAD_ONLY)
+  if (${CPM_DRY_RUN})
     message(STATUS "${CPM_INDENT} package ${PACKAGE} not fetched (dry run)")
     return()
   endif()
@@ -466,7 +469,7 @@ endfunction()
 # guesses the package version from a git tag
 function(cpm_get_version_from_git_tag GIT_TAG RESULT)
   string(LENGTH ${GIT_TAG} length)
-  if (length EQUAL 40) 
+  if (length EQUAL 40)
     # GIT_TAG is probably a git hash
     SET(${RESULT} 0 PARENT_SCOPE)
   else()
