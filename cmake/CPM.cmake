@@ -191,6 +191,7 @@ function(CPMAddPackage)
     DOWNLOAD_COMMAND
     FIND_PACKAGE_ARGUMENTS
     NO_CACHE
+    GIT_SHALLOW
   )
 
   set(multiValueArgs
@@ -226,13 +227,23 @@ function(CPMAddPackage)
     if (NOT DEFINED CPM_ARGS_GIT_TAG)
       set(CPM_ARGS_GIT_TAG v${CPM_ARGS_VERSION})
     endif()
-
-    # Make git clone --depth=1 by default
-    list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_SHALLOW TRUE)
   endif()
 
   if (DEFINED CPM_ARGS_GIT_TAG)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_TAG ${CPM_ARGS_GIT_TAG})
+
+    # If GIT_SHALLOW is explicitly specified, hornor the value.
+    # Otherwise, enable shallow clone only when GIT_TAG is not a commit hash.
+    # Our guess may not be accurate, but it should guarantee no commit hash get mis-detected.
+    if (DEFINED CPM_ARGS_GIT_SHALLOW)
+      list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_SHALLOW ${CPM_ARGS_GIT_SHALLOW})
+    else()
+      cpm_is_git_tag_commit_hash(${CPM_ARGS_GIT_TAG} IS_HASH)
+      if (NOT ${IS_HASH})
+        message(STATUS "GIT_TAG=${CPM_ARGS_GIT_TAG} is not a commit hash; enable shallow clone")
+        list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_SHALLOW TRUE)
+      endif()
+    endif()
   endif()
 
   # Check if package has been added before
@@ -475,5 +486,19 @@ function(cpm_get_version_from_git_tag GIT_TAG RESULT)
   else()
     string(REGEX MATCH "v?([0123456789.]*).*" _ ${GIT_TAG})
     SET(${RESULT} ${CMAKE_MATCH_1} PARENT_SCOPE)
+  endif()
+endfunction()
+
+# guesses if the git tag is a commit hash or an actual tag or a branch nane.
+function(cpm_is_git_tag_commit_hash GIT_TAG RESULT)
+  string(LENGTH ${GIT_TAG} length)
+  if (NOT (length EQUAL 40))
+    SET(${RESULT} 0 PARENT_SCOPE)
+  else()
+    if (${GIT_TAG} MATCHES "^[a-fA-F0-9]+$")
+      SET(${RESULT} 1 PARENT_SCOPE)
+    else()
+      SET(${RESULT} 0 PARENT_SCOPE)
+    endif()
   endif()
 endfunction()
