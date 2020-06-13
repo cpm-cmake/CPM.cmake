@@ -492,7 +492,8 @@ endfunction()
 # guesses if the git tag is a commit hash or an actual tag or a branch nane.
 function(cpm_is_git_tag_commit_hash GIT_TAG RESULT)
   string(LENGTH ${GIT_TAG} length)
-  if (NOT (length EQUAL 40))
+  # full hash has 40 characters, and short hash has at least 7 characters.
+  if (length LESS 7 OR length GREATER 40)
     SET(${RESULT} 0 PARENT_SCOPE)
   else()
     if (${GIT_TAG} MATCHES "^[a-fA-F0-9]+$")
