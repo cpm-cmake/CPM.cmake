@@ -10,20 +10,20 @@ function(configureWithDeclare DECLARE_DEPENDENCY)
   if (DECLARE_DEPENDENCY)
     set(PREPARE_CODE "CPMDeclarePackage(Dependency
       NAME Dependency 
-      SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/test_project/dependency
+      SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/local_dependency/dependency
     )")
   else()
     set(PREPARE_CODE "")
   endif()
 
   configure_package_config_file(
-    "${CMAKE_CURRENT_LIST_DIR}/test_project/PackageLockCMakeLists.txt.in"
-    "${CMAKE_CURRENT_LIST_DIR}/test_project/CMakeLists.txt"
+    "${CMAKE_CURRENT_LIST_DIR}/local_dependency/PackageLockCMakeLists.txt.in"
+    "${CMAKE_CURRENT_LIST_DIR}/local_dependency/CMakeLists.txt"
     INSTALL_DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/junk
   )
 
   execute_process(
-    COMMAND ${CMAKE_COMMAND} -H${CMAKE_CURRENT_LIST_DIR}/test_project -B${TEST_BUILD_DIR} -DCPM_INCLUDE_ALL_IN_PACKAGE_LOCK=1
+    COMMAND ${CMAKE_COMMAND} -H${CMAKE_CURRENT_LIST_DIR}/local_dependency -B${TEST_BUILD_DIR} -DCPM_INCLUDE_ALL_IN_PACKAGE_LOCK=1
     RESULT_VARIABLE ret
   )
 
@@ -39,11 +39,11 @@ function(updatePackageLock)
   ASSERT_EQUAL(${ret} "0")
 endfunction()
 
-execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f ${CMAKE_CURRENT_LIST_DIR}/test_project/package-lock.cmake)
+execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f ${CMAKE_CURRENT_LIST_DIR}/local_dependency/package-lock.cmake)
 configureWithDeclare(YES)
-ASSERT_NOT_EXISTS(${CMAKE_CURRENT_LIST_DIR}/test_project/package-lock.cmake)
+ASSERT_NOT_EXISTS(${CMAKE_CURRENT_LIST_DIR}/local_dependency/package-lock.cmake)
 updatePackageLock()
-ASSERT_EXISTS(${CMAKE_CURRENT_LIST_DIR}/test_project/package-lock.cmake)
+ASSERT_EXISTS(${CMAKE_CURRENT_LIST_DIR}/local_dependency/package-lock.cmake)
 configureWithDeclare(NO)
-execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f ${CMAKE_CURRENT_LIST_DIR}/test_project/package-lock.cmake)
+execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f ${CMAKE_CURRENT_LIST_DIR}/local_dependency/package-lock.cmake)
 
