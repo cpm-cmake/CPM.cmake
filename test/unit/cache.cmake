@@ -4,7 +4,7 @@ include(${CPM_PATH}/testing.cmake)
 include(CMakePackageConfigHelpers)
 
 set(CPM_SOURCE_CACHE_DIR "${CMAKE_CURRENT_BINARY_DIR}/CPM")
-set(TEST_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/cache)
+set(TEST_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/remote_dependency)
 
 function(clear_cache)
   message(STATUS "clearing CPM cache")
@@ -14,8 +14,8 @@ endfunction()
 
 function(update_cmake_lists)
   configure_package_config_file(
-    "${CMAKE_CURRENT_LIST_DIR}/cache/CMakeLists.txt.in"
-    "${CMAKE_CURRENT_LIST_DIR}/cache/CMakeLists.txt"
+    "${CMAKE_CURRENT_LIST_DIR}/remote_dependency/CMakeLists.txt.in"
+    "${CMAKE_CURRENT_LIST_DIR}/remote_dependency/CMakeLists.txt"
     INSTALL_DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/junk
   )
 endfunction()
@@ -34,7 +34,7 @@ reset_test()
 
 execute_process(
   COMMAND 
-  ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/cache" "-B${TEST_BUILD_DIR}" "-DCPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}"
+  ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}" "-DCPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}"
   RESULT_VARIABLE ret
 )
 
@@ -85,7 +85,7 @@ reset_test()
 
 execute_process(
   COMMAND 
-  ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/cache" "-B${TEST_BUILD_DIR}"
+  ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}"
   RESULT_VARIABLE ret
 )
 
@@ -96,7 +96,7 @@ ASSERT_EXISTS("${CPM_SOURCE_CACHE_DIR}/fibonacci")
 
 execute_process(
   COMMAND 
-  ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/cache" "-B${TEST_BUILD_DIR}-2"
+  ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}-2"
   RESULT_VARIABLE ret
 )
 
@@ -108,7 +108,7 @@ reset_test()
 
 execute_process(
   COMMAND 
-  ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CMAKE_CURRENT_BINARY_DIR}/junk" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/cache" "-B${TEST_BUILD_DIR}" "-DCPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}"
+  ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CMAKE_CURRENT_BINARY_DIR}/junk" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}" "-DCPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}"
   RESULT_VARIABLE ret
 )
 
@@ -118,12 +118,28 @@ ASSERT_EXISTS("${CPM_SOURCE_CACHE_DIR}/fibonacci")
 ## Use NO_CACHE option
 
 set(FIBONACCI_PACKAGE_ARGS "NO_CACHE YES")
+set(FIBONACCI_VERSION 1.0)
 update_cmake_lists()
 reset_test()
 
 execute_process(
   COMMAND 
-  ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/cache" "-B${TEST_BUILD_DIR}"
+  ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}"
+  RESULT_VARIABLE ret
+)
+
+ASSERT_EQUAL(${ret} "0")
+ASSERT_NOT_EXISTS("${CPM_SOURCE_CACHE_DIR}/fibonacci")
+
+## Use commit hash after version
+
+set(FIBONACCI_PACKAGE_ARGS "NO_CACHE YES GIT_TAG e9ebf168ca0fffaa4ef8c6fefc6346aaa22f6ed5")
+set(FIBONACCI_VERSION 1.1)
+update_cmake_lists()
+
+execute_process(
+  COMMAND 
+  ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}"
   RESULT_VARIABLE ret
 )
 

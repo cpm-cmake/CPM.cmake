@@ -28,7 +28,7 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-set(CURRENT_CPM_VERSION 0.27)
+set(CURRENT_CPM_VERSION 0.27.1)
 
 if(CPM_DIRECTORY)
   if(NOT CPM_DIRECTORY STREQUAL CMAKE_CURRENT_LIST_DIR)
@@ -317,7 +317,7 @@ function(CPMAddPackage)
       # Enable shallow clone when GIT_TAG is not a commit hash.
       # Our guess may not be accurate, but it should guarantee no commit hash get mis-detected.
       if (NOT DEFINED CPM_ARGS_GIT_SHALLOW)
-        cpm_is_git_tag_commit_hash(${CPM_ARGS_GIT_TAG} IS_HASH)
+        cpm_is_git_tag_commit_hash("${CPM_ARGS_GIT_TAG}" IS_HASH)
         if (NOT ${IS_HASH})
           list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_SHALLOW TRUE)
         endif()
@@ -491,7 +491,7 @@ endfunction()
 
 # guesses if the git tag is a commit hash or an actual tag or a branch nane.
 function(cpm_is_git_tag_commit_hash GIT_TAG RESULT)
-  string(LENGTH ${GIT_TAG} length)
+  string(LENGTH "${GIT_TAG}" length)
   # full hash has 40 characters, and short hash has at least 7 characters.
   if (length LESS 7 OR length GREATER 40)
     SET(${RESULT} 0 PARENT_SCOPE)
