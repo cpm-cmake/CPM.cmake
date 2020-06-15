@@ -231,6 +231,10 @@ function(CPMAddPackage)
 
   if (DEFINED CPM_ARGS_GIT_TAG)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_TAG ${CPM_ARGS_GIT_TAG})
+    # If GIT_SHALLOW is explicitly specified, honor the value.
+    if (DEFINED CPM_ARGS_GIT_SHALLOW)
+      list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_SHALLOW ${CPM_ARGS_GIT_SHALLOW})
+    endif()
   endif()
 
   # Check if package has been added before
@@ -310,12 +314,9 @@ function(CPMAddPackage)
       list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS DOWNLOAD_COMMAND "${CMAKE_COMMAND}")
       set(PACKAGE_INFO "${download_directory}")
     else()
-      # If GIT_SHALLOW is explicitly specified, hornor the value.
-      # Otherwise, enable shallow clone only when GIT_TAG is not a commit hash.
+      # Enable shallow clone when GIT_TAG is not a commit hash.
       # Our guess may not be accurate, but it should guarantee no commit hash get mis-detected.
-      if (DEFINED CPM_ARGS_GIT_SHALLOW)
-        list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_SHALLOW ${CPM_ARGS_GIT_SHALLOW})
-      else()
+      if (NOT DEFINED CPM_ARGS_GIT_SHALLOW)
         cpm_is_git_tag_commit_hash(${CPM_ARGS_GIT_TAG} IS_HASH)
         if (NOT ${IS_HASH})
           list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_SHALLOW TRUE)
