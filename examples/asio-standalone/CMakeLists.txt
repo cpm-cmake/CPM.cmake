@@ -10,11 +10,16 @@ find_package(Threads REQUIRED)
 
 CPMAddPackage(
   NAME asio
+  VERSION 1.16.1
   GITHUB_REPOSITORY chriskohlhoff/asio
-  GIT_TAG asio-1-16-1   # cannot use VERSION
+  GIT_TAG asio-1-16-1   # asio uses non-standard version tag, we must specify GIT_TAG
 )
 
 # ASIO doesn't use CMake, we have to configure it manually.
+# Extra notes for using on Windows:
+# 1) If _WIN32_WINNT is not set, ASIO assumes _WIN32_WINNT=0x0501, i.e. Windows XP target,
+# which is definitely not the platform which most users target.
+# 2) WIN32_LEAN_AND_MEAN is defined to make Winsock2 work.
 if(asio_ADDED)
   add_library(asio INTERFACE)
 
