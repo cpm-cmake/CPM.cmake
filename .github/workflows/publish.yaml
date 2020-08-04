@@ -11,11 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+
+      - name: Set CPM version by tag
+        run: sed "s/0.27.2-development-version/${GITHUB_REF/refs\/tags\/v}/g" cmake/CPM.cmake > CPM.cmake
+
       - name: Upload CPM.cmake to release
         uses: svenstaro/upload-release-action@v1-release
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: cmake/CPM.cmake
+          file: CPM.cmake
           asset_name: CPM.cmake
           tag: ${{ github.ref }}
           overwrite: true
