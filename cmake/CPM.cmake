@@ -219,7 +219,7 @@ function(CPMAddPackage)
   endif()
 
   if (DEFINED CPM_ARGS_GITLAB_REPOSITORY)
-    list(CPM_ARGS_GIT_REPOSITORY "https://gitlab.com/${CPM_ARGS_GITLAB_REPOSITORY}.git")
+    set(CPM_ARGS_GIT_REPOSITORY "https://gitlab.com/${CPM_ARGS_GITLAB_REPOSITORY}.git")
   endif()
 
   if (DEFINED CPM_ARGS_GIT_REPOSITORY)
