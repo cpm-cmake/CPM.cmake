@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v1
 
       - name: Set CPM version by tag
-        run: sed "s/CURRENT_CPM_VERSION 0.0.0/CURRENT_CPM_VERSION ${GITHUB_REF/refs\/tags\/v}/g" cmake/CPM.cmake > CPM.cmake
+        run: sed "s/0.27.2-development-version/${GITHUB_REF/refs\/tags\/v}/g" cmake/CPM.cmake > CPM.cmake
 
       - name: Upload CPM.cmake to release
         uses: svenstaro/upload-release-action@v1-release
