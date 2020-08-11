@@ -73,7 +73,7 @@ CPMAddPackage(
 target_link_libraries(tests Catch2)
 ```
 
-See the [examples directory](https://github.com/TheLartians/CPM.cmake/tree/master/examples) for complete examples with source code or the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/More-Snippets) for example snippets.
+See the [examples directory](https://github.com/TheLartians/CPM.cmake/tree/master/examples) for complete examples with source code and check [below](#snippets) or in the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/More-Snippets) for example snippets.
 
 ## Adding CPM
 
@@ -110,6 +110,33 @@ Dependencies using CPM will automatically use the updated script of the outermos
 For projects with more complex needs and where an extra setup step doesn't matter, it may be worth to check out an external C++ package manager such as [vcpkg](https://github.com/microsoft/vcpkg), [conan](https://conan.io) or [hunter](https://github.com/ruslo/hunter).
 Dependencies added with `CPMFindPackage` should work with external package managers.
 Additionally, the option [`CPM_USE_LOCAL_PACKAGES`](#cpmuselocalpackages) will enable `find_package` for all CPM dependencies.
+
+## Comparison to FindPackage
+
+The usual way to add libraries in CMake projects is to call `find_package(<PackageName>)` and to link against libraries defined in a `<PackageName>_LIBRARIES` variable.
+While simple, this may lead to unpredictable builds, as it requires the library to be installed on the system and it is unclear which version of the library has been added.
+Additionally, it is difficult to cross-compile projects (e.g. for mobile), as the dependencies will need to be rebuilt manually for each targeted architecture.
+
+CPM.cmake allows dependencies to be unambiguously defined and builds them from source.
+Note that the behaviour differs from `find_package`, as variables exported to the parent scope (such as  `<PackageName>_LIBRARIES`) will not be visible after adding a package using CPM.cmake.
+The behaviour can be [achieved manually](https://github.com/TheLartians/CPM.cmake/issues/132#issuecomment-644955140), if required.
+
+## Comparison to pure FetchContent / ExternalProject
+
+CPM.cmake is a wrapper for CMake's FetchContent module and adds a number of features that turn it into a useful dependency manager.
+The most notable features are:
+
+- A simpler to use API
+- Version checking: CPM.cmake will check the version number of any added dependency and omit a warning if another dependency requires a more recent version.
+- Options: any Options passed to a dependency are stored and compared on later use, so if another dependency tries to add an existing dependency with incompatible options a warning will be emitted to the user.
+- Offline builds: CPM.cmake will override CMake's download and update commands, which allows new builds to be configured while offline if all dependencies [are available locally](#cpm_source_cache).
+- Automatic shallow clone: if a version tag (e.g. `v2.2.0`) is provided and `CPM_SOURCE_CACHE` is used, CPM.cmake will perform a shallow clone of the dependency, which should be significantly faster while using less storage than a full clone.
+- Overridable: all `CPMAddPackage` can be configured to use `find_package` by setting a [CMake flag](#cpm_use_local_packages), making it easy to integrate into projects that may require local versioning through the system's package manager.
+- [Package lock files](#package-lock) for easier transitive dependency management.
+- Dependencies can be overridden [per-build](#local-package-override) using CMake CLI parameters.
+
+ExternalProject works similarly as FetchContent, however waits with adding dependencies until build time. 
+This has a quite a few disadvantages, especially as it makes using custom toolchains / cross-compiling very difficult and can lead to problems with nested dependencies.
 
 ## Options
 
