@@ -204,7 +204,7 @@ If you know others, feel free to add them here through a PR.
     <td>
       <a href="https://otto-project.github.io">
         <p align="center">
-          <img src="https://avatars2.githubusercontent.com/u/40357059?s=200&v=4"  alt="otto-project" height=100pt />
+          <img src="https://avatars2.githubusercontent.com/u/40357059?s=200&v=4"  alt="otto-project" height=100pt width=100pt />
         </p>
         <p align="center"><b>OTTO - The Open Source GrooveBox</b></p>
       </a>
@@ -212,7 +212,7 @@ If you know others, feel free to add them here through a PR.
     <td>
       <a href="https://maphi.app">
         <p align="center">
-          <img src="https://user-images.githubusercontent.com/4437447/89892751-71af8000-dbd7-11ea-9d87-4fe107845069.png"  alt="maphi" height=100pt />
+          <img src="https://user-images.githubusercontent.com/4437447/89892751-71af8000-dbd7-11ea-9d87-4fe107845069.png"  alt="maphi" height=100pt width=100pt />
         </p>
         <p align="center"><b>Maphi - the Math App</b></p>
       </a>
@@ -220,7 +220,7 @@ If you know others, feel free to add them here through a PR.
     <td>
       <a href="https://github.com/TheLartians/ModernCppStarter">
         <p align="center">
-          <img src="https://repository-images.githubusercontent.com/254842585/4dfa7580-7ffb-11ea-99d0-46b8fe2f4170"  alt="modern-cpp-starter" height=100pt />
+          <img src="https://repository-images.githubusercontent.com/254842585/4dfa7580-7ffb-11ea-99d0-46b8fe2f4170"  alt="modern-cpp-starter" height=100pt width=200pt />
         </p>
         <p align="center"><b>ModernCppStarter</b></p>
       </a>
