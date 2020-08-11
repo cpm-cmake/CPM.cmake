@@ -10,7 +10,7 @@
 # Setup-free CMake dependency management
 
 CPM.cmake is a CMake script that adds dependency management capabilities to CMake.
-It's built as a thin wrapper around CMake's [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module that adds version control, caching and a simple API.
+It's built as a thin wrapper around CMake's [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module that adds version control, caching, a simple API [and more](#comparison-to-pure-fetchcontent--externalproject).
 
 ## Manage everything
 
@@ -192,6 +192,41 @@ cmake --build build --target cpm-update-package-lock
 ```
 
 See the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/Package-lock) for more info.
+
+
+## Built with CPM.cmake
+
+Some amazing projects that are built using the CPM.cmake package manager. 
+If you know others, feel free to add them here through a PR.
+
+<table>
+  <tr>
+    <td>
+      <a href="https://otto-project.github.io">
+        <p align="center">
+          <img src="https://avatars2.githubusercontent.com/u/40357059?s=200&v=4"  alt="otto-project" height=100pt width=100pt />
+        </p>
+        <p align="center"><b>OTTO - The Open Source GrooveBox</b></p>
+      </a>
+    </td>
+    <td>
+      <a href="https://maphi.app">
+        <p align="center">
+          <img src="https://user-images.githubusercontent.com/4437447/89892751-71af8000-dbd7-11ea-9d87-4fe107845069.png"  alt="maphi" height=100pt width=100pt />
+        </p>
+        <p align="center"><b>Maphi - the Math App</b></p>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/TheLartians/ModernCppStarter">
+        <p align="center">
+          <img src="https://repository-images.githubusercontent.com/254842585/4dfa7580-7ffb-11ea-99d0-46b8fe2f4170"  alt="modern-cpp-starter" height=100pt width=200pt />
+        </p>
+        <p align="center"><b>ModernCppStarter</b></p>
+      </a>
+    </td>
+  </tr>
+</table>
 
 ## Snippets
 
