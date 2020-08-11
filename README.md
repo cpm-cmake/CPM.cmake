@@ -197,9 +197,9 @@ See the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/Package-lock) for m
 ## Built with CPM.cmake
 
 Some amazing projects that are built using the CPM.cmake package manager. 
-If you know some more, feel free to add them here through a PR.
+If you know others, feel free to add them here through a PR.
 
-<table style="padding:10px">
+<table>
   <tr>
     <td>
       <a href="https://otto-project.github.io">
