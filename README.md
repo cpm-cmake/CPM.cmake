@@ -49,6 +49,8 @@ After calling `CPMAddPackage` or `CPMFindPackage`, the following variables are d
 The difference between `CPMFindPackage` and `CPMAddPackage` is that `CPMFindPackage` will try to find a local dependency via CMake's `find_package` and fallback to `CPMAddPackage` if the dependency is not found.
 This behaviour can be also modified globally via [CPM options](#options).
 
+See [this medium article](https://medium.com/swlh/cpm-an-awesome-dependency-manager-for-c-with-cmake-3c53f4376766) for a short tutorial on using CPM.cmake.
+
 ## Full CMakeLists Example
 
 ```cmake
