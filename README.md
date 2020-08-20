@@ -79,14 +79,15 @@ See the [examples directory](https://github.com/TheLartians/CPM.cmake/tree/maste
 
 ## Adding CPM
 
-To add CPM to your current project, simply add `cmake/CPM.cmake` to your project's `cmake` directory. The command below will perform this automatically.
+To add CPM to your current project, simply add the [latest release](https://github.com/TheLartians/CPM.cmake/releases/latest) of `CPM.cmake` or `get_cpm.cmake` to your project's `cmake` directory.
+The command below will perform this automatically.
 
 ```bash
 mkdir -p cmake
-wget -O cmake/CPM.cmake https://github.com/TheLartians/CPM.cmake/releases/latest/download/CPM.cmake
+wget -O cmake/CPM.cmake https://github.com/TheLartians/CPM.cmake/releases/latest/download/get_cpm.cmake
 ```
 
-You can also use CMake to download CPM for you. See the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/Downloading-CPM.cmake-in-CMake) for more details.
+You can also download CPM.cmake directly from your project's `CMakeLists.txt`. See the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/Downloading-CPM.cmake-in-CMake) for more details.
 
 ## Updating CPM
 
