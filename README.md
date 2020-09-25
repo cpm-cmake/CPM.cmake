@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.com/TheLartians/CPM.cmake.svg?branch=master)](https://travis-ci.com/TheLartians/CPM.cmake)
 [![Actions Status](https://github.com/TheLartians/CPM.cmake/workflows/MacOS/badge.svg)](https://github.com/TheLartians/CPM.cmake/actions)
 [![Actions Status](https://github.com/TheLartians/CPM.cmake/workflows/Windows/badge.svg)](https://github.com/TheLartians/CPM.cmake/actions)
-[![Actions Status](https://github.com/TheLartians/CPM.cmake/workflows/Ubuntu/badge.svg)](https://github.com/TheLartians/CPM.cmake/actions)
+[![Actions Status](https://github.com/TheLartians/CPM.cmake/workflows/Ubuntu/badge.svg)](https://github.com/TheLartians/CPM.cmake/actions) [![Join the chat at https://gitter.im/TheLartians/CPM.cmake](https://badges.gitter.im/TheLartians/CPM.cmake.svg)](https://gitter.im/TheLartians/CPM.cmake?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 <p align="center">
   <img src="./logo/CPM.png" height="100" />
