@@ -252,6 +252,7 @@ function(CPMAddPackage)
       NAME ${CPM_ARGS_NAME}
       SOURCE_DIR ${PACKAGE_SOURCE}
       FORCE True
+      OPTIONS ${CPM_ARGS_OPTIONS}
     )
     cpm_export_variables(${CPM_ARGS_NAME})
     return()
