@@ -196,6 +196,24 @@ cmake --build build --target cpm-update-package-lock
 
 See the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/Package-lock) for more info.
 
+## Using Cache with GitHub Actions
+
+You can use CPM_SOURCE_CACHE on GitHub Actions workflows [cache](https://github.com/actions/cache), to make your CI faster.
+
+```yml
+- name: Set up cache
+  id: cache-cpm
+  uses: actions/cache@v2
+  with:
+    path: ~/cpm-cache
+    key: cpm
+
+- name: Build CMake
+  run: |
+    mkdir build && cd build
+    cmake -DCPM_SOURCE_CACHE=~/cpm-cache ..
+    make
+```
 
 ## Built with CPM.cmake
 
