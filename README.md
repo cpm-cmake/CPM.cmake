@@ -206,13 +206,15 @@ You can use CPM_SOURCE_CACHE on GitHub Actions workflows [cache](https://github.
   uses: actions/cache@v2
   with:
     path: ~/cpm-cache
-    key: cpm
-
+    key: ${{ runner.os }}-cpm-${{ hashFiles('**/') }}
+    restore-keys: |
+      ${{ runner.os }}-cpm-
+                  
 - name: Build CMake
   run: |
     mkdir build && cd build
     cmake -DCPM_SOURCE_CACHE=~/cpm-cache ..
-    make
+    make -j2
 ```
 
 ## Built with CPM.cmake
