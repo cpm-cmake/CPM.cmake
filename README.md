@@ -155,6 +155,8 @@ export CPM_SOURCE_CACHE=$HOME/.cache/CPM
 
 Note that passing the variable as a configure option to CMake will always override the value set by the environmental variable.
 
+You can use CPM_SOURCE_CACHE on GitHub Actions workflows [cache](https://github.com/actions/cache) and combine it with ccache, to make your CI faster. See the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/Caching-with-CPM.cmake-and-ccache-on-GitHub-Actions) for more info.
+
 ### CPM_DOWNLOAD_ALL
 
 If set, CPM will forward all calls to `CPMFindPackage` as `CPMAddPackage`.
@@ -195,27 +197,6 @@ cmake --build build --target cpm-update-package-lock
 ```
 
 See the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/Package-lock) for more info.
-
-## Using Cache with GitHub Actions
-
-You can use CPM_SOURCE_CACHE on GitHub Actions workflows [cache](https://github.com/actions/cache), to make your CI faster.
-
-```yml
-- name: Set up cache
-  id: cache-cpm
-  uses: actions/cache@v2
-  with:
-    path: ~/cpm-cache
-    key: ${{ runner.os }}-cpm-${{ hashFiles('**/') }}
-    restore-keys: |
-      ${{ runner.os }}-cpm-
-                  
-- name: Build CMake
-  run: |
-    mkdir build && cd build
-    cmake -DCPM_SOURCE_CACHE=~/cpm-cache ..
-    make -j2
-```
 
 ## Built with CPM.cmake
 
