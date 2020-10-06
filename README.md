@@ -155,7 +155,7 @@ export CPM_SOURCE_CACHE=$HOME/.cache/CPM
 
 Note that passing the variable as a configure option to CMake will always override the value set by the environmental variable.
 
-You can use CPM_SOURCE_CACHE on GitHub Actions workflows [cache](https://github.com/actions/cache) and combine it with ccache, to make your CI faster. See the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/Caching-with-CPM.cmake-and-ccache-on-GitHub-Actions) for more info.
+You can use `CPM_SOURCE_CACHE` on GitHub Actions workflows [cache](https://github.com/actions/cache) and combine it with ccache, to make your CI faster. See the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/Caching-with-CPM.cmake-and-ccache-on-GitHub-Actions) for more info.
 
 ### CPM_DOWNLOAD_ALL
 
