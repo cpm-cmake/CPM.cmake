@@ -119,6 +119,7 @@ function(CPMFindPackage)
   set(oneValueArgs
     NAME
     VERSION
+    GIT_TAG
     FIND_PACKAGE_ARGUMENTS
   )
 
