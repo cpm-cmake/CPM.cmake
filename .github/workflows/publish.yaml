@@ -11,11 +11,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+
+      - name: Set CPM version by tag
+        run: |
+          mkdir dist
+          sed "s/0.27.2-development-version/${GITHUB_REF/refs\/tags\/v}/g" cmake/CPM.cmake > dist/CPM.cmake
+          sed "s/0.27.2-development-version/${GITHUB_REF/refs\/tags\/v}/g" cmake/get_cpm.cmake > dist/get_cpm.cmake
+
       - name: Upload CPM.cmake to release
         uses: svenstaro/upload-release-action@v1-release
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: cmake/CPM.cmake
-          asset_name: CPM.cmake
           tag: ${{ github.ref }}
+          file: dist/*.cmake
+          file_glob: true
           overwrite: true

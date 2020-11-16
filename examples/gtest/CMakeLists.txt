@@ -2,17 +2,13 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 project(CPMExampleGtest)
 
-# ---- Options ----
-
-option(ENABLE_TEST_COVERAGE "Enable test coverage" OFF)
-
 # ---- Dependencies ----
 
 include(../../cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME fibonacci
-  GIT_REPOSITORY https://github.com/TheLartians/Fibonacci.git
+  GITLAB_REPOSITORY TheLartians/Fibonacci
   VERSION 2.0
 )
 
@@ -36,10 +32,3 @@ set_target_properties(CPMExampleGtest PROPERTIES CXX_STANDARD 17)
 
 enable_testing() 
 add_test(CPMExampleGtest CPMExampleGtest)
-
-# ---- Add code coverage ----
-
-if (${ENABLE_TEST_COVERAGE})
-  set_target_properties(CPMExampleGtest PROPERTIES CXX_STANDARD 17 COMPILE_FLAGS "-O0 -g -fprofile-arcs -ftest-coverage --coverage")
-  target_link_options(CPMExampleGtest PUBLIC "--coverage")
-endif()
