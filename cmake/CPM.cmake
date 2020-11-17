@@ -505,3 +505,50 @@ function(cpm_is_git_tag_commit_hash GIT_TAG RESULT)
     endif()
   endif()
 endfunction()
+
+macro(prettify_cpm_add_package)
+    set(oneValueArgs
+      NAME
+      FORCE
+      VERSION
+      GIT_TAG
+      DOWNLOAD_ONLY
+      GITHUB_REPOSITORY
+      GITLAB_REPOSITORY
+      GIT_REPOSITORY
+      SOURCE_DIR
+      DOWNLOAD_COMMAND
+      FIND_PACKAGE_ARGUMENTS
+      NO_CACHE
+      GIT_SHALLOW
+    )
+      set(multiValueArgs
+        OPTIONS
+      )
+      unset(NEW_ARGN)
+
+      cmake_parse_arguments(CPM_AGS "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+      foreach(oneArgName ${oneValueArgs})
+          if(DEFINED CPM_AGS_${oneArgName})
+              if(IS_IN_COMMENT)
+                  string(APPEND NEW_ARGN "#")
+              endif()
+              string(APPEND NEW_ARGN "    ${oneArgName} ${CPM_ARGS_${oneArgName}}\n")
+          endif()
+      endforeach()
+      foreach(multiArgName ${multiValueArgs})
+          if(DEFINED CPM_AGS_${multiArgName})
+              if(IS_IN_COMMENT)
+                  string(APPEND NEW_ARGN "#")
+              endif()
+              string(APPEND NEW_ARGN "    ${multiArgName}\n")
+              foreach(singleOption ${CPM_AGS_${multiArgName}})
+                  if(IS_IN_COMMENT)
+                      string(APPEND NEW_ARGN "#")
+                  endif()
+                  string(APPEND NEW_ARGN "        \"${singleOption}\"\n")
+              endforeach()
+          endif()
+      endforeach()
+endmacro()
