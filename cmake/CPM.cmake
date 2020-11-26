@@ -69,7 +69,7 @@ else()
   set(CPM_SOURCE_CACHE_DEFAULT OFF)
 endif()
 
-set(CPM_SOURCE_CACHE ${CPM_SOURCE_CACHE_DEFAULT} CACHE PATH "Directory to downlaod CPM dependencies")
+set(CPM_SOURCE_CACHE ${CPM_SOURCE_CACHE_DEFAULT} CACHE PATH "Directory to download CPM dependencies")
 
 if (NOT CPM_DONT_UPDATE_MODULE_PATH)
   set(CPM_MODULE_PATH "${CMAKE_BINARY_DIR}/CPM_modules" CACHE INTERNAL "")
