@@ -1,4 +1,3 @@
-
 include(CMakePackageConfigHelpers)
 include(${CPM_PATH}/testing.cmake)
 
@@ -12,19 +11,18 @@ function(initProjectWithDependency TEST_DEPENDENCY_NAME)
   )
 
   execute_process(
-    COMMAND 
-    ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/local_dependency" "-B${TEST_BUILD_DIR}"
+    COMMAND ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/local_dependency" "-B${TEST_BUILD_DIR}"
     RESULT_VARIABLE ret
   )
 
-  ASSERT_EQUAL(${ret} "0")
+  assert_equal(${ret} "0")
 endfunction()
 
-initProjectWithDependency(A)
-ASSERT_EXISTS(${TEST_BUILD_DIR}/CPM_modules)
-ASSERT_EXISTS(${TEST_BUILD_DIR}/CPM_modules/FindA.cmake)
-ASSERT_NOT_EXISTS(${TEST_BUILD_DIR}/CPM_modules/FindB.cmake)
+initprojectwithdependency(A)
+assert_exists(${TEST_BUILD_DIR}/CPM_modules)
+assert_exists(${TEST_BUILD_DIR}/CPM_modules/FindA.cmake)
+assert_not_exists(${TEST_BUILD_DIR}/CPM_modules/FindB.cmake)
 
-initProjectWithDependency(B)
-ASSERT_NOT_EXISTS(${TEST_BUILD_DIR}/CPM_modules/FindA.cmake)
-ASSERT_EXISTS(${TEST_BUILD_DIR}/CPM_modules/FindB.cmake)
+initprojectwithdependency(B)
+assert_not_exists(${TEST_BUILD_DIR}/CPM_modules/FindA.cmake)
+assert_exists(${TEST_BUILD_DIR}/CPM_modules/FindB.cmake)

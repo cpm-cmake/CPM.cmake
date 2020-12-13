@@ -26,5 +26,5 @@ set_target_properties(CPMExampleDoctest PROPERTIES CXX_STANDARD 17)
 
 # ---- Enable testing ----
 
-ENABLE_TESTING() 
-ADD_TEST(CPMExampleDoctest CPMExampleDoctest)
+enable_testing()
+add_test(CPMExampleDoctest CPMExampleDoctest)

@@ -15,5 +15,5 @@ CPMAddPackage(
 # ---- Executable ----
 
 add_executable(CPMFmtExample "main.cpp")
-set_target_properties(CPMFmtExample PROPERTIES CXX_STANDARD 17)        
+set_target_properties(CPMFmtExample PROPERTIES CXX_STANDARD 17)
 target_link_libraries(CPMFmtExample fmt)

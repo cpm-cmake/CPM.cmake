@@ -5,31 +5,19 @@ include(${CPM_PATH}/testing.cmake)
 
 set(CPM_DRY_RUN ON)
 
-CPMAddPackage(
-  NAME A
-  GIT_TAG 1.2.3
-)
+CPMAddPackage(NAME A GIT_TAG 1.2.3)
 
-CPMAddPackage(
-  NAME A
-  VERSION 1.2.3
-)
+CPMAddPackage(NAME A VERSION 1.2.3)
 
-CPMGetPackageVersion(A VERSION)
-ASSERT_EQUAL(${VERSION} "1.2.3")
+cpmgetpackageversion(A VERSION)
+assert_equal(${VERSION} "1.2.3")
 
-CPMAddPackage(
-  NAME B
-  VERSION 2.4.1
-)
+CPMAddPackage(NAME B VERSION 2.4.1)
 
-CPMAddPackage(
-  NAME B
-  GIT_TAG v2.3.1
-)
+CPMAddPackage(NAME B GIT_TAG v2.3.1)
 
-CPMGetPackageVersion(B VERSION)
-ASSERT_EQUAL(${VERSION} "2.4.1")
+cpmgetpackageversion(B VERSION)
+assert_equal(${VERSION} "2.4.1")
 
 CPMAddPackage(
   NAME C
@@ -37,5 +25,5 @@ CPMAddPackage(
   VERSION 3.1.2
 )
 
-CPMGetPackageVersion(C VERSION)
-ASSERT_EQUAL(${VERSION} "3.1.2")
+cpmgetpackageversion(C VERSION)
+assert_equal(${VERSION} "3.1.2")

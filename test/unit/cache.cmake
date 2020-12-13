@@ -8,8 +8,8 @@ set(TEST_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/remote_dependency)
 
 function(clear_cache)
   message(STATUS "clearing CPM cache")
-  FILE(REMOVE_RECURSE ${CPM_SOURCE_CACHE_DIR})
-  ASSERT_NOT_EXISTS("${CPM_SOURCE_CACHE_DIR}")
+  file(REMOVE_RECURSE ${CPM_SOURCE_CACHE_DIR})
+  assert_not_exists("${CPM_SOURCE_CACHE_DIR}")
 endfunction()
 
 function(update_cmake_lists)
@@ -22,100 +22,92 @@ endfunction()
 
 function(reset_test)
   clear_cache()
-  FILE(REMOVE_RECURSE ${TEST_BUILD_DIR})
+  file(REMOVE_RECURSE ${TEST_BUILD_DIR})
   update_cmake_lists()
 endfunction()
 
 set(FIBONACCI_VERSION 1.0)
 
-## Read CPM_SOURCE_CACHE from arguments
+# Read CPM_SOURCE_CACHE from arguments
 
 reset_test()
 
 execute_process(
-  COMMAND 
-  ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}" "-DCPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}"
-  RESULT_VARIABLE ret
+  COMMAND ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}"
+          "-DCPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" RESULT_VARIABLE ret
 )
 
-ASSERT_EQUAL(${ret} "0")
-ASSERT_EXISTS("${CPM_SOURCE_CACHE_DIR}/fibonacci")
+assert_equal(${ret} "0")
+assert_exists("${CPM_SOURCE_CACHE_DIR}/fibonacci")
 
-FILE(GLOB FIBONACCI_VERSIONs "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
+file(GLOB FIBONACCI_VERSIONs "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
 list(LENGTH FIBONACCI_VERSIONs FIBONACCI_VERSION_count)
-ASSERT_EQUAL(${FIBONACCI_VERSION_count} "1")
+assert_equal(${FIBONACCI_VERSION_count} "1")
 
-FILE(GLOB fibonacci_versions "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
+file(GLOB fibonacci_versions "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
 list(LENGTH fibonacci_versions fibonacci_version_count)
-ASSERT_EQUAL(${fibonacci_version_count} "1")
+assert_equal(${fibonacci_version_count} "1")
 
-## Update dependency and keep CPM_SOURCE_CACHE
+# Update dependency and keep CPM_SOURCE_CACHE
 
 set(FIBONACCI_VERSION 2.0)
 update_cmake_lists()
 
-execute_process(
-  COMMAND 
-  ${CMAKE_COMMAND} ${TEST_BUILD_DIR}
-  RESULT_VARIABLE ret
-)
+execute_process(COMMAND ${CMAKE_COMMAND} ${TEST_BUILD_DIR} RESULT_VARIABLE ret)
 
-ASSERT_EQUAL(${ret} "0")
+assert_equal(${ret} "0")
 
-FILE(GLOB FIBONACCI_VERSIONs "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
+file(GLOB FIBONACCI_VERSIONs "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
 list(LENGTH FIBONACCI_VERSIONs FIBONACCI_VERSION_count)
-ASSERT_EQUAL(${FIBONACCI_VERSION_count} "2")
+assert_equal(${FIBONACCI_VERSION_count} "2")
 
-## Clear cache and update
+# Clear cache and update
 
 clear_cache()
 
-execute_process(
-  COMMAND 
-  ${CMAKE_COMMAND} ${TEST_BUILD_DIR}
-  RESULT_VARIABLE ret
-)
+execute_process(COMMAND ${CMAKE_COMMAND} ${TEST_BUILD_DIR} RESULT_VARIABLE ret)
 
-ASSERT_EQUAL(${ret} "0")
-ASSERT_EXISTS("${CPM_SOURCE_CACHE_DIR}/fibonacci")
+assert_equal(${ret} "0")
+assert_exists("${CPM_SOURCE_CACHE_DIR}/fibonacci")
 
-## Read CPM_SOURCE_CACHE from environment
+# Read CPM_SOURCE_CACHE from environment
 
 reset_test()
 
 execute_process(
-  COMMAND 
-  ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}"
-  RESULT_VARIABLE ret
+  COMMAND ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND}
+          "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}" RESULT_VARIABLE ret
 )
 
-ASSERT_EQUAL(${ret} "0")
-ASSERT_EXISTS("${CPM_SOURCE_CACHE_DIR}/fibonacci")
+assert_equal(${ret} "0")
+assert_exists("${CPM_SOURCE_CACHE_DIR}/fibonacci")
 
-## Reuse cached packages for other build
+# Reuse cached packages for other build
 
 execute_process(
-  COMMAND 
-  ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}-2"
+  COMMAND ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND}
+          "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}-2"
   RESULT_VARIABLE ret
 )
 
-ASSERT_EQUAL(${ret} "0")
+assert_equal(${ret} "0")
 
-## Overwrite CPM_SOURCE_CACHE with argument
+# Overwrite CPM_SOURCE_CACHE with argument
 
 reset_test()
 
 execute_process(
-  COMMAND 
-  ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CMAKE_CURRENT_BINARY_DIR}/junk" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}" "-DCPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}"
+  COMMAND
+    ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CMAKE_CURRENT_BINARY_DIR}/junk" ${CMAKE_COMMAND}
+    "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}"
+    "-DCPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}"
   RESULT_VARIABLE ret
 )
 
-ASSERT_EQUAL(${ret} "0")
-ASSERT_EXISTS("${CPM_SOURCE_CACHE_DIR}/fibonacci")
+assert_equal(${ret} "0")
+assert_exists("${CPM_SOURCE_CACHE_DIR}/fibonacci")
 
-## Use NO_CACHE option
+# Use NO_CACHE option
 
 set(FIBONACCI_PACKAGE_ARGS "NO_CACHE YES")
 set(FIBONACCI_VERSION 1.0)
@@ -123,25 +115,23 @@ update_cmake_lists()
 reset_test()
 
 execute_process(
-  COMMAND 
-  ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}"
-  RESULT_VARIABLE ret
+  COMMAND ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND}
+          "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}" RESULT_VARIABLE ret
 )
 
-ASSERT_EQUAL(${ret} "0")
-ASSERT_NOT_EXISTS("${CPM_SOURCE_CACHE_DIR}/fibonacci")
+assert_equal(${ret} "0")
+assert_not_exists("${CPM_SOURCE_CACHE_DIR}/fibonacci")
 
-## Use commit hash after version
+# Use commit hash after version
 
 set(FIBONACCI_PACKAGE_ARGS "NO_CACHE YES GIT_TAG e9ebf168ca0fffaa4ef8c6fefc6346aaa22f6ed5")
 set(FIBONACCI_VERSION 1.1)
 update_cmake_lists()
 
 execute_process(
-  COMMAND 
-  ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}"
-  RESULT_VARIABLE ret
+  COMMAND ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND}
+          "-H${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}" RESULT_VARIABLE ret
 )
 
-ASSERT_EQUAL(${ret} "0")
-ASSERT_NOT_EXISTS("${CPM_SOURCE_CACHE_DIR}/fibonacci")
+assert_equal(${ret} "0")
+assert_not_exists("${CPM_SOURCE_CACHE_DIR}/fibonacci")
