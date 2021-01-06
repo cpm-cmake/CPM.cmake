@@ -183,7 +183,7 @@ function(CPMFindPackage)
     return()
   endif()
 
-  cpmcheckifpackagealreadyadded(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" "${CPM_ARGS_OPTIONS}")
+  cpm_check_if_package_already_added(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" "${CPM_ARGS_OPTIONS}")
   if(CPM_PACKAGE_ALREADY_ADDED)
     cpm_export_variables(${CPM_ARGS_NAME})
     return()
@@ -199,9 +199,9 @@ function(CPMFindPackage)
 endfunction()
 
 # checks if a package has been added before
-function(CPMCheckIfPackageAlreadyAdded CPM_ARGS_NAME CPM_ARGS_VERSION CPM_ARGS_OPTIONS)
+function(cpm_check_if_package_already_added CPM_ARGS_NAME CPM_ARGS_VERSION CPM_ARGS_OPTIONS)
   if("${CPM_ARGS_NAME}" IN_LIST CPM_PACKAGES)
-    cpmgetpackageversion(${CPM_ARGS_NAME} CPM_PACKAGE_VERSION)
+    cpm_get_package_version(${CPM_ARGS_NAME} CPM_PACKAGE_VERSION)
     if("${CPM_PACKAGE_VERSION}" VERSION_LESS "${CPM_ARGS_VERSION}")
       message(
         WARNING
@@ -295,7 +295,7 @@ function(CPMAddPackage)
   endif()
 
   # Check if package has been added before
-  cpmcheckifpackagealreadyadded(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" "${CPM_ARGS_OPTIONS}")
+  cpm_check_if_package_already_added(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" "${CPM_ARGS_OPTIONS}")
   if(CPM_PACKAGE_ALREADY_ADDED)
     cpm_export_variables(${CPM_ARGS_NAME})
     return()
@@ -322,7 +322,7 @@ function(CPMAddPackage)
     CPMAddPackage(${declaration})
     cpm_export_variables(${CPM_ARGS_NAME})
     # checking again to ensure version and option compatibility
-    cpmcheckifpackagealreadyadded(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" "${CPM_ARGS_OPTIONS}")
+    cpm_check_if_package_already_added(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" "${CPM_ARGS_OPTIONS}")
     return()
   endif()
 
@@ -494,7 +494,7 @@ function(CPMRegisterPackage PACKAGE VERSION)
 endfunction()
 
 # retrieve the current version of the package to ${OUTPUT}
-function(CPMGetPackageVersion PACKAGE OUTPUT)
+function(cpm_get_package_version PACKAGE OUTPUT)
   set(${OUTPUT}
       "${CPM_PACKAGE_${PACKAGE}_VERSION}"
       PARENT_SCOPE
