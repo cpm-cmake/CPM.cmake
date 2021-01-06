@@ -21,6 +21,5 @@ endif()
 # ---- Executable ----
 
 add_executable(CPMSimpleMatchExample "main.cpp")
-set_target_properties(CPMSimpleMatchExample PROPERTIES CXX_STANDARD 17)        
+set_target_properties(CPMSimpleMatchExample PROPERTIES CXX_STANDARD 17)
 target_link_libraries(CPMSimpleMatchExample simple_match)
-

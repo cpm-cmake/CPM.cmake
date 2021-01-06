@@ -1,4 +1,3 @@
-
 include(CMakePackageConfigHelpers)
 include(${CPM_PATH}/testing.cmake)
 
@@ -13,9 +12,8 @@ configure_package_config_file(
 )
 
 execute_process(
-  COMMAND 
-  ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/local_dependency" "-B${TEST_BUILD_DIR}"
+  COMMAND ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/local_dependency" "-B${TEST_BUILD_DIR}"
   RESULT_VARIABLE ret
 )
 
-ASSERT_EQUAL(${ret} "0")
+assert_equal(${ret} "0")

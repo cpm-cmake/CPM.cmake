@@ -1,6 +1,6 @@
 #include <fmt/format.h>
 
-int main(){
+int main() {
   fmt::print("Hello, {}!\n", "world");
   return 0;
 }
