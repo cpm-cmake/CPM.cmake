@@ -60,3 +60,10 @@ parse:
         COMPATIBILITY: 1
         VERSION_HEADER: 1
         DEPENDENCIES: +
+    cpmusepackagelock:
+      pargs: 1
+      spelling: CPMUsePackageLock
+    cpmregisterpackage:
+      pargs: 1
+      spelling: CPMRegisterPackage
+    

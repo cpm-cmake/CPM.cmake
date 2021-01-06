@@ -141,7 +141,7 @@ function(cpm_find_package NAME VERSION)
   find_package(${NAME} ${VERSION} ${EXTRA_ARGS} QUIET)
   if(${CPM_ARGS_NAME}_FOUND)
     message(STATUS "${CPM_INDENT} using local package ${CPM_ARGS_NAME}@${VERSION}")
-    cpmregisterpackage(${CPM_ARGS_NAME} "${VERSION}")
+    CPMRegisterPackage(${CPM_ARGS_NAME} "${VERSION}")
     set(CPM_PACKAGE_FOUND
         YES
         PARENT_SCOPE
@@ -156,7 +156,7 @@ endfunction()
 
 # Create a custom FindXXX.cmake module for a CPM package This prevents `find_package(NAME)` from
 # finding the system library
-function(CPMCreateModuleFile Name)
+function(cpm_create_module_file Name)
   if(NOT CPM_DONT_UPDATE_MODULE_PATH)
     # erase any previous modules
     file(WRITE ${CPM_MODULE_PATH}/Find${Name}.cmake
@@ -342,7 +342,7 @@ function(CPMAddPackage)
     endif()
   endif()
 
-  cpmregisterpackage("${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}")
+  CPMRegisterPackage("${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}")
 
   if(CPM_ARGS_OPTIONS)
     foreach(OPTION ${CPM_ARGS_OPTIONS})
@@ -393,7 +393,7 @@ function(CPMAddPackage)
     endif()
   endif()
 
-  cpmcreatemodulefile(${CPM_ARGS_NAME} "CPMAddPackage(${ARGN})")
+  cpm_create_module_file(${CPM_ARGS_NAME} "CPMAddPackage(${ARGN})")
 
   if(CPM_PACKAGE_LOCK_ENABLED)
     if((CPM_ARGS_VERSION AND NOT CPM_ARGS_SOURCE_DIR) OR CPM_INCLUDE_ALL_IN_PACKAGE_LOCK)
