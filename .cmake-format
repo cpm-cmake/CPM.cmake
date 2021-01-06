@@ -40,6 +40,12 @@ parse:
         flags: []
       spelling: CPMFindPackage
       kwargs: *cpmaddpackagekwargs
+    cpmdeclarepackage:
+      pargs:
+        nargs: '*'
+        flags: []
+      spelling: CPMDeclarePackage
+      kwargs: *cpmaddpackagekwargs
     packageproject:
       pargs:
         nargs: '*'
