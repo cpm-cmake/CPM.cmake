@@ -201,7 +201,7 @@ endfunction()
 # checks if a package has been added before
 function(cpm_check_if_package_already_added CPM_ARGS_NAME CPM_ARGS_VERSION CPM_ARGS_OPTIONS)
   if("${CPM_ARGS_NAME}" IN_LIST CPM_PACKAGES)
-    cpm_get_package_version(${CPM_ARGS_NAME} CPM_PACKAGE_VERSION)
+    CPMGetPackageVersion(${CPM_ARGS_NAME} CPM_PACKAGE_VERSION)
     if("${CPM_PACKAGE_VERSION}" VERSION_LESS "${CPM_ARGS_VERSION}")
       message(
         WARNING
@@ -494,7 +494,7 @@ function(CPMRegisterPackage PACKAGE VERSION)
 endfunction()
 
 # retrieve the current version of the package to ${OUTPUT}
-function(cpm_get_package_version PACKAGE OUTPUT)
+function(cpmgetpackageversion PACKAGE OUTPUT)
   set(${OUTPUT}
       "${CPM_PACKAGE_${PACKAGE}_VERSION}"
       PARENT_SCOPE

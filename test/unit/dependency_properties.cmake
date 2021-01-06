@@ -9,14 +9,14 @@ CPMAddPackage(NAME A GIT_TAG 1.2.3)
 
 CPMAddPackage(NAME A VERSION 1.2.3)
 
-cpmgetpackageversion(A VERSION)
+CPMGetPackageVersion(A VERSION)
 assert_equal(${VERSION} "1.2.3")
 
 CPMAddPackage(NAME B VERSION 2.4.1)
 
 CPMAddPackage(NAME B GIT_TAG v2.3.1)
 
-cpmgetpackageversion(B VERSION)
+CPMGetPackageVersion(B VERSION)
 assert_equal(${VERSION} "2.4.1")
 
 CPMAddPackage(
@@ -25,5 +25,5 @@ CPMAddPackage(
   VERSION 3.1.2
 )
 
-cpmgetpackageversion(C VERSION)
+CPMGetPackageVersion(C VERSION)
 assert_equal(${VERSION} "3.1.2")

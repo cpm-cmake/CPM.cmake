@@ -66,4 +66,7 @@ parse:
     cpmregisterpackage:
       pargs: 1
       spelling: CPMRegisterPackage
+    cpmgetpackageversion:
+      pargs: 2
+      spelling: CPMGetPackageVersion
     
