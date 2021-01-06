@@ -3,7 +3,7 @@ include(${CPM_PATH}/testing.cmake)
 
 set(TEST_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/package-lock)
 
-function(configureWithDeclare DECLARE_DEPENDENCY)
+function(configure_with_declare DECLARE_DEPENDENCY)
   execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${TEST_BUILD_DIR})
 
   if(DECLARE_DEPENDENCY)
@@ -31,7 +31,7 @@ function(configureWithDeclare DECLARE_DEPENDENCY)
   assert_equal(${ret} "0")
 endfunction()
 
-function(updatePackageLock)
+function(update_package_lock)
   execute_process(
     COMMAND ${CMAKE_COMMAND} --build ${TEST_BUILD_DIR} --target cpm-update-package-lock
     RESULT_VARIABLE ret
@@ -43,11 +43,11 @@ endfunction()
 execute_process(
   COMMAND ${CMAKE_COMMAND} -E rm -f ${CMAKE_CURRENT_LIST_DIR}/local_dependency/package-lock.cmake
 )
-configurewithdeclare(YES)
+configure_with_declare(YES)
 assert_not_exists(${CMAKE_CURRENT_LIST_DIR}/local_dependency/package-lock.cmake)
-updatepackagelock()
+update_package_lock()
 assert_exists(${CMAKE_CURRENT_LIST_DIR}/local_dependency/package-lock.cmake)
-configurewithdeclare(NO)
+configure_with_declare(NO)
 execute_process(
   COMMAND ${CMAKE_COMMAND} -E rm -f ${CMAKE_CURRENT_LIST_DIR}/local_dependency/package-lock.cmake
 )
