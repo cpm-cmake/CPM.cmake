@@ -5,7 +5,7 @@
 # MIT License
 # -----------
 #[[
-  Copyright (c) 2019 Lars Melchior
+  Copyright (c) 2021 Lars Melchior and additional contributers
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -201,7 +201,7 @@ endfunction()
 # checks if a package has been added before
 function(cpm_check_if_package_already_added CPM_ARGS_NAME CPM_ARGS_VERSION CPM_ARGS_OPTIONS)
   if("${CPM_ARGS_NAME}" IN_LIST CPM_PACKAGES)
-    CPMGetPackageVersion(${CPM_ARGS_NAME} CPM_PACKAGE_VERSION)
+    cpmgetpackageversion(${CPM_ARGS_NAME} CPM_PACKAGE_VERSION)
     if("${CPM_PACKAGE_VERSION}" VERSION_LESS "${CPM_ARGS_VERSION}")
       message(
         WARNING
@@ -494,7 +494,7 @@ function(CPMRegisterPackage PACKAGE VERSION)
 endfunction()
 
 # retrieve the current version of the package to ${OUTPUT}
-function(cpmgetpackageversion PACKAGE OUTPUT)
+function(CPMGetPackageVersion PACKAGE OUTPUT)
   set(${OUTPUT}
       "${CPM_PACKAGE_${PACKAGE}_VERSION}"
       PARENT_SCOPE
