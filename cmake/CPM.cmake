@@ -315,18 +315,18 @@ function(CPMAddPackage)
       list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS DOWNLOAD_COMMAND "${CMAKE_COMMAND}")
       set(PACKAGE_INFO "${download_directory}")
     else()
-      # Enable shallow clone when GIT_TAG is not a commit hash.
-      # Our guess may not be accurate, but it should guarantee no commit hash get mis-detected.
-      if (NOT DEFINED CPM_ARGS_GIT_SHALLOW)
-        cpm_is_git_tag_commit_hash("${CPM_ARGS_GIT_TAG}" IS_HASH)
-        if (NOT ${IS_HASH})
-          list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_SHALLOW TRUE)
-        endif()
-      endif()
-
       # remove timestamps so CMake will re-download the dependency
       file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/_deps/${lower_case_name}-subbuild)
       set(PACKAGE_INFO "${PACKAGE_INFO} -> ${download_directory}")
+    endif()
+  endif()
+
+  # Enable shallow clone when GIT_TAG is not a commit hash.
+  # Our guess may not be accurate, but it should guarantee no commit hash get mis-detected.
+  if (NOT DEFINED CPM_ARGS_GIT_SHALLOW)
+    cpm_is_git_tag_commit_hash("${CPM_ARGS_GIT_TAG}" IS_HASH)
+    if (NOT ${IS_HASH})
+      list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_SHALLOW TRUE)
     endif()
   endif()
 
