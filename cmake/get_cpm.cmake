@@ -1,4 +1,4 @@
-set(CPM_DOWNLOAD_VERSION 0.27.2-development-version)
+set(CPM_DOWNLOAD_VERSION 1.0.0-development-version)
 
 if(CPM_SOURCE_CACHE)
   set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")

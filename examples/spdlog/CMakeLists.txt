@@ -7,9 +7,9 @@ project(CPMSpdlogExample)
 include(../../cmake/CPM.cmake)
 
 CPMAddPackage(
-        NAME spdlog
-        GITHUB_REPOSITORY gabime/spdlog
-        VERSION 1.7.0
+  NAME spdlog
+  GITHUB_REPOSITORY gabime/spdlog
+  VERSION 1.7.0
 )
 
 # ---- Executable ----
