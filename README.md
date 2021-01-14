@@ -3,9 +3,11 @@
 [![Actions Status](https://github.com/TheLartians/CPM.cmake/workflows/Windows/badge.svg)](https://github.com/TheLartians/CPM.cmake/actions)
 [![Actions Status](https://github.com/TheLartians/CPM.cmake/workflows/Ubuntu/badge.svg)](https://github.com/TheLartians/CPM.cmake/actions) [![Join the chat at https://gitter.im/TheLartians/CPM.cmake](https://badges.gitter.im/TheLartians/CPM.cmake.svg)](https://gitter.im/TheLartians/CPM.cmake?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+<br />
 <p align="center">
   <img src="./logo/CPM.png" height="100" />
 </p>
+<br />
 
 # Setup-free CMake dependency management
 
@@ -17,6 +19,11 @@ It's built as a thin wrapper around CMake's [FetchContent](https://cmake.org/cma
 Any downloadable project or resource can be added as a version-controlled dependency though CPM, it is not necessary to modify or package anything.
 Projects using modern CMake are automatically configured and their targets can be used immediately.
 For everything else, the targets can be created manually after the dependency has been downloaded (see the [snippets](#snippets) below for examples).
+
+## Further reading
+
+- [CPM: An Awesome Dependency Manager for C++ with CMake](https://medium.com/swlh/cpm-an-awesome-dependency-manager-for-c-with-cmake-3c53f4376766)
+- [CMake and the Future of C++ Package Management](https://ibob.github.io/blog/2020/01/13/cmake-package-management/)
 
 ## Usage
 
@@ -48,8 +55,6 @@ After calling `CPMAddPackage` or `CPMFindPackage`, the following variables are d
 
 The difference between `CPMFindPackage` and `CPMAddPackage` is that `CPMFindPackage` will try to find a local dependency via CMake's `find_package` and fallback to `CPMAddPackage` if the dependency is not found.
 This behaviour can be also modified globally via [CPM options](#options).
-
-See [this medium article](https://medium.com/swlh/cpm-an-awesome-dependency-manager-for-c-with-cmake-3c53f4376766) for a short tutorial on using CPM.cmake.
 
 ## Full CMakeLists Example
 
@@ -206,7 +211,7 @@ If you know others, feel free to add them here through a PR.
 <table>
   <tr>
     <td>
-      <a href="https://otto-project.github.io">
+      <a href="https://bitfieldaudio.com">
         <p align="center">
           <img src="https://avatars2.githubusercontent.com/u/40357059?s=200&v=4"  alt="otto-project" height=100pt width=100pt />
         </p>
