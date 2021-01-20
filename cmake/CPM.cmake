@@ -167,13 +167,18 @@ endfunction()
 
 # Find a package locally or fallback to CPMAddPackage
 function(CPMFindPackage)
-  set(oneValueArgs NAME VERSION GIT_TAG FIND_PACKAGE_ARGUMENTS)
+  set(oneValueArgs NAME VERSION GIT_TAG URL FIND_PACKAGE_ARGUMENTS)
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "" ${ARGN})
 
   if(NOT DEFINED CPM_ARGS_VERSION)
     if(DEFINED CPM_ARGS_GIT_TAG)
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
+    endif()
+  endif()
+  if(NOT DEFINED CPM_ARGS_VERSION)
+    if(DEFINED CPM_ARGS_URL)
+      cpm_get_version_from_url("${CPM_ARGS_URL}" CPM_ARGS_VERSION)
     endif()
   endif()
 
@@ -251,6 +256,7 @@ function(CPMAddPackage)
       FIND_PACKAGE_ARGUMENTS
       NO_CACHE
       GIT_SHALLOW
+      URL
   )
 
   set(multiValueArgs OPTIONS)
@@ -262,6 +268,11 @@ function(CPMAddPackage)
   if(NOT DEFINED CPM_ARGS_VERSION)
     if(DEFINED CPM_ARGS_GIT_TAG)
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
+    endif()
+  endif()
+  if(NOT DEFINED CPM_ARGS_VERSION)
+    if(DEFINED CPM_ARGS_URL)
+      cpm_get_version_from_url("${CPM_ARGS_URL}" CPM_ARGS_VERSION)
     endif()
   endif()
 
@@ -292,6 +303,10 @@ function(CPMAddPackage)
     if(DEFINED CPM_ARGS_GIT_SHALLOW)
       list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_SHALLOW ${CPM_ARGS_GIT_SHALLOW})
     endif()
+  endif()
+
+  if(DEFINED CPM_ARGS_URL)
+    list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS URL ${CPM_ARGS_URL})
   endif()
 
   # Check if package has been added before
@@ -588,6 +603,15 @@ function(cpm_get_version_from_git_tag GIT_TAG RESULT)
         PARENT_SCOPE
     )
   endif()
+endfunction()
+
+# guesses the package version from an URL
+function(cpm_get_version_from_url URL RESULT)
+  string(REGEX MATCH ".*/[^0-9.]*([0123456789.]*).*" _ ${URL})
+  set(${RESULT}
+      ${CMAKE_MATCH_1}
+      PARENT_SCOPE
+  )
 endfunction()
 
 # guesses if the git tag is a commit hash or an actual tag or a branch nane.
