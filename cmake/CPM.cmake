@@ -371,12 +371,18 @@ function(CPMAddPackage)
     set(origin_parameters ${CPM_ARGS_UNPARSED_ARGUMENTS})
     list(SORT origin_parameters)
     string(SHA1 origin_hash "${origin_parameters}")
+    set(PACKAGE_INFO "${PACKAGE_INFO} at ${download_directory}")
     set(download_directory ${CPM_SOURCE_CACHE}/${lower_case_name}/${origin_hash})
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${download_directory})
     if(EXISTS ${download_directory})
-      # disable the download command to allow offline builds
-      list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS DOWNLOAD_COMMAND "${CMAKE_COMMAND}")
-      set(PACKAGE_INFO "${download_directory}")
+      # avoid FetchContent modules to improve performance
+      set(${CPM_ARGS_NAME}_BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/${lower_case_name}-build)
+      set(${CPM_ARGS_NAME}_ADDED YES)
+      set(${CPM_ARGS_NAME}_SOURCE_DIR ${download_directory})
+      if(NOT CPM_ARGS_DOWNLOAD_ONLY AND EXISTS ${download_directory}/CMakeLists.txt)
+        add_subdirectory(${download_directory} ${${CPM_ARGS_NAME}_BINARY_DIR})
+      endif()
+      set(CPM_${CPM_ARGS_NAME}_SKIP_FETCH TRUE)
     else()
       # Enable shallow clone when GIT_TAG is not a commit hash. Our guess may not be accurate, but
       # it should guarantee no commit hash get mis-detected.
@@ -389,7 +395,7 @@ function(CPMAddPackage)
 
       # remove timestamps so CMake will re-download the dependency
       file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/_deps/${lower_case_name}-subbuild)
-      set(PACKAGE_INFO "${PACKAGE_INFO} -> ${download_directory}")
+      set(PACKAGE_INFO "${PACKAGE_INFO} to ${download_directory}")
     endif()
   endif()
 
@@ -405,11 +411,17 @@ function(CPMAddPackage)
     endif()
   endif()
 
-  cpm_declare_fetch(
-    "${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
+  message(
+    STATUS "${CPM_INDENT} adding package ${CPM_ARGS_NAME}@${CPM_ARGS_VERSION} (${PACKAGE_INFO})"
   )
-  cpm_fetch_package("${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}")
-  cpm_get_fetch_properties("${CPM_ARGS_NAME}")
+
+  if(NOT CPM_${CPM_ARGS_NAME}_SKIP_FETCH)
+    cpm_declare_fetch(
+      "${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
+    )
+    cpm_fetch_package("${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}")
+    cpm_get_fetch_properties("${CPM_ARGS_NAME}")
+  endif()
 
   set(${CPM_ARGS_NAME}_ADDED YES)
   cpm_export_variables("${CPM_ARGS_NAME}")
@@ -503,8 +515,6 @@ endfunction()
 
 # declares a package in FetchContent_Declare
 function(cpm_declare_fetch PACKAGE VERSION INFO)
-  message(STATUS "${CPM_INDENT} adding package ${PACKAGE}@${VERSION} (${INFO})")
-
   if(${CPM_DRY_RUN})
     message(STATUS "${CPM_INDENT} package not declared (dry run)")
     return()
