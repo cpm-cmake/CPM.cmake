@@ -558,6 +558,12 @@ macro(prettify_cpm_add_package OUT_VAR IS_IN_COMMENT)
           endif()
       endforeach()
 
+    if(NOT "${CPM_AGS_UNPARSED_ARGUMENTS}" STREQUAL "")
+        string(REPLACE ";" " " CPM_AGS_UNPARSED_ARGUMENTS "${CPM_AGS_UNPARSED_ARGUMENTS}")
+        string(APPEND ${OUT_VAR} "    #(unparsed)\n")
+        string(APPEND ${OUT_VAR} "    ${CPM_AGS_UNPARSED_ARGUMENTS}\n")
+    endif()
+
       if(NOT ${OUT_VAR})
           set(${OUT_VAR} "#    ${ARGN}\n")
       endif()
