@@ -286,6 +286,8 @@ function(CPMAddPackage)
     endif()
   endif()
 
+  set(CPM_SKIP_FETCH FALSE)
+
   if(DEFINED CPM_ARGS_GIT_TAG)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_TAG ${CPM_ARGS_GIT_TAG})
     # If GIT_SHALLOW is explicitly specified, honor the value.
@@ -382,7 +384,7 @@ function(CPMAddPackage)
       if(NOT CPM_ARGS_DOWNLOAD_ONLY AND EXISTS ${download_directory}/CMakeLists.txt)
         add_subdirectory(${download_directory} ${${CPM_ARGS_NAME}_BINARY_DIR})
       endif()
-      set(CPM_${CPM_ARGS_NAME}_SKIP_FETCH TRUE)
+      set(CPM_SKIP_FETCH TRUE)
     else()
       # Enable shallow clone when GIT_TAG is not a commit hash. Our guess may not be accurate, but
       # it should guarantee no commit hash get mis-detected.
@@ -415,7 +417,7 @@ function(CPMAddPackage)
     STATUS "${CPM_INDENT} adding package ${CPM_ARGS_NAME}@${CPM_ARGS_VERSION} (${PACKAGE_INFO})"
   )
 
-  if(NOT CPM_${CPM_ARGS_NAME}_SKIP_FETCH)
+  if(NOT CPM_SKIP_FETCH)
     cpm_declare_fetch(
       "${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
     )
