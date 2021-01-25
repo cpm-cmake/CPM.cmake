@@ -11,13 +11,26 @@ cpm_prettyfy_package_arguments(PRETTY_ARGN false
     UPDATE_DISCONNECTED ON
     TESTCUSTOMDATA TRUE
 )
-SET(EXPECTED "    NAME Dependency
+SET(EXPECTED_UNCOMMENTED "    NAME Dependency
     SOURCE_DIR \${CMAKE_SOURCE_DIR}/local_dependency/dependency
     #(unparsed)
     UPDATE_DISCONNECTED ON TESTCUSTOMDATA TRUE 
 ")
-ASSERT_EQUAL(${PRETTY_ARGN} ${EXPECTED}) 
+ASSERT_EQUAL(${PRETTY_ARGN} ${EXPECTED_UNCOMMENTED})
 
 ## test comment and not commented
 
+unset(PRETTY_ARGN)
+cpm_prettyfy_package_arguments(PRETTY_ARGN true
+    NAME Dependency
+    SOURCE_DIR ${CMAKE_SOURCE_DIR}/local_dependency/dependency
+    UPDATE_DISCONNECTED ON
+    TESTCUSTOMDATA TRUE
+)
+SET(EXPECTED_COMMENTED "#    NAME Dependency
+#    SOURCE_DIR \${CMAKE_SOURCE_DIR}/local_dependency/dependency
+    #(unparsed)
+#    UPDATE_DISCONNECTED ON TESTCUSTOMDATA TRUE 
+")
+ASSERT_EQUAL(${PRETTY_ARGN} ${EXPECTED_COMMENTED})
 #----
