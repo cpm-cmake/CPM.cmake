@@ -465,7 +465,7 @@ endmacro()
 function(cpm_add_to_package_lock Name)
   if (NOT CPM_DONT_CREATE_PACKAGE_LOCK)
     unset(PRETTY_ARGN)
-    cpm_prettyfy_package_arguments(PRETTY_ARGN false ${ARGN})
+    cpm_prettify_package_arguments(PRETTY_ARGN false ${ARGN})
     file(APPEND ${CPM_PACKAGE_LOCK_FILE} "# ${Name}\nCPMDeclarePackage(${Name}\n${PRETTY_ARGN})\n")
   endif()
 endfunction()
@@ -473,7 +473,7 @@ endfunction()
 function(cpm_add_comment_to_package_lock Name)
   if (NOT CPM_DONT_CREATE_PACKAGE_LOCK)
     unset(PRETTY_ARGN)
-    cpm_prettyfy_package_arguments(PRETTY_ARGN true ${ARGN})
+    cpm_prettify_package_arguments(PRETTY_ARGN true ${ARGN})
     file(APPEND ${CPM_PACKAGE_LOCK_FILE}
          "# ${Name} (unversioned)\n# CPMDeclarePackage(${Name}\n${PRETTY_ARGN}#)\n")
   endif()
@@ -629,7 +629,7 @@ function(cpm_is_git_tag_commit_hash GIT_TAG RESULT)
   endif()
 endfunction()
 
-function(cpm_prettyfy_package_arguments OUT_VAR IS_IN_COMMENT)
+function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
     set(oneValueArgs
       NAME
       FORCE

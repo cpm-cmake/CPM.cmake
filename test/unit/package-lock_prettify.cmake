@@ -5,7 +5,7 @@ include(${CPM_PATH}/testing.cmake)
 
 
 unset(PRETTY_ARGN)
-cpm_prettyfy_package_arguments(PRETTY_ARGN false
+cpm_prettify_package_arguments(PRETTY_ARGN false
     NAME Dependency
     SOURCE_DIR ${CMAKE_SOURCE_DIR}/local_dependency/dependency
     UPDATE_DISCONNECTED ON
@@ -18,9 +18,9 @@ SET(EXPECTED_UNCOMMENTED "    NAME Dependency
 ")
 ASSERT_EQUAL(${PRETTY_ARGN} ${EXPECTED_UNCOMMENTED})
 
-# commented part
+
 unset(PRETTY_ARGN)
-cpm_prettyfy_package_arguments(PRETTY_ARGN true
+cpm_prettify_package_arguments(PRETTY_ARGN true
     NAME Dependency
     SOURCE_DIR ${CMAKE_SOURCE_DIR}/local_dependency/dependency
     UPDATE_DISCONNECTED ON
