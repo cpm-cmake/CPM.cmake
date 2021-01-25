@@ -463,7 +463,7 @@ macro(CPMDeclarePackage Name)
 endmacro()
 
 function(cpm_add_to_package_lock Name)
-  if (NOT CPM_DONT_CREATE_PACKAGE_LOCK)
+  if(NOT CPM_DONT_CREATE_PACKAGE_LOCK)
     unset(PRETTY_ARGN)
     cpm_prettify_package_arguments(PRETTY_ARGN false ${ARGN})
     file(APPEND ${CPM_PACKAGE_LOCK_FILE} "# ${Name}\nCPMDeclarePackage(${Name}\n${PRETTY_ARGN})\n")
@@ -471,11 +471,12 @@ function(cpm_add_to_package_lock Name)
 endfunction()
 
 function(cpm_add_comment_to_package_lock Name)
-  if (NOT CPM_DONT_CREATE_PACKAGE_LOCK)
+  if(NOT CPM_DONT_CREATE_PACKAGE_LOCK)
     unset(PRETTY_ARGN)
     cpm_prettify_package_arguments(PRETTY_ARGN true ${ARGN})
     file(APPEND ${CPM_PACKAGE_LOCK_FILE}
-         "# ${Name} (unversioned)\n# CPMDeclarePackage(${Name}\n${PRETTY_ARGN}#)\n")
+         "# ${Name} (unversioned)\n# CPMDeclarePackage(${Name}\n${PRETTY_ARGN}#)\n"
+    )
   endif()
 endfunction()
 
@@ -630,7 +631,7 @@ function(cpm_is_git_tag_commit_hash GIT_TAG RESULT)
 endfunction()
 
 function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
-    set(oneValueArgs
+  set(oneValueArgs
       NAME
       FORCE
       VERSION
@@ -644,56 +645,55 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
       FIND_PACKAGE_ARGUMENTS
       NO_CACHE
       GIT_SHALLOW
-    )
-    set(multiValueArgs
-    OPTIONS
-    )
-    #set(OUT_VAR "")
-    cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  )
+  set(multiValueArgs OPTIONS)
+  # set(OUT_VAR "")
+  cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    foreach(oneArgName ${oneValueArgs})
-        if(DEFINED CPM_ARGS_${oneArgName})
-            if(${IS_IN_COMMENT})
-                string(APPEND PRETTY_OUT_VAR "#")
-            endif()
-            if(${oneArgName} STREQUAL "SOURCE_DIR")
-                message("CMAKE_SOURCE_DIR:${CMAKE_SOURCE_DIR}")
-                string(REPLACE ${CMAKE_SOURCE_DIR} "\${CMAKE_SOURCE_DIR}" CPM_ARGS_${oneArgName} ${CPM_ARGS_${oneArgName}} )
-            endif()
-            string(APPEND PRETTY_OUT_VAR "    ${oneArgName} ${CPM_ARGS_${oneArgName}}\n")
-        endif()
-    endforeach()
-    foreach(multiArgName ${multiValueArgs})
-        if(DEFINED CPM_ARGS_${multiArgName})
-            if(${IS_IN_COMMENT})
-                string(APPEND PRETTY_OUT_VAR "#")
-            endif()
-            string(APPEND PRETTY_OUT_VAR "    ${multiArgName}\n")
-            foreach(singleOption ${CPM_ARGS_${multiArgName}})
-                if(${IS_IN_COMMENT})
-                    string(APPEND PRETTY_OUT_VAR "#")
-                endif()
-                string(APPEND PRETTY_OUT_VAR "        \"${singleOption}\"\n")
-            endforeach()
-        endif()
-    endforeach()
-
-    if(NOT "${CPM_ARGS_UNPARSED_ARGUMENTS}" STREQUAL "")
-        string(APPEND PRETTY_OUT_VAR "    #(unparsed)\n")
-        if(${IS_IN_COMMENT})
-            string(APPEND PRETTY_OUT_VAR "#")
-        endif()
-        string(APPEND PRETTY_OUT_VAR "    ")
-        foreach(CPM_ARGS_UNPARSED_ARGUMENT ${CPM_ARGS_UNPARSED_ARGUMENTS})
-            string(APPEND PRETTY_OUT_VAR "${CPM_ARGS_UNPARSED_ARGUMENT} ")
-        endforeach()
-        string(APPEND PRETTY_OUT_VAR "\n")
+  foreach(oneArgName ${oneValueArgs})
+    if(DEFINED CPM_ARGS_${oneArgName})
+      if(${IS_IN_COMMENT})
+        string(APPEND PRETTY_OUT_VAR "#")
+      endif()
+      if(${oneArgName} STREQUAL "SOURCE_DIR")
+        message("CMAKE_SOURCE_DIR:${CMAKE_SOURCE_DIR}")
+        string(REPLACE ${CMAKE_SOURCE_DIR} "\${CMAKE_SOURCE_DIR}" CPM_ARGS_${oneArgName}
+                       ${CPM_ARGS_${oneArgName}}
+        )
+      endif()
+      string(APPEND PRETTY_OUT_VAR "    ${oneArgName} ${CPM_ARGS_${oneArgName}}\n")
     endif()
+  endforeach()
+  foreach(multiArgName ${multiValueArgs})
+    if(DEFINED CPM_ARGS_${multiArgName})
+      if(${IS_IN_COMMENT})
+        string(APPEND PRETTY_OUT_VAR "#")
+      endif()
+      string(APPEND PRETTY_OUT_VAR "    ${multiArgName}\n")
+      foreach(singleOption ${CPM_ARGS_${multiArgName}})
+        if(${IS_IN_COMMENT})
+          string(APPEND PRETTY_OUT_VAR "#")
+        endif()
+        string(APPEND PRETTY_OUT_VAR "        \"${singleOption}\"\n")
+      endforeach()
+    endif()
+  endforeach()
 
-    set(
-        ${OUT_VAR}
-        ${PRETTY_OUT_VAR}
-        PARENT_SCOPE
-    )
+  if(NOT "${CPM_ARGS_UNPARSED_ARGUMENTS}" STREQUAL "")
+    string(APPEND PRETTY_OUT_VAR "    #(unparsed)\n")
+    if(${IS_IN_COMMENT})
+      string(APPEND PRETTY_OUT_VAR "#")
+    endif()
+    string(APPEND PRETTY_OUT_VAR "    ")
+    foreach(CPM_ARGS_UNPARSED_ARGUMENT ${CPM_ARGS_UNPARSED_ARGUMENTS})
+      string(APPEND PRETTY_OUT_VAR "${CPM_ARGS_UNPARSED_ARGUMENT} ")
+    endforeach()
+    string(APPEND PRETTY_OUT_VAR "\n")
+  endif()
+
+  set(${OUT_VAR}
+      ${PRETTY_OUT_VAR}
+      PARENT_SCOPE
+  )
 
 endfunction()
