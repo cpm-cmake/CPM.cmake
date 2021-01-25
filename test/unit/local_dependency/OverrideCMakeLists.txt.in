@@ -17,3 +17,11 @@ CPMAddPackage(
 # ---- Call dependency method to validate correct addition of directory ----
 
 dependency_function()
+
+# ---- Check parameters ----
+
+include(@CPM_PATH@/testing.cmake)
+
+ASSERT_TRUTHY(Dependency_ADDED)
+ASSERT_DEFINED(Dependency_SOURCE_DIR)
+ASSERT_DEFINED(Dependency_BINARY_DIR)

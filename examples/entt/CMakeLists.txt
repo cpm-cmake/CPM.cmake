@@ -14,7 +14,7 @@ CPMAddPackage(
   DOWNLOAD_ONLY True
 )
 
-if (EnTT_ADDED)
+if(EnTT_ADDED)
   add_library(EnTT INTERFACE)
   target_include_directories(EnTT INTERFACE ${EnTT_SOURCE_DIR}/src)
 endif()
@@ -22,5 +22,5 @@ endif()
 # ---- Executable ----
 
 add_executable(CPMEnTTExample "main.cpp")
-set_target_properties(CPMEnTTExample PROPERTIES CXX_STANDARD 17)        
+set_target_properties(CPMEnTTExample PROPERTIES CXX_STANDARD 17)
 target_link_libraries(CPMEnTTExample EnTT)

@@ -26,5 +26,5 @@ set_target_properties(CPMExampleCatch2 PROPERTIES CXX_STANDARD 17)
 
 # ---- Enable testing ----
 
-ENABLE_TESTING() 
-ADD_TEST(CPMExampleCatch2 CPMExampleCatch2)
+enable_testing()
+add_test(CPMExampleCatch2 CPMExampleCatch2)

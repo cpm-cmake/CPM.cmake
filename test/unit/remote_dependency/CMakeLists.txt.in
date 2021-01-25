@@ -22,3 +22,11 @@ CPMAddPackage(
 add_executable(CPMExampleCatch2 main.cpp)
 target_link_libraries(CPMExampleCatch2 fibonacci)
 set_target_properties(CPMExampleCatch2 PROPERTIES CXX_STANDARD 17 COMPILE_FLAGS "-Wall -pedantic -Wextra -Werror")
+
+# ---- Check parameters ----
+
+include(@CPM_PATH@/testing.cmake)
+
+ASSERT_TRUTHY(fibonacci_ADDED)
+ASSERT_DEFINED(fibonacci_SOURCE_DIR)
+ASSERT_DEFINED(fibonacci_BINARY_DIR)

@@ -1,9 +1,10 @@
 #define CATCH_CONFIG_MAIN
 
-#include <catch2/catch.hpp>
 #include <fibonacci.h>
 
-TEST_CASE("fibonacci"){
+#include <catch2/catch.hpp>
+
+TEST_CASE("fibonacci") {
   REQUIRE(fibonacci(0) == 0);
   REQUIRE(fibonacci(1) == 1);
   REQUIRE(fibonacci(2) == 1);
@@ -13,8 +14,8 @@ TEST_CASE("fibonacci"){
   REQUIRE(fibonacci(13) == 233);
 }
 
-TEST_CASE("fastFibonacci"){
-  for (unsigned i=0; i<25; ++i){
+TEST_CASE("fastFibonacci") {
+  for (unsigned i = 0; i < 25; ++i) {
     REQUIRE(fibonacci(i) == fastFibonacci(i));
   }
 }
