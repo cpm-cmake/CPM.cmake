@@ -18,8 +18,7 @@ SET(EXPECTED_UNCOMMENTED "    NAME Dependency
 ")
 ASSERT_EQUAL(${PRETTY_ARGN} ${EXPECTED_UNCOMMENTED})
 
-## test comment and not commented
-
+# commented part
 unset(PRETTY_ARGN)
 cpm_prettyfy_package_arguments(PRETTY_ARGN true
     NAME Dependency

@@ -690,9 +690,6 @@ function(cpm_prettyfy_package_arguments OUT_VAR IS_IN_COMMENT)
         string(APPEND PRETTY_OUT_VAR "\n")
     endif()
 
-    if(NOT PRETTY_OUT_VAR)
-        set(PRETTY_OUT_VAR "#    ${ARGN}\n")
-    endif()
     set(
         ${OUT_VAR}
         ${PRETTY_OUT_VAR}
