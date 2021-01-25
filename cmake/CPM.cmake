@@ -629,7 +629,7 @@ function(cpm_is_git_tag_commit_hash GIT_TAG RESULT)
   endif()
 endfunction()
 
-macro(cpm_prettyfy_package_arguments OUT_VAR IS_IN_COMMENT)
+function(cpm_prettyfy_package_arguments OUT_VAR IS_IN_COMMENT)
     set(oneValueArgs
       NAME
       FORCE
@@ -648,44 +648,50 @@ macro(cpm_prettyfy_package_arguments OUT_VAR IS_IN_COMMENT)
     set(multiValueArgs
     OPTIONS
     )
-
+    #set(OUT_VAR "")
     cmake_parse_arguments(CPM_AGS "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     foreach(oneArgName ${oneValueArgs})
         if(DEFINED CPM_AGS_${oneArgName})
             if(${IS_IN_COMMENT})
-                string(APPEND ${OUT_VAR} "#")
+                string(APPEND PRETTY_OUT_VAR "#")
             endif()
             if(${oneArgName} STREQUAL "SOURCE_DIR")
                 string(REPLACE ${CMAKE_SOURCE_DIR} "\${CMAKE_SOURCE_DIR}" CPM_ARGS_${oneArgName} ${CPM_ARGS_${oneArgName}} )
             endif()
-            string(APPEND ${OUT_VAR} "    ${oneArgName} ${CPM_ARGS_${oneArgName}}\n")
+            string(APPEND PRETTY_OUT_VAR "    ${oneArgName} ${CPM_ARGS_${oneArgName}}\n")
         endif()
     endforeach()
     foreach(multiArgName ${multiValueArgs})
         if(DEFINED CPM_AGS_${multiArgName})
             if(${IS_IN_COMMENT})
-                string(APPEND ${OUT_VAR} "#")
+                string(APPEND PRETTY_OUT_VAR "#")
             endif()
-            string(APPEND ${OUT_VAR} "    ${multiArgName}\n")
+            string(APPEND PRETTY_OUT_VAR "    ${multiArgName}\n")
             foreach(singleOption ${CPM_AGS_${multiArgName}})
                 if(${IS_IN_COMMENT})
-                    string(APPEND ${OUT_VAR} "#")
+                    string(APPEND PRETTY_OUT_VAR "#")
                 endif()
-                string(APPEND ${OUT_VAR} "        \"${singleOption}\"\n")
+                string(APPEND PRETTY_OUT_VAR "        \"${singleOption}\"\n")
             endforeach()
         endif()
     endforeach()
 
     if(NOT "${CPM_AGS_UNPARSED_ARGUMENTS}" STREQUAL "")
-        string(APPEND ${OUT_VAR} "    #(unparsed)\n    ")
+        string(APPEND PRETTY_OUT_VAR "    #(unparsed)\n    ")
         foreach(CPM_AGS_UNPARSED_ARGUMENT ${CPM_AGS_UNPARSED_ARGUMENTS})
-            string(APPEND ${OUT_VAR} "${CPM_AGS_UNPARSED_ARGUMENT} ")
+            string(APPEND PRETTY_OUT_VAR "${CPM_AGS_UNPARSED_ARGUMENT} ")
         endforeach()
-        string(APPEND ${OUT_VAR} "\n")
+        string(APPEND PRETTY_OUT_VAR "\n")
     endif()
 
-    if(NOT ${OUT_VAR})
-        set(${OUT_VAR} "#    ${ARGN}\n")
+    if(NOT PRETTY_OUT_VAR)
+        set(PRETTY_OUT_VAR "#    ${ARGN}\n")
     endif()
-endmacro()
+    set(
+        ${OUT_VAR}
+        ${PRETTY_OUT_VAR}
+        PARENT_SCOPE
+    )
+
+endfunction()

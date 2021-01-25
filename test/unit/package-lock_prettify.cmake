@@ -57,11 +57,11 @@ CPMDeclarePackage(Dependency
     NAME Dependency
     SOURCE_DIR \${CMAKE_SOURCE_DIR}/dependency
     #(unparsed)
-    UPDATE_DISCONNECTED ON TESTCUSTOMDATA TRUE
+    UPDATE_DISCONNECTED ON TESTCUSTOMDATA TRUE 
 )
 ")
 
 ASSERT_EQUAL(${READFILE}  ${EXPECTED})
 
 configureWithDeclare(NO)
-execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f ${CMAKE_CURRENT_LIST_DIR}/local_dependency/package-lock_prettify.cmake)
+execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f ${CMAKE_CURRENT_LIST_DIR}/local_dependency/package-lock.cmake)
