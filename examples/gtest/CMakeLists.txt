@@ -17,9 +17,7 @@ CPMAddPackage(
   GITHUB_REPOSITORY google/googletest
   GIT_TAG release-1.8.1
   VERSION 1.8.1
-  OPTIONS
-      "INSTALL_GTEST OFF"
-      "gtest_force_shared_crt"
+  OPTIONS "INSTALL_GTEST OFF" "gtest_force_shared_crt"
 )
 
 # ---- Create binary ----
@@ -30,5 +28,5 @@ set_target_properties(CPMExampleGtest PROPERTIES CXX_STANDARD 17)
 
 # ---- Enable testing ----
 
-enable_testing() 
+enable_testing()
 add_test(CPMExampleGtest CPMExampleGtest)
