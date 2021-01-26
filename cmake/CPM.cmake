@@ -656,7 +656,6 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
         string(APPEND PRETTY_OUT_VAR "#")
       endif()
       if(${oneArgName} STREQUAL "SOURCE_DIR")
-        message("CMAKE_SOURCE_DIR:${CMAKE_SOURCE_DIR}")
         string(REPLACE ${CMAKE_SOURCE_DIR} "\${CMAKE_SOURCE_DIR}" CPM_ARGS_${oneArgName}
                        ${CPM_ARGS_${oneArgName}}
         )
@@ -680,7 +679,6 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
   endforeach()
 
   if(NOT "${CPM_ARGS_UNPARSED_ARGUMENTS}" STREQUAL "")
-    string(APPEND PRETTY_OUT_VAR "    #(unparsed)\n")
     if(${IS_IN_COMMENT})
       string(APPEND PRETTY_OUT_VAR "#")
     endif()
