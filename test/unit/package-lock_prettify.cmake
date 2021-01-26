@@ -12,9 +12,9 @@ cpm_prettify_package_arguments(PRETTY_ARGN false
 )
 # cmake-format: on
 set(EXPECTED_UNCOMMENTED
-    "    NAME Dependency
-    SOURCE_DIR \${CMAKE_SOURCE_DIR}/local_dependency/dependency
-    UPDATE_DISCONNECTED ON TESTCUSTOMDATA TRUE
+"  NAME Dependency
+  SOURCE_DIR \${CMAKE_SOURCE_DIR}/local_dependency/dependency
+  UPDATE_DISCONNECTED ON TESTCUSTOMDATA TRUE
 "
 )
 assert_equal(${PRETTY_ARGN} ${EXPECTED_UNCOMMENTED})
@@ -28,15 +28,15 @@ cpm_prettify_package_arguments(PRETTY_ARGN true
 )
 # cmake-format: on
 set(EXPECTED_COMMENTED
-    "#    NAME Dependency
-#    SOURCE_DIR \${CMAKE_SOURCE_DIR}/local_dependency/dependency
-#    UPDATE_DISCONNECTED ON TESTCUSTOMDATA TRUE
+"#  NAME Dependency
+#  SOURCE_DIR \${CMAKE_SOURCE_DIR}/local_dependency/dependency
+#  UPDATE_DISCONNECTED ON TESTCUSTOMDATA TRUE
 "
 )
 assert_equal(${PRETTY_ARGN} ${EXPECTED_COMMENTED})
 
 cpm_prettify_package_arguments(PRETTY_ARGN true "local directory")
-set(EXPECTED_COMMENTED_LOCALDIR "#    local directory
+set(EXPECTED_COMMENTED_LOCALDIR "#  local directory
 "
 )
 assert_equal(${PRETTY_ARGN} ${EXPECTED_COMMENTED_LOCALDIR})
