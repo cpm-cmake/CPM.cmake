@@ -645,7 +645,6 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
       GIT_SHALLOW
   )
   set(multiValueArgs OPTIONS)
-  # set(OUT_VAR "")
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   foreach(oneArgName ${oneValueArgs})
