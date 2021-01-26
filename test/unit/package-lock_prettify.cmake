@@ -27,7 +27,6 @@ cpm_prettify_package_arguments(PRETTY_ARGN true
   TESTCUSTOMDATA TRUE
 )
 # cmake-format: on
-
 set(EXPECTED_COMMENTED
     "#    NAME Dependency
 #    SOURCE_DIR \${CMAKE_SOURCE_DIR}/local_dependency/dependency
@@ -35,3 +34,10 @@ set(EXPECTED_COMMENTED
 "
 )
 assert_equal(${PRETTY_ARGN} ${EXPECTED_COMMENTED})
+
+cpm_prettify_package_arguments(PRETTY_ARGN true "local directory")
+set(EXPECTED_COMMENTED_LOCALDIR
+    "#    local directory
+"
+)
+assert_equal(${PRETTY_ARGN} ${EXPECTED_COMMENTED_LOCALDIR})
