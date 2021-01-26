@@ -464,7 +464,6 @@ endmacro()
 
 function(cpm_add_to_package_lock Name)
   if(NOT CPM_DONT_CREATE_PACKAGE_LOCK)
-    unset(PRETTY_ARGN)
     cpm_prettify_package_arguments(PRETTY_ARGN false ${ARGN})
     file(APPEND ${CPM_PACKAGE_LOCK_FILE} "# ${Name}\nCPMDeclarePackage(${Name}\n${PRETTY_ARGN})\n")
   endif()
@@ -472,7 +471,6 @@ endfunction()
 
 function(cpm_add_comment_to_package_lock Name)
   if(NOT CPM_DONT_CREATE_PACKAGE_LOCK)
-    unset(PRETTY_ARGN)
     cpm_prettify_package_arguments(PRETTY_ARGN true ${ARGN})
     file(APPEND ${CPM_PACKAGE_LOCK_FILE}
          "# ${Name} (unversioned)\n# CPMDeclarePackage(${Name}\n${PRETTY_ARGN}#)\n"
