@@ -12,7 +12,7 @@ cpm_prettify_package_arguments(PRETTY_ARGN false
 )
 # cmake-format: on
 set(EXPECTED_UNCOMMENTED
-"  NAME Dependency
+    "  NAME Dependency
   SOURCE_DIR \${CMAKE_SOURCE_DIR}/local_dependency/dependency
   UPDATE_DISCONNECTED ON TESTCUSTOMDATA TRUE
 "
@@ -28,7 +28,7 @@ cpm_prettify_package_arguments(PRETTY_ARGN true
 )
 # cmake-format: on
 set(EXPECTED_COMMENTED
-"#  NAME Dependency
+    "#  NAME Dependency
 #  SOURCE_DIR \${CMAKE_SOURCE_DIR}/local_dependency/dependency
 #  UPDATE_DISCONNECTED ON TESTCUSTOMDATA TRUE
 "
