@@ -36,8 +36,7 @@ set(EXPECTED_COMMENTED
 assert_equal(${PRETTY_ARGN} ${EXPECTED_COMMENTED})
 
 cpm_prettify_package_arguments(PRETTY_ARGN true "local directory")
-set(EXPECTED_COMMENTED_LOCALDIR
-    "#    local directory
+set(EXPECTED_COMMENTED_LOCALDIR "#    local directory
 "
 )
 assert_equal(${PRETTY_ARGN} ${EXPECTED_COMMENTED_LOCALDIR})
