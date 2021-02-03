@@ -19,6 +19,6 @@ endif()
 
 # ---- Executable ----
 
-add_executable(CPMlinenoiseExample "main.cpp")
+add_executable(CPMlinenoiseExample main.cpp)
 set_target_properties(CPMlinenoiseExample PROPERTIES CXX_STANDARD 17)
 target_link_libraries(CPMlinenoiseExample linenoise)

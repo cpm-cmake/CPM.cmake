@@ -8,7 +8,7 @@ include(../../cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME cereal
-  VERSION 1.2.2
+  VERSION 1.3.0
   GITHUB_REPOSITORY USCiLab/cereal
   OPTIONS "SKIP_PORTABILITY_TEST ON" "JUST_INSTALL_CEREAL ON"
 )

@@ -38,6 +38,6 @@ endif()
 
 # ---- Executable ----
 
-add_executable(CPMSol2Example "main.cpp")
+add_executable(CPMSol2Example main.cpp)
 set_target_properties(CPMSol2Example PROPERTIES CXX_STANDARD 17)
 target_link_libraries(CPMSol2Example sol2)

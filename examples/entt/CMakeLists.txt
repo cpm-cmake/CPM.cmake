@@ -21,6 +21,6 @@ endif()
 
 # ---- Executable ----
 
-add_executable(CPMEnTTExample "main.cpp")
+add_executable(CPMEnTTExample main.cpp)
 set_target_properties(CPMEnTTExample PROPERTIES CXX_STANDARD 17)
 target_link_libraries(CPMEnTTExample EnTT)
