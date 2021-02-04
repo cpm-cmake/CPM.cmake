@@ -14,33 +14,31 @@ assert(len(examples) > 0)
 
 
 def runCommand(command):
-    print('- %s' % command)
-    result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
-    if result.returncode != 0:
-        print("error while running '%s':\n" %
-              command, '  ' + str(result.stderr).replace('\n', '\n  '))
-        exit(result.returncode)
-    return result.stdout
+  print('- %s' % command)
+  result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
+  if result.returncode != 0:
+    print("error while running '%s':\n" % command, '  ' + str(result.stderr).replace('\n', '\n  '))
+    exit(result.returncode)
+  return result.stdout
 
 
 print('')
 for example in examples:
-    print("running example %s" % example.name)
-    print("================" + ('=' * len(example.name)))
-    project = Path(".") / 'build' / example.name
-    #
-    # Note: needs at least cmake V3.15! CK
-    # https://cmake.org/cmake/help/latest/command/project.html#code-injection
-    #
-    cmakeModulesPath = os.environ['HOME'] + '/Workspace/cmake'
-    if Path(cmakeModulesPath).is_dir():
-        before = "-DCMAKE_PROJECT_INCLUDE_BEFORE=%s/before_project_setup.cmake" % (
-            cmakeModulesPath)
-        after = "-DCMAKE_PROJECT_INCLUDE=%s/build_options.cmake" % (cmakeModulesPath)
-        configure = runCommand('cmake -H%s -B%s -G Ninja %s %s' % (example, project, before, after))
-    else:
-        configure = runCommand('cmake -H%s -B%s' % (example, project))
-    print('  ' + '\n  '.join([line for line in configure.split('\n') if 'CPM:' in line]))
-    build = runCommand('cmake --build %s -j%i' % (project, os.cpu_count()))
-    print('  ' + '\n  '.join([line for line in build.split('\n') if 'Built target' in line]))
-    print('')
+  print("running example %s" % example.name)
+  print("================" + ('=' * len(example.name)))
+  project = Path(".") / 'build' / example.name
+  #
+  # Note: needs at least cmake V3.15! CK
+  # https://cmake.org/cmake/help/latest/command/project.html#code-injection
+  #
+  cmakeModulesPath = os.environ['HOME'] + '/Workspace/cmake'
+  if Path(cmakeModulesPath).is_dir():
+    before = "-DCMAKE_PROJECT_INCLUDE_BEFORE=%s/before_project_setup.cmake" % (cmakeModulesPath)
+    after = "-DCMAKE_PROJECT_INCLUDE=%s/build_options.cmake" % (cmakeModulesPath)
+    configure = runCommand('cmake -H%s -B%s -G Ninja %s %s' % (example, project, before, after))
+  else:
+    configure = runCommand('cmake -H%s -B%s' % (example, project))
+  print('  ' + '\n  '.join([line for line in configure.split('\n') if 'CPM:' in line]))
+  build = runCommand('cmake --build %s -j%i' % (project, os.cpu_count()))
+  print('  ' + '\n  '.join([line for line in build.split('\n') if 'Built target' in line]))
+  print('')
