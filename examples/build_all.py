@@ -41,6 +41,6 @@ for example in examples:
     else:
         configure = runCommand('cmake -H%s -B%s' % (example, project))
     print('  ' + '\n  '.join([line for line in configure.split('\n') if 'CPM:' in line]))
-    build = runCommand('cmake --build %s -j8' % (project))
+    build = runCommand('cmake --build %s -j%i' % (project, os.cpu_count()))
     print('  ' + '\n  '.join([line for line in build.split('\n') if 'Built target' in line]))
     print('')
