@@ -7,7 +7,7 @@ from subprocess import PIPE, run
 
 # NOTE: boost V1.67 is to old! CK
 examples = [
-    x for x in Path(__file__).parent.iterdir() if x.is_dir() and (x / 'CMakeLists.txt').exists() and (not x.name in ['boost'])
+    x for x in Path(__file__).parent.iterdir() if x.is_dir() and (x / 'CMakeLists.txt').exists() and (not x.name in ['boost', 'old-gtest'])
 ]
 
 assert(len(examples) > 0)
@@ -37,8 +37,9 @@ for example in examples:
         before = "-DCMAKE_PROJECT_INCLUDE_BEFORE=%s/before_project_setup.cmake" % (
             cmakeModulesPath)
         after = "-DCMAKE_PROJECT_INCLUDE=%s/build_options.cmake" % (cmakeModulesPath)
-
-    configure = runCommand('cmake -H%s -B%s -G Ninja %s %s' % (example, project, before, after))
+        configure = runCommand('cmake -H%s -B%s -G Ninja %s %s' % (example, project, before, after))
+    else:
+        configure = runCommand('cmake -H%s -B%s' % (example, project))
     print('  ' + '\n  '.join([line for line in configure.split('\n') if 'CPM:' in line]))
     build = runCommand('cmake --build %s -j8' % (project))
     print('  ' + '\n  '.join([line for line in build.split('\n') if 'Built target' in line]))
