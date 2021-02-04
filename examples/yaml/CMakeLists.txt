@@ -17,5 +17,5 @@ CPMAddPackage(
 # ---- Executable ----
 
 add_executable(CPMYamlExample main.cpp)
-set_target_properties(CPMYamlExample PROPERTIES CXX_STANDARD 17)
+target_compile_features(CPMYamlExample PRIVATE cxx_std_17)
 target_link_libraries(CPMYamlExample yaml-cpp)

@@ -22,7 +22,7 @@ CPMAddPackage(
 
 add_executable(CPMExampleDoctest main.cpp)
 target_link_libraries(CPMExampleDoctest fibonacci doctest)
-set_target_properties(CPMExampleDoctest PROPERTIES CXX_STANDARD 17)
+target_compile_features(CPMExampleDoctest PRIVATE cxx_std_17)
 
 # ---- Enable testing ----
 

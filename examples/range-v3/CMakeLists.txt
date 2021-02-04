@@ -16,11 +16,11 @@ CPMAddPackage(
 
 if(range-v3_ADDED)
   add_library(range-v3 INTERFACE IMPORTED)
-  target_include_directories(range-v3 INTERFACE "${range-v3_SOURCE_DIR}/include")
+  target_include_directories(range-v3 SYSTEM INTERFACE "${range-v3_SOURCE_DIR}/include")
 endif()
 
 # ---- Executable ----
 
 add_executable(CPMRangev3Example main.cpp)
-set_target_properties(CPMRangev3Example PROPERTIES CXX_STANDARD 17)
+target_compile_features(CPMRangev3Example PRIVATE cxx_std_17)
 target_link_libraries(CPMRangev3Example range-v3)

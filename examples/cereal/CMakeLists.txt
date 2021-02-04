@@ -17,4 +17,4 @@ CPMAddPackage(
 
 add_executable(CPMExampleCereal main.cpp)
 target_link_libraries(CPMExampleCereal cereal)
-set_target_properties(CPMExampleCereal PROPERTIES CXX_STANDARD 17)
+target_compile_features(CPMExampleCereal PRIVATE cxx_std_17)

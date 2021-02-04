@@ -17,4 +17,4 @@ CPMAddPackage(
 
 add_executable(CPMExampleCXXOpts main.cpp)
 target_link_libraries(CPMExampleCXXOpts cxxopts)
-set_target_properties(CPMExampleCXXOpts PROPERTIES CXX_STANDARD 17)
+target_compile_features(CPMExampleCXXOpts PRIVATE cxx_std_17)

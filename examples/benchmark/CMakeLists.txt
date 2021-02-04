@@ -27,5 +27,5 @@ endif()
 # ---- Executable ----
 
 add_executable(CPMExampleBenchmark "main.cpp")
-set_target_properties(CPMExampleBenchmark PROPERTIES CXX_STANDARD 17)
 target_link_libraries(CPMExampleBenchmark fibonacci benchmark)
+target_compile_features(CPMExampleBenchmark PRIVATE cxx_std_17)

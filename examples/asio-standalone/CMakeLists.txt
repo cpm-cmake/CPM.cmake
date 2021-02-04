@@ -24,7 +24,7 @@ CPMAddPackage(
 if(asio_ADDED)
   add_library(asio INTERFACE)
 
-  target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio/include)
+  target_include_directories(asio SYSTEM INTERFACE ${asio_SOURCE_DIR}/asio/include)
 
   target_compile_definitions(asio INTERFACE ASIO_STANDALONE ASIO_NO_DEPRECATED)
 
@@ -65,4 +65,4 @@ endif()
 
 add_executable(CPMExampleASIOStandalone main.cpp)
 target_link_libraries(CPMExampleASIOStandalone asio)
-target_compile_features(CPMExampleASIOStandalone PRIVATE cxx_std_20)
+target_compile_features(CPMExampleASIOStandalone PRIVATE cxx_std_17)

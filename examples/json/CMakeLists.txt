@@ -16,11 +16,11 @@ CPMAddPackage(
 
 if(nlohmann_json_ADDED)
   add_library(nlohmann_json INTERFACE)
-  target_include_directories(nlohmann_json INTERFACE ${nlohmann_json_SOURCE_DIR})
+  target_include_directories(nlohmann_json SYSTEM INTERFACE ${nlohmann_json_SOURCE_DIR}/include)
 endif()
 
 # ---- Executable ----
 
 add_executable(CPMJSONExample main.cpp)
-set_target_properties(CPMJSONExample PROPERTIES CXX_STANDARD 17)
+target_compile_features(CPMJSONExample PRIVATE cxx_std_17)
 target_link_libraries(CPMJSONExample nlohmann_json)

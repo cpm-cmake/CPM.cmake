@@ -15,5 +15,5 @@ CPMAddPackage(
 # ---- Executable ----
 
 add_executable(CPMSpdlogExample main.cpp)
-set_target_properties(CPMSpdlogExample PROPERTIES CXX_STANDARD 17)
+target_compile_features(CPMSpdlogExample PRIVATE cxx_std_17)
 target_link_libraries(CPMSpdlogExample spdlog)
