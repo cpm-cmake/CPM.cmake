@@ -65,4 +65,4 @@ endif()
 
 add_executable(CPMExampleASIOStandalone main.cpp)
 target_link_libraries(CPMExampleASIOStandalone asio)
-target_compile_features(CPMExampleASIOStandalone PRIVATE cxx_std_17)
+target_compile_features(CPMExampleASIOStandalone PRIVATE cxx_std_11)

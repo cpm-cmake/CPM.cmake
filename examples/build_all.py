@@ -7,7 +7,7 @@ from subprocess import PIPE, run
 
 # NOTE: boost V1.67 is to old! CK
 examples = [
-    x for x in Path(__file__).parent.iterdir() if x.is_dir() and (x / 'CMakeLists.txt').exists() and (not x.name in ['boost', 'old-gtest'])
+  x for x in Path(__file__).parent.iterdir() if x.is_dir() and (x / 'CMakeLists.txt').exists() and (not x.name in ['boost'])
 ]
 
 assert(len(examples) > 0)
@@ -27,18 +27,8 @@ for example in examples:
   print("running example %s" % example.name)
   print("================" + ('=' * len(example.name)))
   project = Path(".") / 'build' / example.name
-  #
-  # Note: needs at least cmake V3.15! CK
-  # https://cmake.org/cmake/help/latest/command/project.html#code-injection
-  #
-  cmakeModulesPath = os.environ['HOME'] + '/Workspace/cmake'
-  if Path(cmakeModulesPath).is_dir():
-    before = "-DCMAKE_PROJECT_INCLUDE_BEFORE=%s/before_project_setup.cmake" % (cmakeModulesPath)
-    after = "-DCMAKE_PROJECT_INCLUDE=%s/build_options.cmake" % (cmakeModulesPath)
-    configure = runCommand('cmake -H%s -B%s -G Ninja %s %s' % (example, project, before, after))
-  else:
-    configure = runCommand('cmake -H%s -B%s' % (example, project))
+  configure = runCommand('cmake -H%s -B%s' % (example, project))
   print('  ' + '\n  '.join([line for line in configure.split('\n') if 'CPM:' in line]))
-  build = runCommand('cmake --build %s -j%i' % (project, os.cpu_count()))
+  build = runCommand('cmake --build %s -- -j%i' % (project, os.cpu_count() / 2))
   print('  ' + '\n  '.join([line for line in build.split('\n') if 'Built target' in line]))
   print('')
