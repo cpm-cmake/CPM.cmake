@@ -5,9 +5,8 @@ import os
 from pathlib import Path
 from subprocess import PIPE, run
 
-# NOTE: boost V1.67 is to old! CK
 examples = [
-  x for x in Path(__file__).parent.iterdir() if x.is_dir() and (x / 'CMakeLists.txt').exists() and (not x.name in ['boost'])
+  x for x in Path(__file__).parent.iterdir() if x.is_dir() and (x / 'CMakeLists.txt').exists()
 ]
 
 assert(len(examples) > 0)
