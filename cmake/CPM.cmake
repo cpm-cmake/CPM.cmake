@@ -133,7 +133,7 @@ include(CMakeParseArguments)
 
 # Initialize logging prefix
 if(NOT CPM_INDENT)
-  set(CPM_INDENT "CPM:")
+  set(CPM_INDENT "CPM:" CACHE INTERNAL "")
 endif()
 
 function(cpm_find_package NAME VERSION)
