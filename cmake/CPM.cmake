@@ -41,6 +41,9 @@ It is recommended to upgrade CPM to the most recent version. \
 See https://github.com/TheLartians/CPM.cmake for more information."
       )
     endif()
+    if(${CMAKE_VERSION} VERSION_LESS "3.17.0")
+      include(FetchContent)
+    endif()
     return()
   endif()
 
