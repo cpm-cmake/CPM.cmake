@@ -15,17 +15,17 @@ CPMAddPackage(
 CPMAddPackage(
   NAME benchmark
   GITHUB_REPOSITORY google/benchmark
-  VERSION 1.5.0
+  VERSION 1.5.2
   OPTIONS "BENCHMARK_ENABLE_TESTING Off"
 )
 
 if(benchmark_ADDED)
-  # patch google benchmark target
-  set_target_properties(benchmark PROPERTIES CXX_STANDARD 17)
+  # Don't use C++14 because it doesn't work in some configurations.
+  set_target_properties(benchmark PROPERTIES CXX_STANDARD 11)
 endif()
 
 # ---- Executable ----
 
 add_executable(CPMExampleBenchmark "main.cpp")
-set_target_properties(CPMExampleBenchmark PROPERTIES CXX_STANDARD 17)
 target_link_libraries(CPMExampleBenchmark fibonacci benchmark)
+target_compile_features(CPMExampleBenchmark PRIVATE cxx_std_17)

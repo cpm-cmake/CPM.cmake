@@ -15,8 +15,8 @@ CPMAddPackage(
 CPMAddPackage(
   NAME googletest
   GITHUB_REPOSITORY google/googletest
-  GIT_TAG release-1.8.1
-  VERSION 1.8.1
+  GIT_TAG release-1.10.0
+  VERSION 1.10.0
   OPTIONS "INSTALL_GTEST OFF" "gtest_force_shared_crt"
 )
 
@@ -24,7 +24,7 @@ CPMAddPackage(
 
 add_executable(CPMExampleGtest main.cpp)
 target_link_libraries(CPMExampleGtest fibonacci gtest gtest_main gmock)
-set_target_properties(CPMExampleGtest PROPERTIES CXX_STANDARD 17)
+target_compile_features(CPMExampleGtest PRIVATE cxx_std_17)
 
 # ---- Enable testing ----
 

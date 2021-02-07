@@ -5,7 +5,7 @@ project(CPMExampleBoost)
 # ---- Create binary ----
 
 add_executable(CPMExampleBoost main.cpp)
-set_target_properties(CPMExampleBoost PROPERTIES CXX_STANDARD 17)
+target_compile_features(CPMExampleBoost PRIVATE cxx_std_17)
 
 # ---- Dependencies ----
 
@@ -18,4 +18,6 @@ CPMFindPackage(
   FIND_PACKAGE_ARGUMENTS "COMPONENTS system"
 )
 
-target_link_libraries(CPMExampleBoost PRIVATE Boost::system pthread)
+find_package(Threads REQUIRED)
+
+target_link_libraries(CPMExampleBoost PRIVATE Boost::system Threads::Threads)

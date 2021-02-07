@@ -8,12 +8,12 @@ include(../../cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME fmt
-  GIT_TAG 6.1.2
+  GIT_TAG 7.1.3
   GITHUB_REPOSITORY fmtlib/fmt
 )
 
 # ---- Executable ----
 
-add_executable(CPMFmtExample "main.cpp")
-set_target_properties(CPMFmtExample PROPERTIES CXX_STANDARD 17)
+add_executable(CPMFmtExample main.cpp)
+target_compile_features(CPMFmtExample PRIVATE cxx_std_17)
 target_link_libraries(CPMFmtExample fmt)

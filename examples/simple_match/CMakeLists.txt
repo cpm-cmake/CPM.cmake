@@ -15,11 +15,11 @@ CPMAddPackage(
 
 if(simple_match_ADDED)
   add_library(simple_match INTERFACE IMPORTED)
-  target_include_directories(simple_match INTERFACE "${simple_match_SOURCE_DIR}/include")
+  target_include_directories(simple_match SYSTEM INTERFACE "${simple_match_SOURCE_DIR}/include")
 endif()
 
 # ---- Executable ----
 
-add_executable(CPMSimpleMatchExample "main.cpp")
-set_target_properties(CPMSimpleMatchExample PROPERTIES CXX_STANDARD 17)
+add_executable(CPMSimpleMatchExample main.cpp)
+target_compile_features(CPMSimpleMatchExample PRIVATE cxx_std_17)
 target_link_libraries(CPMSimpleMatchExample simple_match)

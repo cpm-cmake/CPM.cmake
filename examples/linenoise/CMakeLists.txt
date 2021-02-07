@@ -14,11 +14,11 @@ CPMAddPackage(
 
 if(linenoise_ADDED)
   add_library(linenoise ${linenoise_SOURCE_DIR}/linenoise.c)
-  target_include_directories(linenoise PUBLIC ${linenoise_SOURCE_DIR})
+  target_include_directories(linenoise SYSTEM PUBLIC ${linenoise_SOURCE_DIR})
 endif()
 
 # ---- Executable ----
 
-add_executable(CPMlinenoiseExample "main.cpp")
-set_target_properties(CPMlinenoiseExample PROPERTIES CXX_STANDARD 17)
+add_executable(CPMlinenoiseExample main.cpp)
+target_compile_features(CPMlinenoiseExample PRIVATE cxx_std_17)
 target_link_libraries(CPMlinenoiseExample linenoise)

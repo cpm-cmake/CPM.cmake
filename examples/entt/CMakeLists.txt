@@ -16,11 +16,11 @@ CPMAddPackage(
 
 if(EnTT_ADDED)
   add_library(EnTT INTERFACE)
-  target_include_directories(EnTT INTERFACE ${EnTT_SOURCE_DIR}/src)
+  target_include_directories(EnTT SYSTEM INTERFACE ${EnTT_SOURCE_DIR}/src)
 endif()
 
 # ---- Executable ----
 
-add_executable(CPMEnTTExample "main.cpp")
-set_target_properties(CPMEnTTExample PROPERTIES CXX_STANDARD 17)
+add_executable(CPMEnTTExample main.cpp)
+target_compile_features(CPMEnTTExample PRIVATE cxx_std_17)
 target_link_libraries(CPMEnTTExample EnTT)

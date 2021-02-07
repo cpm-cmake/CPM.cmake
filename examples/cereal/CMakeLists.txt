@@ -8,7 +8,7 @@ include(../../cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME cereal
-  VERSION 1.2.2
+  VERSION 1.3.0
   GITHUB_REPOSITORY USCiLab/cereal
   OPTIONS "SKIP_PORTABILITY_TEST ON" "JUST_INSTALL_CEREAL ON"
 )
@@ -17,4 +17,4 @@ CPMAddPackage(
 
 add_executable(CPMExampleCereal main.cpp)
 target_link_libraries(CPMExampleCereal cereal)
-set_target_properties(CPMExampleCereal PROPERTIES CXX_STANDARD 17)
+target_compile_features(CPMExampleCereal PRIVATE cxx_std_17)

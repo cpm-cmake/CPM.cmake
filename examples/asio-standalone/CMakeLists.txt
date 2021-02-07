@@ -10,9 +10,9 @@ find_package(Threads REQUIRED)
 
 CPMAddPackage(
   NAME asio
-  VERSION 1.16.1
+  VERSION 1.18.1
   GITHUB_REPOSITORY chriskohlhoff/asio
-  GIT_TAG asio-1-16-1 # asio uses non-standard version tag, we must specify GIT_TAG
+  GIT_TAG asio-1-18-1 # asio uses non-standard version tag, we must specify GIT_TAG
 )
 
 # ASIO doesn't use CMake, we have to configure it manually. Extra notes for using on Windows:
@@ -24,7 +24,7 @@ CPMAddPackage(
 if(asio_ADDED)
   add_library(asio INTERFACE)
 
-  target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio/include)
+  target_include_directories(asio SYSTEM INTERFACE ${asio_SOURCE_DIR}/asio/include)
 
   target_compile_definitions(asio INTERFACE ASIO_STANDALONE ASIO_NO_DEPRECATED)
 
@@ -65,3 +65,4 @@ endif()
 
 add_executable(CPMExampleASIOStandalone main.cpp)
 target_link_libraries(CPMExampleASIOStandalone asio)
+target_compile_features(CPMExampleASIOStandalone PRIVATE cxx_std_11)
