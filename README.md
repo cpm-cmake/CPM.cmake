@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.com/TheLartians/CPM.cmake.svg?branch=master)](https://travis-ci.com/TheLartians/CPM.cmake)
-[![Actions Status](https://github.com/TheLartians/CPM.cmake/workflows/MacOS/badge.svg)](https://github.com/TheLartians/CPM.cmake/actions)
-[![Actions Status](https://github.com/TheLartians/CPM.cmake/workflows/Windows/badge.svg)](https://github.com/TheLartians/CPM.cmake/actions)
-[![Actions Status](https://github.com/TheLartians/CPM.cmake/workflows/Ubuntu/badge.svg)](https://github.com/TheLartians/CPM.cmake/actions) [![Join the chat at https://gitter.im/TheLartians/CPM.cmake](https://badges.gitter.im/TheLartians/CPM.cmake.svg)](https://gitter.im/TheLartians/CPM.cmake?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.com/cpm-cmake/CPM.cmake.svg?branch=master)](https://travis-ci.com/cpm-cmake/CPM.cmake)
+[![Actions Status](https://github.com/cpm-cmake/CPM.cmake/workflows/MacOS/badge.svg)](https://github.com/cpm-cmake/CPM.cmake/actions)
+[![Actions Status](https://github.com/cpm-cmake/CPM.cmake/workflows/Windows/badge.svg)](https://github.com/cpm-cmake/CPM.cmake/actions)
+[![Actions Status](https://github.com/cpm-cmake/CPM.cmake/workflows/Ubuntu/badge.svg)](https://github.com/cpm-cmake/CPM.cmake/actions)
 
 <br />
 <p align="center">
@@ -80,19 +80,19 @@ CPMAddPackage(
 target_link_libraries(tests Catch2)
 ```
 
-See the [examples directory](https://github.com/TheLartians/CPM.cmake/tree/master/examples) for complete examples with source code and check [below](#snippets) or in the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/More-Snippets) for example snippets.
+See the [examples directory](https://github.com/cpm-cmake/CPM.cmake/tree/master/examples) for complete examples with source code and check [below](#snippets) or in the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets) for example snippets.
 
 ## Adding CPM
 
-To add CPM to your current project, simply add the [latest release](https://github.com/TheLartians/CPM.cmake/releases/latest) of `CPM.cmake` or `get_cpm.cmake` to your project's `cmake` directory.
+To add CPM to your current project, simply add the [latest release](https://github.com/cpm-cmake/CPM.cmake/releases/latest) of `CPM.cmake` or `get_cpm.cmake` to your project's `cmake` directory.
 The command below will perform this automatically.
 
 ```bash
 mkdir -p cmake
-wget -O cmake/CPM.cmake https://github.com/TheLartians/CPM.cmake/releases/latest/download/get_cpm.cmake
+wget -O cmake/CPM.cmake https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/get_cpm.cmake
 ```
 
-You can also download CPM.cmake directly from your project's `CMakeLists.txt`. See the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/Downloading-CPM.cmake-in-CMake) for more details.
+You can also download CPM.cmake directly from your project's `CMakeLists.txt`. See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Downloading-CPM.cmake-in-CMake) for more details.
 
 ## Updating CPM
 
@@ -112,7 +112,7 @@ Dependencies using CPM will automatically use the updated script of the outermos
 ## Limitations
 
 - **No pre-built binaries** For every new build directory, all dependencies are initially downloaded and built from scratch. To avoid extra downloads it is recommend to set the [`CPM_SOURCE_CACHE`](#CPM_SOURCE_CACHE) environmental variable. Using a caching compiler such as [ccache](https://github.com/TheLartians/Ccache.cmake) can drastically reduce build time.
-- **Dependent on good CMakeLists** Many libraries do not have CMakeLists that work well for subprojects. Luckily this is slowly changing, however, until then, some manual configuration may be required (see the snippets [below](#snippets) for examples). For best practices on preparing projects for CPM, see the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/Preparing-projects-for-CPM.cmake). 
+- **Dependent on good CMakeLists** Many libraries do not have CMakeLists that work well for subprojects. Luckily this is slowly changing, however, until then, some manual configuration may be required (see the snippets [below](#snippets) for examples). For best practices on preparing projects for CPM, see the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Preparing-projects-for-CPM.cmake). 
 - **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit a warning. This can be easily resolved by adding a new version of the dependency in the outermost project, or by introducing a [package lock file](#package-lock).
 
 For projects with more complex needs and where an extra setup step doesn't matter, it may be worth to check out an external C++ package manager such as [vcpkg](https://github.com/microsoft/vcpkg), [conan](https://conan.io) or [hunter](https://github.com/ruslo/hunter).
@@ -127,7 +127,7 @@ Additionally, it is difficult to cross-compile projects (e.g. for mobile), as th
 
 CPM.cmake allows dependencies to be unambiguously defined and builds them from source.
 Note that the behaviour differs from `find_package`, as variables exported to the parent scope (such as  `<PackageName>_LIBRARIES`) will not be visible after adding a package using CPM.cmake.
-The behaviour can be [achieved manually](https://github.com/TheLartians/CPM.cmake/issues/132#issuecomment-644955140), if required.
+The behaviour can be [achieved manually](https://github.com/cpm-cmake/CPM.cmake/issues/132#issuecomment-644955140), if required.
 
 ## Comparison to pure FetchContent / ExternalProject
 
@@ -160,7 +160,7 @@ export CPM_SOURCE_CACHE=$HOME/.cache/CPM
 
 Note that passing the variable as a configure option to CMake will always override the value set by the environmental variable.
 
-You can use `CPM_SOURCE_CACHE` on GitHub Actions workflows [cache](https://github.com/actions/cache) and combine it with ccache, to make your CI faster. See the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/Caching-with-CPM.cmake-and-ccache-on-GitHub-Actions) for more info.
+You can use `CPM_SOURCE_CACHE` on GitHub Actions workflows [cache](https://github.com/actions/cache) and combine it with ccache, to make your CI faster. See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Caching-with-CPM.cmake-and-ccache-on-GitHub-Actions) for more info.
 
 ### CPM_DOWNLOAD_ALL
 
@@ -201,7 +201,7 @@ cmake -Bbuild
 cmake --build build --target cpm-update-package-lock
 ```
 
-See the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/Package-lock) for more info.
+See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Package-lock) for more info.
 
 ## Built with CPM.cmake
 
@@ -240,7 +240,7 @@ If you know others, feel free to add them here through a PR.
 ## Snippets
 
 These examples demonstrate how to include some well-known projects with CPM.
-See the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/More-Snippets) for more snippets.
+See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets) for more snippets.
 
 ### [Catch2](https://github.com/catchorg/Catch2)
 
@@ -371,4 +371,4 @@ For a full example on using CPM to download and configure lua with sol2 see [her
 
 ### Full Examples
 
-See the [examples directory](https://github.com/TheLartians/CPM.cmake/tree/master/examples) for full examples with source code and check out the [wiki](https://github.com/TheLartians/CPM.cmake/wiki/More-Snippets) for many more example snippets.
+See the [examples directory](https://github.com/cpm-cmake/CPM.cmake/tree/master/examples) for full examples with source code and check out the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets) for many more example snippets.

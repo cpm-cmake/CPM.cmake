@@ -1,6 +1,6 @@
 # CPM.cmake - CMake's missing package manager
 # ===========================================
-# See https://github.com/TheLartians/CPM.cmake for usage and update instructions.
+# See https://github.com/cpm-cmake/CPM.cmake for usage and update instructions.
 #
 # MIT License
 # -----------
@@ -38,7 +38,7 @@ if(CPM_DIRECTORY)
           "${CPM_INDENT} \
 A dependency is using a more recent CPM version (${CURRENT_CPM_VERSION}) than the current project (${CPM_VERSION}). \
 It is recommended to upgrade CPM to the most recent version. \
-See https://github.com/TheLartians/CPM.cmake for more information."
+See https://github.com/cpm-cmake/CPM.cmake for more information."
       )
     endif()
     if(${CMAKE_VERSION} VERSION_LESS "3.17.0")
