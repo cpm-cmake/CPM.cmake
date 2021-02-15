@@ -243,6 +243,8 @@ endfunction()
 # Download and add a package from source
 function(CPMAddPackage)
 
+  set(flagArgs EXCLUDE_FROM_ALL)
+
   set(oneValueArgs
       NAME
       FORCE
@@ -261,7 +263,7 @@ function(CPMAddPackage)
 
   set(multiValueArgs OPTIONS)
 
-  cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
+  cmake_parse_arguments(CPM_ARGS "${flagArgs}" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
   # Set default values for arguments
 
@@ -387,7 +389,9 @@ function(CPMAddPackage)
       set(${CPM_ARGS_NAME}_ADDED YES)
       set(${CPM_ARGS_NAME}_SOURCE_DIR ${download_directory})
       if(NOT CPM_ARGS_DOWNLOAD_ONLY AND EXISTS ${download_directory}/CMakeLists.txt)
-        add_subdirectory(${download_directory} ${${CPM_ARGS_NAME}_BINARY_DIR} EXCLUDE_FROM_ALL)
+        cpm_add_subdirectory(
+          ${download_directory} ${${CPM_ARGS_NAME}_BINARY_DIR} "${CPM_ARGS_EXCLUDE_FROM_ALL}"
+        )
       endif()
       set(CPM_SKIP_FETCH TRUE)
       set(PACKAGE_INFO "${PACKAGE_INFO} at ${download_directory}")
@@ -427,7 +431,7 @@ function(CPMAddPackage)
     cpm_declare_fetch(
       "${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
     )
-    cpm_fetch_package("${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}")
+    cpm_fetch_package("${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}" "${CPM_ARGS_EXCLUDE_FROM_ALL}")
     cpm_get_fetch_properties("${CPM_ARGS_NAME}")
   endif()
 
@@ -550,8 +554,17 @@ function(cpm_get_fetch_properties PACKAGE)
   )
 endfunction()
 
+function(cpm_add_subdirectory SOURCE_DIR BINARY_DIR EXCLUDE)
+  if(EXCLUDE)
+    set(addSubdirectoryExtraArgs EXCLUDE_FROM_ALL)
+  else()
+    set(addSubdirectoryExtraArgs "")
+  endif()
+  add_subdirectory(${SOURCE_DIR} ${BINARY_DIR} ${addSubdirectoryExtraArgs})
+endfunction()
+
 # downloads a previously declared package via FetchContent
-function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY)
+function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY EXCLUDE)
   if(${CPM_DRY_RUN})
     message(STATUS "${CPM_INDENT} package ${PACKAGE} not fetched (dry run)")
     return()
@@ -565,8 +578,8 @@ function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY)
     if(NOT DOWNLOAD_ONLY AND EXISTS ${${lower_case_name}_SOURCE_DIR}/CMakeLists.txt)
       set(CPM_OLD_INDENT "${CPM_INDENT}")
       set(CPM_INDENT "${CPM_INDENT} ${PACKAGE}:")
-      add_subdirectory(
-        ${${lower_case_name}_SOURCE_DIR} ${${lower_case_name}_BINARY_DIR} EXCLUDE_FROM_ALL
+      cpm_add_subdirectory(
+        ${${lower_case_name}_SOURCE_DIR} ${${lower_case_name}_BINARY_DIR} ${EXCLUDE}
       )
       set(CPM_INDENT "${CPM_OLD_INDENT}")
     endif()
