@@ -562,7 +562,7 @@ function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY)
 
   if(NOT ${lower_case_name}_POPULATED)
     FetchContent_Populate(${PACKAGE})
-    if(EXISTS ${${lower_case_name}_SOURCE_DIR}/CMakeLists.txt)
+    if(NOT DOWNLOAD_ONLY AND EXISTS ${${lower_case_name}_SOURCE_DIR}/CMakeLists.txt)
       set(CPM_OLD_INDENT "${CPM_INDENT}")
       set(CPM_INDENT "${CPM_INDENT} ${PACKAGE}:")
       add_subdirectory(
