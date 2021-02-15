@@ -578,7 +578,7 @@ function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY EXCLUDE)
       set(CPM_OLD_INDENT "${CPM_INDENT}")
       set(CPM_INDENT "${CPM_INDENT} ${PACKAGE}:")
       cpm_add_subdirectory(
-        ${${lower_case_name}_SOURCE_DIR} ${${lower_case_name}_BINARY_DIR} ${EXCLUDE}
+        ${${lower_case_name}_SOURCE_DIR} ${${lower_case_name}_BINARY_DIR} "${EXCLUDE}"
       )
       set(CPM_INDENT "${CPM_OLD_INDENT}")
     endif()
