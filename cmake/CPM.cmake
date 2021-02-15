@@ -243,8 +243,6 @@ endfunction()
 # Download and add a package from source
 function(CPMAddPackage)
 
-  set(flagArgs EXCLUDE_FROM_ALL)
-
   set(oneValueArgs
       NAME
       FORCE
@@ -259,11 +257,12 @@ function(CPMAddPackage)
       FIND_PACKAGE_ARGUMENTS
       NO_CACHE
       GIT_SHALLOW
+      EXCLUDE_FROM_ALL
   )
 
   set(multiValueArgs OPTIONS)
 
-  cmake_parse_arguments(CPM_ARGS "${flagArgs}" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
+  cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
   # Set default values for arguments
 
