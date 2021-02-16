@@ -267,8 +267,7 @@ function(CPMAddPackage)
   # Check for required arguments
 
   if(NOT DEFINED CPM_ARGS_NAME)
-    message(FATAL_ERROR
-      "CPM: 'NAME' was not provided for package added with arguments: '${ARGN}'")
+    message(FATAL_ERROR "CPM: 'NAME' was not provided for package added with arguments: '${ARGN}'")
   endif()
 
   # Set default values for arguments
