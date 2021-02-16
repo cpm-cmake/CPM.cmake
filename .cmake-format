@@ -33,6 +33,7 @@ parse:
         DOWNLOAD_NO_EXTRACT: 1
         HTTP_USERNAME: 1
         HTTP_PASSWORD: 1
+        EXCLUDE_FROM_ALL: 1
         OPTIONS: +
     cpmfindpackage:
       pargs:
