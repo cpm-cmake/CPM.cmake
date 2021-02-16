@@ -264,6 +264,13 @@ function(CPMAddPackage)
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
+  # Check for required arguments
+
+  if(NOT DEFINED CPM_ARGS_NAME)
+    message(FATAL_ERROR
+      "CPM: 'NAME' was not provided for package added with arguments: '${ARGN}'")
+  endif()
+
   # Set default values for arguments
 
   if(NOT DEFINED CPM_ARGS_VERSION)
