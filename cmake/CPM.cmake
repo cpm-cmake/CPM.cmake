@@ -324,7 +324,10 @@ function(CPMAddPackage)
   # Check for required arguments
 
   if(NOT DEFINED CPM_ARGS_NAME)
-    message(FATAL_ERROR "CPM: 'NAME' was not provided and couldn't be automatically inferred for package added with arguments: '${ARGN}'")
+    message(
+      FATAL_ERROR
+        "CPM: 'NAME' was not provided and couldn't be automatically inferred for package added with arguments: '${ARGN}'"
+    )
   endif()
 
   # Check if package has been added before
