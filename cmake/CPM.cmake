@@ -134,6 +134,14 @@ endif()
 include(FetchContent)
 include(CMakeParseArguments)
 
+# Infer package name from git repository uri (path or url)
+function(cpm_package_name_from_git_uri URI RESULT)
+  string(REGEX MATCH "([^/:]+)/?.git/?$" cpmGitUriMatch "${URI}")
+  if(DEFINED cpmGitUriMatch)
+    set(${RESULT} ${CMAKE_MATCH_1} PARENT_SCOPE)
+  endif()
+endfunction()
+
 # Initialize logging prefix
 if(NOT CPM_INDENT)
   set(CPM_INDENT
