@@ -71,7 +71,6 @@ add_executable(tests tests.cpp)
 include(cmake/CPM.cmake)
 
 CPMAddPackage(
-  NAME Catch2
   GITHUB_REPOSITORY catchorg/Catch2
   VERSION 2.5.0
 )
