@@ -142,6 +142,10 @@ function(cpm_package_name_from_git_uri URI RESULT)
         ${CMAKE_MATCH_1}
         PARENT_SCOPE
     )
+  else()
+    unset(${RESULT}
+          PARENT_SCOPE
+    )
   endif()
 endfunction()
 

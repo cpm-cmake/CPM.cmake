@@ -3,12 +3,6 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 include(${CPM_PATH}/CPM.cmake)
 include(${CPM_PATH}/testing.cmake)
 
-cpm_package_name_from_git_uri("asdf" name)
-assert_not_defined(name)
-
-cpm_package_name_from_git_uri("/something.git/stuff" name)
-assert_not_defined(name)
-
 cpm_package_name_from_git_uri("https://github.com/cpm-cmake/CPM.cmake.git" name)
 assert_equal("CPM.cmake" ${name})
 
@@ -26,3 +20,9 @@ assert_equal("pkg33" ${name})
 
 cpm_package_name_from_git_uri("../local-repo/.git" name)
 assert_equal("local-repo" ${name})
+
+cpm_package_name_from_git_uri("asdf" name)
+assert_not_defined(name)
+
+cpm_package_name_from_git_uri("/something.git/stuff" name)
+assert_not_defined(name)
