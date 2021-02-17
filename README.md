@@ -43,7 +43,7 @@ CPMAddPackage(
 
 The origin may be specified by a `GIT_REPOSITORY`, but other sources, such as direct URLs, are [also supported](https://cmake.org/cmake/help/v3.11/module/ExternalProject.html#external-project-definition).
 If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for git projects.
-On the other hand, if `VERSION` hasn't been explicitly specified, CPM can automatically identify the version from the git tag in some common cases. 
+On the other hand, if `VERSION` hasn't been explicitly specified, CPM can automatically identify the version from the git tag in some common cases.
 `GIT_TAG` can also be set to a specific commit or a branch name such as `master` to always download the most recent version.
 The optional argument `FIND_PACKAGE_ARGUMENTS` can be specified to a string of parameters that will be passed to `find_package` if enabled (see below).
 
@@ -71,7 +71,6 @@ add_executable(tests tests.cpp)
 include(cmake/CPM.cmake)
 
 CPMAddPackage(
-  NAME Catch2
   GITHUB_REPOSITORY catchorg/Catch2
   VERSION 2.5.0
 )
@@ -112,7 +111,7 @@ Dependencies using CPM will automatically use the updated script of the outermos
 ## Limitations
 
 - **No pre-built binaries** For every new build directory, all dependencies are initially downloaded and built from scratch. To avoid extra downloads it is recommend to set the [`CPM_SOURCE_CACHE`](#CPM_SOURCE_CACHE) environmental variable. Using a caching compiler such as [ccache](https://github.com/TheLartians/Ccache.cmake) can drastically reduce build time.
-- **Dependent on good CMakeLists** Many libraries do not have CMakeLists that work well for subprojects. Luckily this is slowly changing, however, until then, some manual configuration may be required (see the snippets [below](#snippets) for examples). For best practices on preparing projects for CPM, see the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Preparing-projects-for-CPM.cmake). 
+- **Dependent on good CMakeLists** Many libraries do not have CMakeLists that work well for subprojects. Luckily this is slowly changing, however, until then, some manual configuration may be required (see the snippets [below](#snippets) for examples). For best practices on preparing projects for CPM, see the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Preparing-projects-for-CPM.cmake).
 - **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit a warning. This can be easily resolved by adding a new version of the dependency in the outermost project, or by introducing a [package lock file](#package-lock).
 
 For projects with more complex needs and where an extra setup step doesn't matter, it may be worth to check out an external C++ package manager such as [vcpkg](https://github.com/microsoft/vcpkg), [conan](https://conan.io) or [hunter](https://github.com/ruslo/hunter).
@@ -143,7 +142,7 @@ The most notable features are:
 - [Package lock files](#package-lock) for easier transitive dependency management.
 - Dependencies can be overridden [per-build](#local-package-override) using CMake CLI parameters.
 
-ExternalProject works similarly as FetchContent, however waits with adding dependencies until build time. 
+ExternalProject works similarly as FetchContent, however waits with adding dependencies until build time.
 This has a quite a few disadvantages, especially as it makes using custom toolchains / cross-compiling very difficult and can lead to problems with nested dependencies.
 
 ## Options
@@ -178,7 +177,7 @@ These options can also be set as environmental variables.
 
 Library developers are often in the situation where they work on a locally checked out dependency at the same time as on a consumer project.
 It is possible to override the consumer's dependency with the version by supplying the CMake option `CPM_<dependency name>_SOURCE` set to the absolute path of the local library.
-For example, to use the local version of the dependency `Dep` at the path `/path/to/dep`, the consumer can be built with the following command. 
+For example, to use the local version of the dependency `Dep` at the path `/path/to/dep`, the consumer can be built with the following command.
 
 ```bash
 cmake -Bbuild -DCPM_Dep_SOURCE=/path/to/dep
@@ -205,7 +204,7 @@ See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Package-lock) for mor
 
 ## Built with CPM.cmake
 
-Some amazing projects that are built using the CPM.cmake package manager. 
+Some amazing projects that are built using the CPM.cmake package manager.
 If you know others, feel free to add them here through a PR.
 
 <table>
@@ -284,7 +283,7 @@ CPMAddPackage(
   # 0.6.2 uses deprecated CMake syntax
   VERSION 0.6.3
   # 0.6.3 is not released yet, so use a recent commit
-  GIT_TAG 012269756149ae99745b6dafefd415843d7420bb 
+  GIT_TAG 012269756149ae99745b6dafefd415843d7420bb
   OPTIONS
     "YAML_CPP_BUILD_TESTS Off"
     "YAML_CPP_BUILD_CONTRIB Off"
@@ -314,7 +313,7 @@ endif()
 ```cmake
 CPMAddPackage(
   NAME nlohmann_json
-  VERSION 3.6.1  
+  VERSION 3.6.1
   # the git repo is incredibly large, so we download the archived include directory
   URL https://github.com/nlohmann/json/releases/download/v3.6.1/include.zip
   URL_HASH SHA256=69cc88207ce91347ea530b227ff0776db82dcb8de6704e1a3d74f4841bc651cf
@@ -337,7 +336,7 @@ CPMAddPackage(
   DOWNLOAD_ONLY True
 )
 
-if(range-v3_ADDED) 
+if(range-v3_ADDED)
   add_library(range-v3 INTERFACE IMPORTED)
   target_include_directories(range-v3 INTERFACE "${range-v3_SOURCE_DIR}/include")
 endif()
