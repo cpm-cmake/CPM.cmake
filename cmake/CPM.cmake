@@ -143,9 +143,7 @@ function(cpm_package_name_from_git_uri URI RESULT)
         PARENT_SCOPE
     )
   else()
-    unset(${RESULT}
-          PARENT_SCOPE
-    )
+    unset(${RESULT} PARENT_SCOPE)
   endif()
 endfunction()
 
