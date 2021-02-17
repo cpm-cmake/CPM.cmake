@@ -275,12 +275,6 @@ function(CPMAddPackage)
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
-  # Check for required arguments
-
-  if(NOT DEFINED CPM_ARGS_NAME)
-    message(FATAL_ERROR "CPM: 'NAME' was not provided for package added with arguments: '${ARGN}'")
-  endif()
-
   # Set default values for arguments
 
   if(NOT DEFINED CPM_ARGS_VERSION)
@@ -308,6 +302,11 @@ function(CPMAddPackage)
     if(NOT DEFINED CPM_ARGS_GIT_TAG)
       set(CPM_ARGS_GIT_TAG v${CPM_ARGS_VERSION})
     endif()
+
+    # If a name wasn't provided, try to infer it from the git repo
+    if(NOT DEFINED CPM_ARGS_NAME)
+      cpm_package_name_from_git_uri(${CPM_ARGS_GIT_REPOSITORY} CPM_ARGS_NAME)
+    endif()
   endif()
 
   set(CPM_SKIP_FETCH FALSE)
@@ -318,6 +317,12 @@ function(CPMAddPackage)
     if(DEFINED CPM_ARGS_GIT_SHALLOW)
       list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_SHALLOW ${CPM_ARGS_GIT_SHALLOW})
     endif()
+  endif()
+
+  # Check for required arguments
+
+  if(NOT DEFINED CPM_ARGS_NAME)
+    message(FATAL_ERROR "CPM: 'NAME' was not provided for package added with arguments: '${ARGN}'")
   endif()
 
   # Check if package has been added before
