@@ -33,14 +33,24 @@ assert_equal("GIT_REPOSITORY;git@host.xz:user/pkg.git;VERSION;0.1.2" "${args}")
 cpm_parse_add_package_single_arg("git@host.xz:user/pkg.git@0.1.2#rc" args)
 assert_equal("GIT_REPOSITORY;git@host.xz:user/pkg.git;VERSION;0.1.2;GIT_TAG;rc" "${args}")
 
-cpm_parse_add_package_single_arg("ssh://user@host.xz:123/path/to/pkg.git#fragment@1.2.3#branch" args)
-assert_equal("GIT_REPOSITORY;ssh://user@host.xz:123/path/to/pkg.git#fragment;VERSION;1.2.3;GIT_TAG;branch" "${args}")
+cpm_parse_add_package_single_arg(
+  "ssh://user@host.xz:123/path/to/pkg.git#fragment@1.2.3#branch" args
+)
+assert_equal(
+  "GIT_REPOSITORY;ssh://user@host.xz:123/path/to/pkg.git#fragment;VERSION;1.2.3;GIT_TAG;branch"
+  "${args}"
+)
 
-#~ cpm_parse_add_package_single_arg("https://example.org/foo.tar.gz" args)
-#~ assert_equal("URL;https://example.org/foo.tar.gz" "${args}")
+# cpm_parse_add_package_single_arg("https://example.org/foo.tar.gz" args)
 
-#~ cpm_parse_add_package_single_arg("https://example.org/foo.tar.gz#baadf00d@1.2.0" args)
-#~ assert_equal("URL;https://example.org/foo.tar.gz;URL_HASH;baadf00d;VERSION;1.2.0" "${args}")
+# assert_equal("URL;https://example.org/foo.tar.gz" "${args}")
 
-#~ cpm_parse_add_package_single_arg("ftp://user:password@server/pathname.zip#fragment#0ddb411@0" args)
-#~ assert_equal("URL;ftp://user:password@server/pathname.zip#fragment;URL_HASH;0ddb411;VERSION;0" "${args}")
+# cpm_parse_add_package_single_arg("https://example.org/foo.tar.gz#baadf00d@1.2.0" args)
+
+# assert_equal("URL;https://example.org/foo.tar.gz;URL_HASH;baadf00d;VERSION;1.2.0" "${args}")
+
+# cpm_parse_add_package_single_arg("ftp://user:password@server/pathname.zip#fragment#0ddb411@0"
+# args)
+
+# assert_equal("URL;ftp://user:password@server/pathname.zip#fragment;URL_HASH;0ddb411;VERSION;0"
+# "${args}")
