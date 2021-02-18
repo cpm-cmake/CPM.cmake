@@ -47,6 +47,16 @@ On the other hand, if `VERSION` hasn't been explicitly specified, CPM can automa
 `GIT_TAG` can also be set to a specific commit or a branch name such as `master` to always download the most recent version.
 The optional argument `FIND_PACKAGE_ARGUMENTS` can be specified to a string of parameters that will be passed to `find_package` if enabled (see below).
 
+A single-argument compact syntax is also supported:
+
+```cmake
+CPMAddPackage("uri@version") # A git package from a given uri with a version
+CPMAddPackage("uri@tag") # A git package from a given uri with a git tag or commit hash, or branch name
+CPMAddPackage("uri@version#tag") # A git package with both version and tag provided
+```
+
+In the shorthand syntax if the URI is of the form `user/name` or `gh:user/name`, it is interpreted as GitHub URI and converted to `https://github.com/user/name.git`. Otherwise the URI used verbatim as a git URL.
+
 After calling `CPMAddPackage` or `CPMFindPackage`, the following variables are defined in the local scope, where `<dependency>` is the name of the dependency.
 
 - `<dependency>_SOURCE_DIR` is the path to the source of the dependency.
@@ -70,10 +80,7 @@ add_executable(tests tests.cpp)
 # add dependencies
 include(cmake/CPM.cmake)
 
-CPMAddPackage(
-  GITHUB_REPOSITORY catchorg/Catch2
-  VERSION 2.5.0
-)
+CPMAddPackage(catchorg/Catch2@2.5.0)
 
 # link dependencies
 target_link_libraries(tests Catch2)
@@ -244,21 +251,13 @@ See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets) for mo
 ### [Catch2](https://github.com/catchorg/Catch2)
 
 ```cmake
-CPMAddPackage(
-  NAME Catch2
-  GITHUB_REPOSITORY catchorg/Catch2
-  VERSION 2.5.0
-)
+CPMAddPackage(catchorg/Catch2@2.5.0)
 ```
 
 ### [Boost (via boost-cmake)](https://github.com/Orphis/boost-cmake)
 
 ```CMake
-CPMAddPackage(
-  NAME boost-cmake
-  GITHUB_REPOSITORY Orphis/boost-cmake
-  VERSION 1.67.0
-)
+CPMAddPackage(Orphis/boost-cmake@1.67.0)
 ```
 
 ### [cxxopts](https://github.com/jarro2783/cxxopts)
