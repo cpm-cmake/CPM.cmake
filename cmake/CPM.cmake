@@ -329,6 +329,10 @@ endfunction()
 
 # Download and add a package from source
 function(CPMAddPackage)
+  list(LENGTH ARGN argnLength)
+  if(argnLength EQUAL 1)
+    cpm_parse_add_package_single_arg("${ARGN}" ARGN)
+  endif()
 
   set(oneValueArgs
       NAME
