@@ -136,8 +136,7 @@ include(CMakeParseArguments)
 
 # Infer package name from git repository uri (path or url)
 function(cpm_package_name_from_git_uri URI RESULT)
-  string(REGEX MATCH "([^/:]+)/?.git/?$" cpmGitUriMatch "${URI}")
-  if(DEFINED cpmGitUriMatch)
+  if("${URI}" MATCHES "([^/:]+)/?.git/?$")
     set(${RESULT}
         ${CMAKE_MATCH_1}
         PARENT_SCOPE
