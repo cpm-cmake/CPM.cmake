@@ -21,8 +21,14 @@ assert_equal("GITHUB_REPOSITORY;a/b;GIT_TAG;c;VERSION;d" "${args}")
 cpm_parse_add_package_single_arg("gh:foo#c@d" args)
 assert_equal("GITHUB_REPOSITORY;foo;GIT_TAG;c;VERSION;d" "${args}")
 
+cpm_parse_add_package_single_arg("gh:Foo@5" args)
+assert_equal("GITHUB_REPOSITORY;Foo;VERSION;5" "${args}")
+
 cpm_parse_add_package_single_arg("gl:foo/bar" args)
 assert_equal("GITLAB_REPOSITORY;foo/bar" "${args}")
+
+cpm_parse_add_package_single_arg("gl:foo/Bar" args)
+assert_equal("GITLAB_REPOSITORY;foo/Bar" "${args}")
 
 cpm_parse_add_package_single_arg("https://github.com/cpm-cmake/CPM.cmake.git@0.30.5" args)
 assert_equal("GIT_REPOSITORY;https://github.com/cpm-cmake/CPM.cmake.git;VERSION;0.30.5" "${args}")

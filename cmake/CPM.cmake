@@ -260,7 +260,7 @@ function(cpm_parse_add_package_single_arg arg outArgs)
   # Look for a scheme
   if("${arg}" MATCHES "^([a-zA-Z]+):(.+)$")
     string(TOLOWER "${CMAKE_MATCH_1}" scheme)
-    string(TOLOWER "${CMAKE_MATCH_2}" uri)
+    set(uri "${CMAKE_MATCH_2}")
 
     # Check for CPM-specific schemes
     if(scheme STREQUAL "gh")
