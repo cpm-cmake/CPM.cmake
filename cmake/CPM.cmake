@@ -288,10 +288,6 @@ function(cpm_parse_add_package_single_arg arg outArgs)
       # We just won't bother with the additional complexity it will induce in this function. SVN is
       # done by multi-arg
     endif()
-  elseif(arg MATCHES "^[^/:@#]+/[^/]+(@|#|$)")
-    # Interpret <user>/<repo> as a GitHub repository
-    set(out "GITHUB_REPOSITORY;${arg}")
-    set(packageType "git")
   else()
     if(arg MATCHES ".git/?(@|#|$)")
       set(out "GIT_REPOSITORY;${arg}")

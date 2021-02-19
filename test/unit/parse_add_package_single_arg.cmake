@@ -3,19 +3,19 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 include(${CPM_PATH}/CPM.cmake)
 include(${CPM_PATH}/testing.cmake)
 
-cpm_parse_add_package_single_arg("cpm-cmake/CPM.cmake" args)
+cpm_parse_add_package_single_arg("gh:cpm-cmake/CPM.cmake" args)
 assert_equal("GITHUB_REPOSITORY;cpm-cmake/CPM.cmake" "${args}")
 
-cpm_parse_add_package_single_arg("cpm-cmake/CPM.cmake@1.2.3" args)
+cpm_parse_add_package_single_arg("gh:cpm-cmake/CPM.cmake@1.2.3" args)
 assert_equal("GITHUB_REPOSITORY;cpm-cmake/CPM.cmake;VERSION;1.2.3" "${args}")
 
-cpm_parse_add_package_single_arg("cpm-cmake/CPM.cmake#master" args)
+cpm_parse_add_package_single_arg("gh:cpm-cmake/CPM.cmake#master" args)
 assert_equal("GITHUB_REPOSITORY;cpm-cmake/CPM.cmake;GIT_TAG;master" "${args}")
 
-cpm_parse_add_package_single_arg("cpm-cmake/CPM.cmake@0.20.3#asdf" args)
+cpm_parse_add_package_single_arg("gh:cpm-cmake/CPM.cmake@0.20.3#asdf" args)
 assert_equal("GITHUB_REPOSITORY;cpm-cmake/CPM.cmake;VERSION;0.20.3;GIT_TAG;asdf" "${args}")
 
-cpm_parse_add_package_single_arg("a/b#c@d" args)
+cpm_parse_add_package_single_arg("gh:a/b#c@d" args)
 assert_equal("GITHUB_REPOSITORY;a/b;GIT_TAG;c;VERSION;d" "${args}")
 
 cpm_parse_add_package_single_arg("gh:foo#c@d" args)
@@ -46,6 +46,7 @@ assert_equal(
   "GIT_REPOSITORY;ssh://user@host.xz:123/path/to/pkg.git#fragment;VERSION;1.2.3;GIT_TAG;branch"
   "${args}"
 )
+
 # The following test cases are to be used in the future, once single-argument archives are supported
 
 # cpm_parse_add_package_single_arg("https://example.org/foo.tar.gz" args)

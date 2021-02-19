@@ -58,7 +58,7 @@ CPMAddPackage("uri#tag")
 CPMAddPackage("uri@version#tag")
 ```
 
-In the shorthand syntax if the URI is of the form `user/name` or `gh:user/name`, it is interpreted as GitHub URI and converted to `https://github.com/user/name.git`. Otherwise the URI used verbatim as a git URL.
+In the shorthand syntax if the URI is of the form `gh:user/name`, it is interpreted as GitHub URI and converted to `https://github.com/user/name.git`. If the URI is of the form `gl:user/name`, it is interpreted as a [GitLab](https://gitlab.com/explore/) URI and coverted to `https://gitlab.com/user/name.git`. Otherwise the URI used verbatim as a git URL.
 
 After calling `CPMAddPackage` or `CPMFindPackage`, the following variables are defined in the local scope, where `<dependency>` is the name of the dependency.
 
@@ -83,7 +83,7 @@ add_executable(tests tests.cpp)
 # add dependencies
 include(cmake/CPM.cmake)
 
-CPMAddPackage(catchorg/Catch2@2.5.0)
+CPMAddPackage(gh:catchorg/Catch2@2.5.0)
 
 # link dependencies
 target_link_libraries(tests Catch2)
@@ -254,13 +254,13 @@ See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets) for mo
 ### [Catch2](https://github.com/catchorg/Catch2)
 
 ```cmake
-CPMAddPackage(catchorg/Catch2@2.5.0)
+CPMAddPackage(gh:catchorg/Catch2@2.5.0)
 ```
 
 ### [Boost (via boost-cmake)](https://github.com/Orphis/boost-cmake)
 
 ```CMake
-CPMAddPackage(Orphis/boost-cmake@1.67.0)
+CPMAddPackage(gh:Orphis/boost-cmake@1.67.0)
 ```
 
 ### [cxxopts](https://github.com/jarro2783/cxxopts)
