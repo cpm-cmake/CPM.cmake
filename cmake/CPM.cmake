@@ -134,7 +134,7 @@ endif()
 include(FetchContent)
 include(CMakeParseArguments)
 
-# Infer package name from git repository uri (path or url)
+# Try to infer package name from git repository uri (path or url)
 function(cpm_package_name_from_git_uri URI RESULT)
   if("${URI}" MATCHES "([^/:]+)/?.git/?$")
     set(${RESULT}
@@ -143,6 +143,48 @@ function(cpm_package_name_from_git_uri URI RESULT)
     )
   else()
     unset(${RESULT} PARENT_SCOPE)
+  endif()
+endfunction()
+
+# Try to infer package name and version from a url
+function(cpm_package_name_and_ver_from_url url outName outVer)
+  if(url MATCHES "([a-zA-Z0-9_\\.-]+)-v?(([0-9]+\\.)*[0-9]+[a-zA-Z0-9]*)\\.")
+    # We matched <name>-<version>.ext (ie foo-1.2.3.zip)
+    set(${outName}
+        "${CMAKE_MATCH_1}"
+        PARENT_SCOPE
+    )
+    set(${outVer}
+        "${CMAKE_MATCH_2}"
+        PARENT_SCOPE
+    )
+  elseif(url MATCHES "(([0-9]+\\.)+[0-9]+[a-zA-Z0-9]*)")
+    # We couldn't find a name, but we found a version
+    unset(${outName} PARENT_SCOPE)
+    set(${outVer}
+        "${CMAKE_MATCH_1}"
+        PARENT_SCOPE
+    )
+  elseif(url MATCHES "([^/]+)\\.(tar|zip)")
+    # We couldn't find a version, but we could find <name>.tar or <name>.zip
+    #
+    # Note that this is in an elseif and not a separate check as in many cases (which we don't
+    # handle here) the url would look something like
+    # `irrelevant/irrelevant/ACTUAL_PACKAGE_NAME/irrelevant/1.2.3.zip`. In such a case we can't
+    # possibly distinguish the package name from the irrelevant bits. Moreover if we try to match
+    # the package name from the filename, we'd get bogus at best. Thus we only try that if we can't
+    # find a version in the URL.
+    #
+    # And yes, something like `irrelevant/ACTUAL_NAME/irrelevant/download.zip` will ruin our day,
+    # but such cases should be quite rare. No popular service does this... we think.
+    set(${outName}
+        "${CMAKE_MATCH_1}"
+        PARENT_SCOPE
+    )
+    unset(${outVer} PARENT_SCOPE)
+  else()
+    unset(${outName} PARENT_SCOPE)
+    unset(${outVer} PARENT_SCOPE)
   endif()
 endfunction()
 
