@@ -46,6 +46,7 @@ assert_equal(
   "GIT_REPOSITORY;ssh://user@host.xz:123/path/to/pkg.git#fragment;VERSION;1.2.3;GIT_TAG;branch"
   "${args}"
 )
+# The following test cases are to be used in the future, once single-argument archives are supported
 
 # cpm_parse_add_package_single_arg("https://example.org/foo.tar.gz" args)
 
