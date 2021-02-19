@@ -50,9 +50,12 @@ The optional argument `FIND_PACKAGE_ARGUMENTS` can be specified to a string of p
 A single-argument compact syntax is also supported:
 
 ```cmake
-CPMAddPackage("uri@version") # A git package from a given uri with a version
-CPMAddPackage("uri@tag") # A git package from a given uri with a git tag or commit hash, or branch name
-CPMAddPackage("uri@version#tag") # A git package with both version and tag provided
+# A git package from a given uri with a version
+CPMAddPackage("uri@version")
+# A git package from a given uri with a git tag or commit hash, or branch name
+CPMAddPackage("uri#tag")
+# A git package with both version and tag provided
+CPMAddPackage("uri@version#tag")
 ```
 
 In the shorthand syntax if the URI is of the form `user/name` or `gh:user/name`, it is interpreted as GitHub URI and converted to `https://github.com/user/name.git`. Otherwise the URI used verbatim as a git URL.
