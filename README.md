@@ -47,6 +47,8 @@ On the other hand, if `VERSION` hasn't been explicitly specified, CPM can automa
 `GIT_TAG` can also be set to a specific commit or a branch name such as `master` to always download the most recent version.
 The optional argument `FIND_PACKAGE_ARGUMENTS` can be specified to a string of parameters that will be passed to `find_package` if enabled (see below).
 
+If an additional optional parameter `EXCLUDE_FROM_ALL` is set to a truthy value, then any targets defined inside the dependency won't be built by default. See the [CMake docs](https://cmake.org/cmake/help/latest/prop_tgt/EXCLUDE_FROM_ALL.html) for details.
+
 A single-argument compact syntax is also supported:
 
 ```cmake
@@ -58,7 +60,7 @@ CPMAddPackage("uri#tag")
 CPMAddPackage("uri@version#tag")
 ```
 
-In the shorthand syntax if the URI is of the form `gh:user/name`, it is interpreted as GitHub URI and converted to `https://github.com/user/name.git`. If the URI is of the form `gl:user/name`, it is interpreted as a [GitLab](https://gitlab.com/explore/) URI and coverted to `https://gitlab.com/user/name.git`. Otherwise the URI used verbatim as a git URL.
+In the shorthand syntax if the URI is of the form `gh:user/name`, it is interpreted as GitHub URI and converted to `https://github.com/user/name.git`. If the URI is of the form `gl:user/name`, it is interpreted as a [GitLab](https://gitlab.com/explore/) URI and coverted to `https://gitlab.com/user/name.git`. Otherwise the URI used verbatim as a git URL. All packages added using the shorthand syntax will be added using the [EXCLUDE_FROM_ALL](https://cmake.org/cmake/help/latest/prop_tgt/EXCLUDE_FROM_ALL.html) flag.
 
 After calling `CPMAddPackage` or `CPMFindPackage`, the following variables are defined in the local scope, where `<dependency>` is the name of the dependency.
 
@@ -82,8 +84,7 @@ add_executable(tests tests.cpp)
 
 # add dependencies
 include(cmake/CPM.cmake)
-
-CPMAddPackage(gh:catchorg/Catch2@2.5.0)
+CPMAddPackage("gh:catchorg/Catch2@2.5.0")
 
 # link dependencies
 target_link_libraries(tests Catch2)

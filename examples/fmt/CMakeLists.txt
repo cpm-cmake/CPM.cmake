@@ -6,11 +6,7 @@ project(CPMJSONExample)
 
 include(../../cmake/CPM.cmake)
 
-CPMAddPackage(
-  NAME fmt
-  GIT_TAG 7.1.3
-  GITHUB_REPOSITORY fmtlib/fmt
-)
+CPMAddPackage("gh:fmtlib/fmt#7.1.3")
 
 # ---- Executable ----
 

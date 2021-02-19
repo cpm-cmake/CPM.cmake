@@ -6,17 +6,8 @@ project(CPMExampleCatch2)
 
 include(../../cmake/CPM.cmake)
 
-CPMAddPackage(
-  NAME fibonacci
-  GITHUB_REPOSITORY TheLartians/Fibonacci
-  VERSION 2.0
-)
-
-CPMAddPackage(
-  NAME Catch2
-  GITHUB_REPOSITORY catchorg/Catch2
-  VERSION 2.13.4
-)
+CPMAddPackage("gh:TheLartians/Fibonacci@2.0")
+CPMAddPackage("gh:catchorg/Catch2@2.13.4")
 
 # ---- Create binary ----
 
