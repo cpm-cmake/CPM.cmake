@@ -18,9 +18,21 @@ assert_equal("Cool.Pack" ${name})
 assert_equal("1.2.3rc0" ${ver})
 
 cpm_package_name_and_ver_from_url(
-  "http://evil-1.2.tar.gz.com/Plan9-1.2.3a.tar.bz2?download" name ver
+  "http://evil-1.2.tar.gz.com/Plan9_1.2.3a.tar.bz2?download" name ver
 )
 assert_equal("Plan9" ${name})
+assert_equal("1.2.3a" ${ver})
+
+cpm_package_name_and_ver_from_url(
+  "http://evil-1.2.tar.gz.com/Plan_9-1.2.3a.tar.bz2?download" name ver
+)
+assert_equal("Plan_9" ${name})
+assert_equal("1.2.3a" ${ver})
+
+cpm_package_name_and_ver_from_url(
+  "http://evil-1.2.tar.gz.com/Plan-9_1.2.3a.tar.bz2?download" name ver
+)
+assert_equal("Plan-9" ${name})
 assert_equal("1.2.3a" ${ver})
 
 cpm_package_name_and_ver_from_url("https://sf.com/distrib/SFLib-0.999.4.tar.gz/download" name ver)
@@ -31,7 +43,7 @@ cpm_package_name_and_ver_from_url("https://example.com/coolpack/v5.6.5rc44.zip" 
 assert_not_defined(name)
 assert_equal("5.6.5rc44" ${ver})
 
-cpm_package_name_and_ver_from_url("evil-1.3.zip.com/coolpack/release_999.000beta.ZIP" name ver)
+cpm_package_name_and_ver_from_url("evil-1.3.zip.com/coolpack/release999.000beta.ZIP" name ver)
 assert_not_defined(name)
 assert_equal("999.000beta" ${ver})
 

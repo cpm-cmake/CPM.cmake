@@ -152,7 +152,7 @@ function(cpm_package_name_and_ver_from_url url outName outVer)
     # We matched an archive
     set(filename "${CMAKE_MATCH_1}")
 
-    if(filename MATCHES "([a-zA-Z0-9_\\.-]+)-v?(([0-9]+\\.)*[0-9]+[a-zA-Z0-9]*)")
+    if(filename MATCHES "([a-zA-Z0-9_\\.-]+)[_-]v?(([0-9]+\\.)*[0-9]+[a-zA-Z0-9]*)")
       # We matched <name>-<version> (ie foo-1.2.3)
       set(${outName}
           "${CMAKE_MATCH_1}"
