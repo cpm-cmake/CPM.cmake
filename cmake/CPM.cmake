@@ -318,7 +318,10 @@ function(CPMAddPackage)
       EXCLUDE_FROM_ALL
   )
 
-  set(multiValueArgs OPTIONS)
+  set(multiValueArgs
+      URL
+      OPTIONS
+  )
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
@@ -364,6 +367,24 @@ function(CPMAddPackage)
     if(DEFINED CPM_ARGS_GIT_SHALLOW)
       list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_SHALLOW ${CPM_ARGS_GIT_SHALLOW})
     endif()
+  endif()
+
+  if(DEFINED CPM_ARGS_URL)
+    # If a name or version aren't provided, try to infer them from the git repo
+    list(GET CPM_ARGS_URL 0 firstUrl)
+    cpm_package_name_and_ver_from_url(${firstUrl} nameFromUrl verFromUrl)
+    # If we fail to obtain name and version from the first URL, we could try other URLs if any.
+    # However multiple URLs are expected to be quite rare, so for now we won't bother.
+
+    # If the caller provided their own name and version, they trump the inferred ones.
+    if(NOT DEFINED CPM_ARGS_NAME)
+      set(CPM_ARGS_NAME ${nameFromUrl})
+    endif()
+    if(NOT DEFINED CPM_ARGS_VERSION)
+      set(CPM_ARGS_VERSION ${verFromUrl})
+    endif()
+
+    list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS URL "${CPM_ARGS_URL}")
   endif()
 
   # Check for required arguments
