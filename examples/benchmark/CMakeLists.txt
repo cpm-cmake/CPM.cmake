@@ -6,11 +6,7 @@ project(CPMExampleBenchmark)
 
 include(../../cmake/CPM.cmake)
 
-CPMAddPackage(
-  NAME fibonacci
-  GITLAB_REPOSITORY TheLartians/Fibonacci
-  VERSION 2.0
-)
+CPMAddPackage("gh:TheLartians/Fibonacci@2.0")
 
 CPMAddPackage(
   NAME benchmark

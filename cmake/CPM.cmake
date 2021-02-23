@@ -298,8 +298,85 @@ function(cpm_check_if_package_already_added CPM_ARGS_NAME CPM_ARGS_VERSION CPM_A
   endif()
 endfunction()
 
+# Parse the argument of CPMAddPackage in case a single one was provided and convert it to a list of
+# arguments which can then be parsed idiomatically. For example gh:foo/bar@1.2.3 will be converted
+# to: GITHUB_REPOSITORY;foo/bar;VERSION;1.2.3
+function(cpm_parse_add_package_single_arg arg outArgs)
+  # Look for a scheme
+  if("${arg}" MATCHES "^([a-zA-Z]+):(.+)$")
+    string(TOLOWER "${CMAKE_MATCH_1}" scheme)
+    set(uri "${CMAKE_MATCH_2}")
+
+    # Check for CPM-specific schemes
+    if(scheme STREQUAL "gh")
+      set(out "GITHUB_REPOSITORY;${uri}")
+      set(packageType "git")
+    elseif(scheme STREQUAL "gl")
+      set(out "GITLAB_REPOSITORY;${uri}")
+      set(packageType "git")
+      # A CPM-specific scheme was not found. Looks like this is a generic URL so try to determine
+      # type
+    elseif(arg MATCHES ".git/?(@|#|$)")
+      set(out "GIT_REPOSITORY;${arg}")
+      set(packageType "git")
+    else()
+      # This error here is temporary. We can't provide URLs from here until we support inferring the
+      # package name from an url. When this is supported, remove this error as well as commented out
+      # tests in test/unit/parse_add_package_single_arg.cmake
+      message(FATAL_ERROR "CPM: Unsupported package type of '${arg}'")
+
+      # Fall back to a URL
+      set(out "URL;${arg}")
+      set(packageType "archive")
+
+      # We could also check for SVN since FetchContent supports it, but SVN is so rare these days.
+      # We just won't bother with the additional complexity it will induce in this function. SVN is
+      # done by multi-arg
+    endif()
+  else()
+    if(arg MATCHES ".git/?(@|#|$)")
+      set(out "GIT_REPOSITORY;${arg}")
+      set(packageType "git")
+    else()
+      # Give up
+      message(FATAL_ERROR "CPM: Can't determine package type of '${arg}'")
+    endif()
+  endif()
+
+  # For all packages we interpret @... as version. Only replace the last occurence. Thus URIs
+  # containing '@' can be used
+  string(REGEX REPLACE "@([^@]+)$" ";VERSION;\\1" out "${out}")
+
+  # Parse the rest according to package type
+  if(packageType STREQUAL "git")
+    # For git repos we interpret #... as a tag or branch or commit hash
+    string(REGEX REPLACE "#([^#]+)$" ";GIT_TAG;\\1" out "${out}")
+  elseif(packageType STREQUAL "archive")
+    # For archives we interpret #... as a URL hash.
+    string(REGEX REPLACE "#([^#]+)$" ";URL_HASH;\\1" out "${out}")
+    # We don't try to parse the version if it's not provided explicitly. cpm_get_version_from_url
+    # should do this at a later point
+  else()
+    # We should never get here. This is an assertion and hitting it means there's a bug in the code
+    # above. A packageType was set, but not handled by this if-else.
+    message(FATAL_ERROR "CPM: Unsupported package type '${packageType}' of '${arg}'")
+  endif()
+
+  set(${outArgs}
+      ${out}
+      PARENT_SCOPE
+  )
+endfunction()
+
 # Download and add a package from source
 function(CPMAddPackage)
+  list(LENGTH ARGN argnLength)
+  if(argnLength EQUAL 1)
+    cpm_parse_add_package_single_arg("${ARGN}" ARGN)
+
+    # The shorthand syntax implies EXCLUDE_FROM_ALL
+    set(ARGN "${ARGN};EXCLUDE_FROM_ALL;YES")
+  endif()
 
   set(oneValueArgs
       NAME

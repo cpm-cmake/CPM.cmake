@@ -6,17 +6,8 @@ project(CPMExampleDoctest)
 
 include(../../cmake/CPM.cmake)
 
-CPMAddPackage(
-  NAME fibonacci
-  GITLAB_REPOSITORY TheLartians/Fibonacci
-  VERSION 2.0
-)
-
-CPMAddPackage(
-  NAME doctest
-  GITHUB_REPOSITORY onqtam/doctest
-  GIT_TAG 2.4.5
-)
+CPMAddPackage("gh:TheLartians/Fibonacci@2.0")
+CPMAddPackage("gh:onqtam/doctest#2.4.5")
 
 # ---- Create binary ----
 
