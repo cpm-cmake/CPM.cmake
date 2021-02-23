@@ -320,11 +320,6 @@ function(cpm_parse_add_package_single_arg arg outArgs)
       set(out "GIT_REPOSITORY;${arg}")
       set(packageType "git")
     else()
-      # This error here is temporary. We can't provide URLs from here until we support inferring the
-      # package name from an url. When this is supported, remove this error as well as commented out
-      # tests in test/unit/parse_add_package_single_arg.cmake
-      message(FATAL_ERROR "CPM: Unsupported package type of '${arg}'")
-
       # Fall back to a URL
       set(out "URL;${arg}")
       set(packageType "archive")

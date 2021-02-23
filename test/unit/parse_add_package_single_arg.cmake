@@ -47,18 +47,14 @@ assert_equal(
   "${args}"
 )
 
-# The following test cases are to be used in the future, once single-argument archives are supported
+cpm_parse_add_package_single_arg("https://example.org/foo.tar.gz" args)
+assert_equal("URL;https://example.org/foo.tar.gz" "${args}")
 
-# cpm_parse_add_package_single_arg("https://example.org/foo.tar.gz" args)
+cpm_parse_add_package_single_arg("https://example.org/foo.tar.gz#baadf00d@1.2.0" args)
+assert_equal("URL;https://example.org/foo.tar.gz;URL_HASH;baadf00d;VERSION;1.2.0" "${args}")
 
-# assert_equal("URL;https://example.org/foo.tar.gz" "${args}")
-
-# cpm_parse_add_package_single_arg("https://example.org/foo.tar.gz#baadf00d@1.2.0" args)
-
-# assert_equal("URL;https://example.org/foo.tar.gz;URL_HASH;baadf00d;VERSION;1.2.0" "${args}")
-
-# cpm_parse_add_package_single_arg("ftp://user:password@server/pathname.zip#fragment#0ddb411@0"
-# args)
-
-# assert_equal("URL;ftp://user:password@server/pathname.zip#fragment;URL_HASH;0ddb411;VERSION;0"
-# "${args}")
+cpm_parse_add_package_single_arg("ftp://user:pass@server/pathname.zip#fragment#0ddb411@0" args)
+assert_equal(
+    "URL;ftp://user:pass@server/pathname.zip#fragment;URL_HASH;0ddb411;VERSION;0"
+    "${args}"
+)
