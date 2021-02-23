@@ -62,6 +62,17 @@ CPMAddPackage("uri@version#tag")
 
 In the shorthand syntax if the URI is of the form `gh:user/name`, it is interpreted as GitHub URI and converted to `https://github.com/user/name.git`. If the URI is of the form `gl:user/name`, it is interpreted as a [GitLab](https://gitlab.com/explore/) URI and coverted to `https://gitlab.com/user/name.git`. Otherwise the URI used verbatim as a git URL. All packages added using the shorthand syntax will be added using the [EXCLUDE_FROM_ALL](https://cmake.org/cmake/help/latest/prop_tgt/EXCLUDE_FROM_ALL.html) flag.
 
+The single-argument syntax also works for URLs:
+
+```cmake
+# An archive package from a given url. The version is inferred
+CPMAddPackage("https://example.com/my-package-1.2.3.zip")
+# An archive package from a given url with an MD5 hash provided
+CPMAddPackage("https://example.com/my-package-1.2.3.zip#68e20f674a48be38d60e129f600faf7d")
+# An archive package from a given url. The version is explicitly given
+CPMAddPackage("https://example.com/my-package.zip@1.2.3")
+```
+
 After calling `CPMAddPackage` or `CPMFindPackage`, the following variables are defined in the local scope, where `<dependency>` is the name of the dependency.
 
 - `<dependency>_SOURCE_DIR` is the path to the source of the dependency.
