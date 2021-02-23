@@ -439,7 +439,7 @@ function(CPMAddPackage)
   endif()
 
   if(DEFINED CPM_ARGS_URL)
-    # If a name or version aren't provided, try to infer them from the git repo
+    # If a name or version aren't provided, try to infer them from the URL
     list(GET CPM_ARGS_URL 0 firstUrl)
     cpm_package_name_and_ver_from_url(${firstUrl} nameFromUrl verFromUrl)
     # If we fail to obtain name and version from the first URL, we could try other URLs if any.
