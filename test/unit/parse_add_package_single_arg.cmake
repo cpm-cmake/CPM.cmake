@@ -53,6 +53,12 @@ assert_equal("URL;https://example.org/foo.tar.gz" "${args}")
 cpm_parse_add_package_single_arg("https://example.org/foo.tar.gz#baadf00d@1.2.0" args)
 assert_equal("URL;https://example.org/foo.tar.gz;URL_HASH;baadf00d;VERSION;1.2.0" "${args}")
 
+cpm_parse_add_package_single_arg("https://example.org/foo.tar.gz#MD5=baadf00d" args)
+assert_equal("URL;https://example.org/foo.tar.gz;URL_HASH;MD5=baadf00d" "${args}")
+
+cpm_parse_add_package_single_arg("https://example.org/Foo.zip#SHA3_512=1337" args)
+assert_equal("URL;https://example.org/Foo.zip;URL_HASH;SHA3_512=1337" "${args}")
+
 cpm_parse_add_package_single_arg("ftp://user:pass@server/pathname.zip#fragment#0ddb411@0" args)
 assert_equal(
   "URL;ftp://user:pass@server/pathname.zip#fragment;URL_HASH;0ddb411;VERSION;0" "${args}"

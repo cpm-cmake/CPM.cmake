@@ -68,7 +68,7 @@ The single-argument syntax also works for URLs:
 # An archive package from a given url. The version is inferred
 CPMAddPackage("https://example.com/my-package-1.2.3.zip")
 # An archive package from a given url with an MD5 hash provided
-CPMAddPackage("https://example.com/my-package-1.2.3.zip#68e20f674a48be38d60e129f600faf7d")
+CPMAddPackage("https://example.com/my-package-1.2.3.zip#MD5=68e20f674a48be38d60e129f600faf7d")
 # An archive package from a given url. The version is explicitly given
 CPMAddPackage("https://example.com/my-package.zip@1.2.3")
 ```
