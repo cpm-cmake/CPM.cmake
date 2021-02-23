@@ -55,6 +55,5 @@ assert_equal("URL;https://example.org/foo.tar.gz;URL_HASH;baadf00d;VERSION;1.2.0
 
 cpm_parse_add_package_single_arg("ftp://user:pass@server/pathname.zip#fragment#0ddb411@0" args)
 assert_equal(
-    "URL;ftp://user:pass@server/pathname.zip#fragment;URL_HASH;0ddb411;VERSION;0"
-    "${args}"
+  "URL;ftp://user:pass@server/pathname.zip#fragment;URL_HASH;0ddb411;VERSION;0" "${args}"
 )

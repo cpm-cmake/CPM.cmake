@@ -390,10 +390,7 @@ function(CPMAddPackage)
       EXCLUDE_FROM_ALL
   )
 
-  set(multiValueArgs
-      URL
-      OPTIONS
-  )
+  set(multiValueArgs URL OPTIONS)
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
