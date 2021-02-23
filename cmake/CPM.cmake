@@ -134,7 +134,7 @@ endif()
 include(FetchContent)
 include(CMakeParseArguments)
 
-# Infer package name from git repository uri (path or url)
+# Try to infer package name from git repository uri (path or url)
 function(cpm_package_name_from_git_uri URI RESULT)
   if("${URI}" MATCHES "([^/:]+)/?.git/?$")
     set(${RESULT}
@@ -143,6 +143,52 @@ function(cpm_package_name_from_git_uri URI RESULT)
     )
   else()
     unset(${RESULT} PARENT_SCOPE)
+  endif()
+endfunction()
+
+# Try to infer package name and version from a url
+function(cpm_package_name_and_ver_from_url url outName outVer)
+  if(url MATCHES "[/\\?]([a-zA-Z0-9_\\.-]+)\\.(tar|tar\\.gz|tar\\.bz2|zip|ZIP)(\\?|/|$)")
+    # We matched an archive
+    set(filename "${CMAKE_MATCH_1}")
+
+    if(filename MATCHES "([a-zA-Z0-9_\\.-]+)[_-]v?(([0-9]+\\.)*[0-9]+[a-zA-Z0-9]*)")
+      # We matched <name>-<version> (ie foo-1.2.3)
+      set(${outName}
+          "${CMAKE_MATCH_1}"
+          PARENT_SCOPE
+      )
+      set(${outVer}
+          "${CMAKE_MATCH_2}"
+          PARENT_SCOPE
+      )
+    elseif(filename MATCHES "(([0-9]+\\.)+[0-9]+[a-zA-Z0-9]*)")
+      # We couldn't find a name, but we found a version
+      #
+      # In many cases (which we don't handle here) the url would look something like
+      # `irrelevant/ACTUAL_PACKAGE_NAME/irrelevant/1.2.3.zip`. In such a case we can't possibly
+      # distinguish the package name from the irrelevant bits. Moreover if we try to match the
+      # package name from the filename, we'd get bogus at best.
+      unset(${outName} PARENT_SCOPE)
+      set(${outVer}
+          "${CMAKE_MATCH_1}"
+          PARENT_SCOPE
+      )
+    else()
+      # Boldly assume that the file name is the package name.
+      #
+      # Yes, something like `irrelevant/ACTUAL_NAME/irrelevant/download.zip` will ruin our day, but
+      # such cases should be quite rare. No popular service does this... we think.
+      set(${outName}
+          "${filename}"
+          PARENT_SCOPE
+      )
+      unset(${outVer} PARENT_SCOPE)
+    endif()
+  else()
+    # No ideas yet what to do with non-archives
+    unset(${outName} PARENT_SCOPE)
+    unset(${outVer} PARENT_SCOPE)
   endif()
 endfunction()
 
@@ -274,11 +320,6 @@ function(cpm_parse_add_package_single_arg arg outArgs)
       set(out "GIT_REPOSITORY;${arg}")
       set(packageType "git")
     else()
-      # This error here is temporary. We can't provide URLs from here until we support inferring the
-      # package name from an url. When this is supported, remove this error as well as commented out
-      # tests in test/unit/parse_add_package_single_arg.cmake
-      message(FATAL_ERROR "CPM: Unsupported package type of '${arg}'")
-
       # Fall back to a URL
       set(out "URL;${arg}")
       set(packageType "archive")
@@ -349,7 +390,7 @@ function(CPMAddPackage)
       EXCLUDE_FROM_ALL
   )
 
-  set(multiValueArgs OPTIONS)
+  set(multiValueArgs URL OPTIONS)
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
@@ -395,6 +436,24 @@ function(CPMAddPackage)
     if(DEFINED CPM_ARGS_GIT_SHALLOW)
       list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_SHALLOW ${CPM_ARGS_GIT_SHALLOW})
     endif()
+  endif()
+
+  if(DEFINED CPM_ARGS_URL)
+    # If a name or version aren't provided, try to infer them from the URL
+    list(GET CPM_ARGS_URL 0 firstUrl)
+    cpm_package_name_and_ver_from_url(${firstUrl} nameFromUrl verFromUrl)
+    # If we fail to obtain name and version from the first URL, we could try other URLs if any.
+    # However multiple URLs are expected to be quite rare, so for now we won't bother.
+
+    # If the caller provided their own name and version, they trump the inferred ones.
+    if(NOT DEFINED CPM_ARGS_NAME)
+      set(CPM_ARGS_NAME ${nameFromUrl})
+    endif()
+    if(NOT DEFINED CPM_ARGS_VERSION)
+      set(CPM_ARGS_VERSION ${verFromUrl})
+    endif()
+
+    list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS URL "${CPM_ARGS_URL}")
   endif()
 
   # Check for required arguments
