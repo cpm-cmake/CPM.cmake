@@ -290,10 +290,15 @@ CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.6.3@0.6.3")
 ### [google/benchmark](https://github.com/google/benchmark)
 
 ```cmake
-CPMAddPackage("gh:google/benchmark@1.5.2")
+CPMAddPackage(
+  NAME benchmark
+  GITHUB_REPOSITORY google/benchmark
+  VERSION 1.5.2
+  OPTIONS "BENCHMARK_ENABLE_TESTING Off"
+)
 
-if (benchmark_ADDED)
-  # update the target to compile with C++11
+if(benchmark_ADDED)
+  # Don't use C++14 because it doesn't work in some configurations.
   set_target_properties(benchmark PROPERTIES CXX_STANDARD 11)
 endif()
 ```
