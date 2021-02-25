@@ -6,13 +6,7 @@ project(CPMYamlExample)
 
 include(../../cmake/CPM.cmake)
 
-CPMAddPackage(
-  NAME yaml-cpp
-  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
-  VERSION 0.6.3
-  GIT_TAG yaml-cpp-0.6.3
-  OPTIONS "YAML_CPP_BUILD_TESTS Off" "YAML_CPP_BUILD_CONTRIB Off" "YAML_CPP_BUILD_TOOLS Off"
-)
+CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.6.3@0.6.3")
 
 # ---- Executable ----
 

@@ -266,43 +266,25 @@ See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets) for mo
 ### [Catch2](https://github.com/catchorg/Catch2)
 
 ```cmake
-CPMAddPackage(gh:catchorg/Catch2@2.5.0)
+CPMAddPackage("gh:catchorg/Catch2@2.5.0")
 ```
 
 ### [Boost (via boost-cmake)](https://github.com/Orphis/boost-cmake)
 
 ```CMake
-CPMAddPackage(gh:Orphis/boost-cmake@1.67.0)
+CPMAddPackage("gh:Orphis/boost-cmake@1.67.0")
 ```
 
 ### [cxxopts](https://github.com/jarro2783/cxxopts)
 
 ```cmake
-CPMAddPackage(
-  NAME cxxopts
-  GITHUB_REPOSITORY jarro2783/cxxopts
-  VERSION 2.2.0
-  OPTIONS
-    "CXXOPTS_BUILD_EXAMPLES Off"
-    "CXXOPTS_BUILD_TESTS Off"
-)
+CPMAddPackage("gh:jarro2783/cxxopts@2.2.0")
 ```
 
 ### [Yaml-cpp](https://github.com/jbeder/yaml-cpp)
 
 ```CMake
-CPMAddPackage(
-  NAME yaml-cpp
-  GITHUB_REPOSITORY jbeder/yaml-cpp
-  # 0.6.2 uses deprecated CMake syntax
-  VERSION 0.6.3
-  # 0.6.3 is not released yet, so use a recent commit
-  GIT_TAG 012269756149ae99745b6dafefd415843d7420bb
-  OPTIONS
-    "YAML_CPP_BUILD_TESTS Off"
-    "YAML_CPP_BUILD_CONTRIB Off"
-    "YAML_CPP_BUILD_TOOLS Off"
-)
+CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.6.3@0.6.3")
 ```
 
 ### [google/benchmark](https://github.com/google/benchmark)
@@ -311,14 +293,13 @@ CPMAddPackage(
 CPMAddPackage(
   NAME benchmark
   GITHUB_REPOSITORY google/benchmark
-  VERSION 1.4.1
-  OPTIONS
-    "BENCHMARK_ENABLE_TESTING Off"
+  VERSION 1.5.2
+  OPTIONS "BENCHMARK_ENABLE_TESTING Off"
 )
 
-if (benchmark_ADDED)
-  # compile with C++17
-  set_target_properties(benchmark PROPERTIES CXX_STANDARD 17)
+if(benchmark_ADDED)
+  # enable c++11 to avoid compilation errors
+  set_target_properties(benchmark PROPERTIES CXX_STANDARD 11)
 endif()
 ```
 
