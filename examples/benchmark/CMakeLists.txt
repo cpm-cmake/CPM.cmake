@@ -8,12 +8,7 @@ include(../../cmake/CPM.cmake)
 
 CPMAddPackage("gh:TheLartians/Fibonacci@2.0")
 
-CPMAddPackage(
-  NAME benchmark
-  GITHUB_REPOSITORY google/benchmark
-  VERSION 1.5.2
-  OPTIONS "BENCHMARK_ENABLE_TESTING Off"
-)
+CPMAddPackage("gh:google/benchmark@1.5.2")
 
 if(benchmark_ADDED)
   # Don't use C++14 because it doesn't work in some configurations.
