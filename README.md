@@ -298,7 +298,7 @@ CPMAddPackage(
 )
 
 if(benchmark_ADDED)
-  # Don't use C++14 because it doesn't work in some configurations.
+  # enable c++11 to avoid compilation errors
   set_target_properties(benchmark PROPERTIES CXX_STANDARD 11)
 endif()
 ```
