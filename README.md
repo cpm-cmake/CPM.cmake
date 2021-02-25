@@ -82,44 +82,6 @@ After calling `CPMAddPackage` or `CPMFindPackage`, the following variables are d
 The difference between `CPMFindPackage` and `CPMAddPackage` is that `CPMFindPackage` will try to find a local dependency via CMake's `find_package` and fallback to `CPMAddPackage` if the dependency is not found.
 This behaviour can be also modified globally via [CPM options](#options).
 
-## Full CMakeLists Example
-
-```cmake
-cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
-
-# create project
-project(MyProject)
-
-# add executable
-add_executable(tests tests.cpp)
-
-# add dependencies
-include(cmake/CPM.cmake)
-CPMAddPackage("gh:catchorg/Catch2@2.5.0")
-
-# link dependencies
-target_link_libraries(tests Catch2)
-```
-
-See the [examples directory](https://github.com/cpm-cmake/CPM.cmake/tree/master/examples) for complete examples with source code and check [below](#snippets) or in the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets) for example snippets.
-
-## Adding CPM
-
-To add CPM to your current project, simply add the [latest release](https://github.com/cpm-cmake/CPM.cmake/releases/latest) of `CPM.cmake` or `get_cpm.cmake` to your project's `cmake` directory.
-The command below will perform this automatically.
-
-```bash
-mkdir -p cmake
-wget -O cmake/CPM.cmake https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/get_cpm.cmake
-```
-
-You can also download CPM.cmake directly from your project's `CMakeLists.txt`. See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Downloading-CPM.cmake-in-CMake) for more details.
-
-## Updating CPM
-
-To update CPM to the newest version, update the script in the project's root directory, for example by running the command above.
-Dependencies using CPM will automatically use the updated script of the outermost project.
-
 ## Advantages
 
 - **Small and reusable projects** CPM takes care of all project dependencies, allowing developers to focus on creating small, well-tested libraries.
@@ -266,13 +228,13 @@ See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets) for mo
 ### [Catch2](https://github.com/catchorg/Catch2)
 
 ```cmake
-CPMAddPackage(gh:catchorg/Catch2@2.5.0)
+CPMAddPackage("gh:catchorg/Catch2@2.5.0")
 ```
 
 ### [Boost (via boost-cmake)](https://github.com/Orphis/boost-cmake)
 
 ```CMake
-CPMAddPackage(gh:Orphis/boost-cmake@1.67.0)
+CPMAddPackage("gh:Orphis/boost-cmake@1.67.0")
 ```
 
 ### [cxxopts](https://github.com/jarro2783/cxxopts)
