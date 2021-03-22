@@ -30,8 +30,6 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 set(CURRENT_CPM_VERSION 1.0.0-development-version)
 
-cmake_policy(SET CMP0077 NEW)
-
 if(CPM_DIRECTORY)
   if(NOT CPM_DIRECTORY STREQUAL CMAKE_CURRENT_LIST_DIR)
     if(CPM_VERSION VERSION_LESS CURRENT_CPM_VERSION)
@@ -543,6 +541,7 @@ function(CPMAddPackage)
       if(NOT CPM_ARGS_DOWNLOAD_ONLY AND EXISTS ${download_directory}/CMakeLists.txt)
         cpm_add_subdirectory(
           ${download_directory} ${${CPM_ARGS_NAME}_BINARY_DIR} "${CPM_ARGS_EXCLUDE_FROM_ALL}"
+          "${CPM_ARGS_OPTIONS}"
         )
       endif()
       set(CPM_SKIP_FETCH TRUE)
@@ -583,7 +582,9 @@ function(CPMAddPackage)
     cpm_declare_fetch(
       "${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
     )
-    cpm_fetch_package("${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}" "${CPM_ARGS_EXCLUDE_FROM_ALL}" "${CPM_ARGS_OPTIONS}")
+    cpm_fetch_package(
+      "${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}" "${CPM_ARGS_EXCLUDE_FROM_ALL}" "${CPM_ARGS_OPTIONS}"
+    )
     cpm_get_fetch_properties("${CPM_ARGS_NAME}")
   endif()
 
@@ -706,12 +707,23 @@ function(cpm_get_fetch_properties PACKAGE)
   )
 endfunction()
 
-function(cpm_add_subdirectory SOURCE_DIR BINARY_DIR EXCLUDE)
+function(cpm_add_subdirectory SOURCE_DIR BINARY_DIR EXCLUDE OPTIONS)
   if(EXCLUDE)
     set(addSubdirectoryExtraArgs EXCLUDE_FROM_ALL)
   else()
     set(addSubdirectoryExtraArgs "")
   endif()
+
+  if(OPTIONS)
+    # allows us to change options with uncached variables
+    cmake_policy(SET CMP0077 NEW)
+
+    foreach(OPTION ${OPTIONS})
+      cpm_parse_option(${OPTION})
+      set(${OPTION_KEY} ${OPTION_VALUE})
+    endforeach()
+  endif()
+
   add_subdirectory(${SOURCE_DIR} ${BINARY_DIR} ${addSubdirectoryExtraArgs})
 endfunction()
 
@@ -726,21 +738,12 @@ function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY EXCLUDE OPTIONS)
   string(TOLOWER "${PACKAGE}" lower_case_name)
 
   if(NOT ${lower_case_name}_POPULATED)
-
-    if(OPTIONS)
-      foreach(OPTION ${OPTIONS})
-        cpm_parse_option(${OPTION})
-        set(${OPTION_KEY}
-            ${OPTION_VALUE}
-        )
-      endforeach()
-    endif()
     FetchContent_Populate(${PACKAGE})
     if(NOT DOWNLOAD_ONLY AND EXISTS ${${lower_case_name}_SOURCE_DIR}/CMakeLists.txt)
       set(CPM_OLD_INDENT "${CPM_INDENT}")
       set(CPM_INDENT "${CPM_INDENT} ${PACKAGE}:")
       cpm_add_subdirectory(
-        ${${lower_case_name}_SOURCE_DIR} ${${lower_case_name}_BINARY_DIR} "${EXCLUDE}"
+        ${${lower_case_name}_SOURCE_DIR} ${${lower_case_name}_BINARY_DIR} "${EXCLUDE}" "${OPTIONS}"
       )
       set(CPM_INDENT "${CPM_OLD_INDENT}")
     endif()
