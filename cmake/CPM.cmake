@@ -733,7 +733,6 @@ function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY EXCLUDE OPTIONS)
         set(${OPTION_KEY}
             ${OPTION_VALUE}
         )
-        message(STATUS "** ${OPTION_KEY} ${OPTION_VALUE}")
       endforeach()
     endif()
     FetchContent_Populate(${PACKAGE})
