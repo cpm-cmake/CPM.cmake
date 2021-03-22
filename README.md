@@ -27,9 +27,9 @@ For everything else, the targets can be created manually after the dependency ha
 
 ## Usage
 
-After `CPM.cmake` has been [added](#adding-cpm) to your project, the function `CPMAddPackage` or `CPMFindPackage` can be used to fetch and configure a dependency.
+After `CPM.cmake` has been [added](#adding-cpm) to your project, the function `CPMAddPackage` can be used to fetch and configure a dependency.
 Afterwards, any targets defined in the dependency can be used directly.
-`CPMFindPackage` and `CPMAddPackage` take the following named parameters.
+`CPMAddPackage` takes the following named parameters.
 
 ```cmake
 CPMAddPackage(
@@ -45,7 +45,6 @@ The origin may be specified by a `GIT_REPOSITORY`, but other sources, such as di
 If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for git projects.
 On the other hand, if `VERSION` hasn't been explicitly specified, CPM can automatically identify the version from the git tag in some common cases.
 `GIT_TAG` can also be set to a specific commit or a branch name such as `master` to always download the most recent version.
-The optional argument `FIND_PACKAGE_ARGUMENTS` can be specified to a string of parameters that will be passed to `find_package` if enabled (see below).
 
 If an additional optional parameter `EXCLUDE_FROM_ALL` is set to a truthy value, then any targets defined inside the dependency won't be built by default. See the [CMake docs](https://cmake.org/cmake/help/latest/prop_tgt/EXCLUDE_FROM_ALL.html) for details.
 
@@ -73,14 +72,15 @@ CPMAddPackage("https://example.com/my-package-1.2.3.zip#MD5=68e20f674a48be38d60e
 CPMAddPackage("https://example.com/my-package.zip@1.2.3")
 ```
 
-After calling `CPMAddPackage` or `CPMFindPackage`, the following variables are defined in the local scope, where `<dependency>` is the name of the dependency.
+After calling `CPMAddPackage`, the following variables are defined in the local scope, where `<dependency>` is the name of the dependency.
 
 - `<dependency>_SOURCE_DIR` is the path to the source of the dependency.
 - `<dependency>_BINARY_DIR` is the path to the build directory of the dependency.
 - `<dependency>_ADDED` is set to `YES` if the dependency has not been added before, otherwise it is set to `NO`.
 
-The difference between `CPMFindPackage` and `CPMAddPackage` is that `CPMFindPackage` will try to find a local dependency via CMake's `find_package` and fallback to `CPMAddPackage` if the dependency is not found.
-This behaviour can be also modified globally via [CPM options](#options).
+For using CPM.cmake projects with external package managers, such as conan or vcpkg, setting the variable [`CPM_USE_LOCAL_PACKAGES`](#options) will make CPM.cmake try to add a package through `find_package` first, and add it from source if it doesn't succeed.
+
+In rare cases, this behaviour may be desirable by default. The function `CPMFindPackage` will try to find a local dependency via CMake's `find_package` and fallback to `CPMAddPackage`, if the dependency is not found.
 
 ## Full CMakeLists Example
 
@@ -194,6 +194,8 @@ This can also be set as an environmental variable.
 CPM can be configured to use `find_package` to search for locally installed dependencies first by setting the CMake option `CPM_USE_LOCAL_PACKAGES`.
 If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will emit an error if the dependency is not found locally.
 These options can also be set as environmental variables.
+
+In the case that `find_package` requires additional arguments, the parameter `FIND_PACKAGE_ARGUMENTS` may be specified in the `CPMAddPackage` call. The value of this parameter will be forwarded to `find_package`.
 
 ## Local package override
 
