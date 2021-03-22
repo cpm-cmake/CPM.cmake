@@ -30,6 +30,8 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 set(CURRENT_CPM_VERSION 1.0.0-development-version)
 
+cmake_policy(SET CMP0077 NEW)
+
 if(CPM_DIRECTORY)
   if(NOT CPM_DIRECTORY STREQUAL CMAKE_CURRENT_LIST_DIR)
     if(CPM_VERSION VERSION_LESS CURRENT_CPM_VERSION)
@@ -132,7 +134,6 @@ if(NOT CPM_DONT_CREATE_PACKAGE_LOCK)
 endif()
 
 include(FetchContent)
-include(CMakeParseArguments)
 
 # Try to infer package name from git repository uri (path or url)
 function(cpm_package_name_from_git_uri URI RESULT)
@@ -515,16 +516,6 @@ function(CPMAddPackage)
 
   CPMRegisterPackage("${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}")
 
-  if(CPM_ARGS_OPTIONS)
-    foreach(OPTION ${CPM_ARGS_OPTIONS})
-      cpm_parse_option(${OPTION})
-      set(${OPTION_KEY}
-          ${OPTION_VALUE}
-          CACHE INTERNAL ""
-      )
-    endforeach()
-  endif()
-
   if(DEFINED CPM_ARGS_GIT_TAG)
     set(PACKAGE_INFO "${CPM_ARGS_GIT_TAG}")
   elseif(DEFINED CPM_ARGS_SOURCE_DIR)
@@ -592,7 +583,7 @@ function(CPMAddPackage)
     cpm_declare_fetch(
       "${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
     )
-    cpm_fetch_package("${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}" "${CPM_ARGS_EXCLUDE_FROM_ALL}")
+    cpm_fetch_package("${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}" "${CPM_ARGS_EXCLUDE_FROM_ALL}" "${CPM_ARGS_OPTIONS}")
     cpm_get_fetch_properties("${CPM_ARGS_NAME}")
   endif()
 
@@ -725,7 +716,7 @@ function(cpm_add_subdirectory SOURCE_DIR BINARY_DIR EXCLUDE)
 endfunction()
 
 # downloads a previously declared package via FetchContent
-function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY EXCLUDE)
+function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY EXCLUDE OPTIONS)
   if(${CPM_DRY_RUN})
     message(STATUS "${CPM_INDENT} package ${PACKAGE} not fetched (dry run)")
     return()
@@ -735,6 +726,16 @@ function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY EXCLUDE)
   string(TOLOWER "${PACKAGE}" lower_case_name)
 
   if(NOT ${lower_case_name}_POPULATED)
+
+    if(OPTIONS)
+      foreach(OPTION ${OPTIONS})
+        cpm_parse_option(${OPTION})
+        set(${OPTION_KEY}
+            ${OPTION_VALUE}
+        )
+        message(STATUS "** ${OPTION_KEY} ${OPTION_VALUE}")
+      endforeach()
+    endif()
     FetchContent_Populate(${PACKAGE})
     if(NOT DOWNLOAD_ONLY AND EXISTS ${${lower_case_name}_SOURCE_DIR}/CMakeLists.txt)
       set(CPM_OLD_INDENT "${CPM_INDENT}")
