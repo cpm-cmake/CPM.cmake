@@ -53,10 +53,10 @@ function(ASSERT_TRUTHY KEY)
 endfunction()
 
 function(ASSERT_FALSY KEY)
-  if(NOT ${${KEY}})
-    message(STATUS "test passed: '${KEY}' is set falsy")
-  else()
+  if(${${KEY}})
     message(FATAL_ERROR "assertion failed: value of '${KEY}' is not falsy (${${KEY}})")
+  else()
+    message(STATUS "test passed: '${KEY}' is set falsy")
   endif()
 endfunction()
 
