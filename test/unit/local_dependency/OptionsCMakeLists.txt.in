@@ -27,5 +27,4 @@ include(@CPM_PATH@/testing.cmake)
 
 message("DEFINE_ALTERNATIVE_FUNCTION: ${DEFINE_ALTERNATIVE_FUNCTION}")
 
-# note: the dependency option is still defined and set to its default `OFF` value in the cache
-ASSERT_FALSY(DEFINE_ALTERNATIVE_FUNCTION)
+ASSERT_NOT_DEFINED(DEFINE_ALTERNATIVE_FUNCTION)

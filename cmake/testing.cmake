@@ -38,7 +38,7 @@ endfunction()
 
 function(ASSERT_NOT_DEFINED KEY)
   if(DEFINED ${KEY})
-    message(FATAL_ERROR "assertion failed: '${KEY}' is defiend")
+    message(FATAL_ERROR "assertion failed: '${KEY}' is defiend (${${KEY}})")
   else()
     message(STATUS "test passed: '${KEY}' is not defined")
   endif()
