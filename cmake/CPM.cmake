@@ -717,6 +717,7 @@ function(cpm_add_subdirectory SOURCE_DIR BINARY_DIR EXCLUDE OPTIONS)
   if(OPTIONS)
     # allows us to change options with uncached variables
     cmake_policy(SET CMP0077 NEW)
+    set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
     foreach(OPTION ${OPTIONS})
       cpm_parse_option(${OPTION})
