@@ -723,7 +723,6 @@ endfunction()
 
 # adds a package as a subdirectory if viable, according to provided options
 function(cpm_add_subdirectory PACKAGE DOWNLOAD_ONLY SOURCE_DIR BINARY_DIR EXCLUDE)
-  message("checking NOT ${DOWNLOAD_ONLY} AND EXISTS ${SOURCE_DIR}/CMakeLists.txt")
   if(NOT DOWNLOAD_ONLY AND EXISTS ${SOURCE_DIR}/CMakeLists.txt)
     if(EXCLUDE)
       set(addSubdirectoryExtraArgs EXCLUDE_FROM_ALL)
