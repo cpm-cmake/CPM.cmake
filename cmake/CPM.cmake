@@ -736,7 +736,7 @@ function(cpm_add_subdirectory PACKAGE DOWNLOAD_ONLY SOURCE_DIR BINARY_DIR EXCLUD
   endif()
 endfunction()
 
-# downloads a previously declared package via FetchContent exports the variables
+# downloads a previously declared package via FetchContent and exports the variables
 # `${PACKAGE}_SOURCE_DIR` and `${PACKAGE}_BINARY_DIR` to the parent scope
 function(cpm_fetch_package PACKAGE)
   if(${CPM_DRY_RUN})
