@@ -387,6 +387,7 @@ function(CPMAddPackage)
       NO_CACHE
       GIT_SHALLOW
       EXCLUDE_FROM_ALL
+      SOURCE_SUBDIR
   )
 
   set(multiValueArgs URL OPTIONS)
@@ -538,12 +539,11 @@ function(CPMAddPackage)
       set(${CPM_ARGS_NAME}_BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/${lower_case_name}-build)
       set(${CPM_ARGS_NAME}_ADDED YES)
       set(${CPM_ARGS_NAME}_SOURCE_DIR ${download_directory})
-      if(NOT CPM_ARGS_DOWNLOAD_ONLY AND EXISTS ${download_directory}/CMakeLists.txt)
-        cpm_add_subdirectory(
-          ${download_directory} ${${CPM_ARGS_NAME}_BINARY_DIR} "${CPM_ARGS_EXCLUDE_FROM_ALL}"
-          "${CPM_ARGS_OPTIONS}"
-        )
-      endif()
+      cpm_add_subdirectory(
+        "${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}"
+        "${${CPM_ARGS_NAME}_SOURCE_DIR}/${CPM_ARGS_SOURCE_SUBDIR}" "${${CPM_ARGS_NAME}_BINARY_DIR}"
+        "${CPM_ARGS_EXCLUDE_FROM_ALL}" "${CPM_ARGS_OPTIONS}"
+      )
       set(CPM_SKIP_FETCH TRUE)
       set(PACKAGE_INFO "${PACKAGE_INFO} at ${download_directory}")
     else()
@@ -582,8 +582,11 @@ function(CPMAddPackage)
     cpm_declare_fetch(
       "${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
     )
-    cpm_fetch_package(
-      "${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}" "${CPM_ARGS_EXCLUDE_FROM_ALL}" "${CPM_ARGS_OPTIONS}"
+    cpm_fetch_package("${CPM_ARGS_NAME}")
+    cpm_add_subdirectory(
+      "${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}"
+      "${${CPM_ARGS_NAME}_SOURCE_DIR}/${CPM_ARGS_SOURCE_SUBDIR}" "${${CPM_ARGS_NAME}_BINARY_DIR}"
+      "${CPM_ARGS_EXCLUDE_FROM_ALL}" "${CPM_ARGS_OPTIONS}"
     )
     cpm_get_fetch_properties("${CPM_ARGS_NAME}")
   endif()
@@ -707,48 +710,62 @@ function(cpm_get_fetch_properties PACKAGE)
   )
 endfunction()
 
-function(cpm_add_subdirectory SOURCE_DIR BINARY_DIR EXCLUDE OPTIONS)
-  if(EXCLUDE)
-    set(addSubdirectoryExtraArgs EXCLUDE_FROM_ALL)
-  else()
-    set(addSubdirectoryExtraArgs "")
+# adds a package as a subdirectory if viable, according to provided options
+function(
+  cpm_add_subdirectory
+  PACKAGE
+  DOWNLOAD_ONLY
+  SOURCE_DIR
+  BINARY_DIR
+  EXCLUDE
+  OPTIONS
+)
+  if(NOT DOWNLOAD_ONLY AND EXISTS ${SOURCE_DIR}/CMakeLists.txt)
+    if(EXCLUDE)
+      set(addSubdirectoryExtraArgs EXCLUDE_FROM_ALL)
+    else()
+      set(addSubdirectoryExtraArgs "")
+    endif()
+    if(OPTIONS)
+      # the policy allows us to change options without caching
+      cmake_policy(SET CMP0077 NEW)
+      set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
+      foreach(OPTION ${OPTIONS})
+        cpm_parse_option(${OPTION})
+        set(${OPTION_KEY} ${OPTION_VALUE})
+      endforeach()
+    endif()
+    set(CPM_OLD_INDENT "${CPM_INDENT}")
+    set(CPM_INDENT "${CPM_INDENT} ${PACKAGE}:")
+    add_subdirectory(${SOURCE_DIR} ${BINARY_DIR} ${addSubdirectoryExtraArgs})
+    set(CPM_INDENT "${CPM_OLD_INDENT}")
   endif()
-
-  if(OPTIONS)
-    # allows us to change options with uncached variables
-    cmake_policy(SET CMP0077 NEW)
-    set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-
-    foreach(OPTION ${OPTIONS})
-      cpm_parse_option(${OPTION})
-      set(${OPTION_KEY} ${OPTION_VALUE})
-    endforeach()
-  endif()
-
-  add_subdirectory(${SOURCE_DIR} ${BINARY_DIR} ${addSubdirectoryExtraArgs})
 endfunction()
 
-# downloads a previously declared package via FetchContent
-function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY EXCLUDE OPTIONS)
+# downloads a previously declared package via FetchContent and exports the variables
+# `${PACKAGE}_SOURCE_DIR` and `${PACKAGE}_BINARY_DIR` to the parent scope
+function(cpm_fetch_package PACKAGE)
   if(${CPM_DRY_RUN})
     message(STATUS "${CPM_INDENT} package ${PACKAGE} not fetched (dry run)")
     return()
   endif()
 
   FetchContent_GetProperties(${PACKAGE})
-  string(TOLOWER "${PACKAGE}" lower_case_name)
 
   if(NOT ${lower_case_name}_POPULATED)
     FetchContent_Populate(${PACKAGE})
-    if(NOT DOWNLOAD_ONLY AND EXISTS ${${lower_case_name}_SOURCE_DIR}/CMakeLists.txt)
-      set(CPM_OLD_INDENT "${CPM_INDENT}")
-      set(CPM_INDENT "${CPM_INDENT} ${PACKAGE}:")
-      cpm_add_subdirectory(
-        ${${lower_case_name}_SOURCE_DIR} ${${lower_case_name}_BINARY_DIR} "${EXCLUDE}" "${OPTIONS}"
-      )
-      set(CPM_INDENT "${CPM_OLD_INDENT}")
-    endif()
   endif()
+
+  string(TOLOWER "${PACKAGE}" lower_case_name)
+  set(${PACKAGE}_SOURCE_DIR
+      ${${lower_case_name}_SOURCE_DIR}
+      PARENT_SCOPE
+  )
+  set(${PACKAGE}_BINARY_DIR
+      ${${lower_case_name}_BINARY_DIR}
+      PARENT_SCOPE
+  )
 endfunction()
 
 # splits a package option

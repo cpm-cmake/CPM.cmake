@@ -1,0 +1,17 @@
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+
+project(CPMTest)
+
+# ---- Dependencies ----
+
+include(@CPM_PATH@/CPM.cmake)
+
+CPMAddPackage(
+  NAME Dependency
+  SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/dependency
+  SOURCE_SUBDIR inner
+)
+
+# ---- Call inner dependency method to validate correct addition of subdirectory ----
+
+inner_dependency_function()
