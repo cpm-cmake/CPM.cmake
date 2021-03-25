@@ -27,4 +27,7 @@ include(@CPM_PATH@/testing.cmake)
 
 message("DEFINE_ALTERNATIVE_FUNCTION: ${DEFINE_ALTERNATIVE_FUNCTION}")
 
+# this option is overridden by CPM.cmake
 ASSERT_NOT_DEFINED(DEFINE_ALTERNATIVE_FUNCTION)
+# this option is leaked by the dependency
+ASSERT_EQUAL(${LEAKED_OPTION} "OFF")
