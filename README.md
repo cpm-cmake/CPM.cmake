@@ -280,7 +280,11 @@ CPMAddPackage("gh:Orphis/boost-cmake@1.67.0")
 ### [cxxopts](https://github.com/jarro2783/cxxopts)
 
 ```cmake
-CPMAddPackage("gh:jarro2783/cxxopts@2.2.0")
+CPMAddPackage(
+  GITHUB_REPOSITORY jarro2783/cxxopts
+  VERSION 2.2.1
+  OPTIONS "CXXOPTS_BUILD_EXAMPLES NO" "CXXOPTS_BUILD_TESTS NO" "CXXOPTS_ENABLE_INSTALL YES"
+)
 ```
 
 ### [Yaml-cpp](https://github.com/jbeder/yaml-cpp)
