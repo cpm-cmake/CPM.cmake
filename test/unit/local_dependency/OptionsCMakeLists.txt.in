@@ -1,0 +1,33 @@
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+
+project(CPMTest)
+
+# ---- Options ----
+
+option(ENABLE_TEST_COVERAGE "Enable test coverage" OFF)
+
+# ---- Dependencies ----
+
+include(@CPM_PATH@/CPM.cmake)
+
+CPMAddPackage(
+  NAME Dependency
+  SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/dependency
+  OPTIONS "DEFINE_ALTERNATIVE_FUNCTION YES"
+  EXCLUDE_FROM_ALL YES
+)
+
+# ---- Dependencies ----
+
+alternative_dependency_function()
+
+# ---- Check parameters ----
+
+include(@CPM_PATH@/testing.cmake)
+
+message("DEFINE_ALTERNATIVE_FUNCTION: ${DEFINE_ALTERNATIVE_FUNCTION}")
+
+# this option is overridden by CPM.cmake
+ASSERT_NOT_DEFINED(DEFINE_ALTERNATIVE_FUNCTION)
+# this option is leaked by the dependency
+ASSERT_EQUAL(${LEAKED_OPTION} "OFF")

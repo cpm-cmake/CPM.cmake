@@ -132,7 +132,6 @@ if(NOT CPM_DONT_CREATE_PACKAGE_LOCK)
 endif()
 
 include(FetchContent)
-include(CMakeParseArguments)
 
 # Try to infer package name from git repository uri (path or url)
 function(cpm_package_name_from_git_uri URI RESULT)
@@ -516,16 +515,6 @@ function(CPMAddPackage)
 
   CPMRegisterPackage("${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}")
 
-  if(CPM_ARGS_OPTIONS)
-    foreach(OPTION ${CPM_ARGS_OPTIONS})
-      cpm_parse_option(${OPTION})
-      set(${OPTION_KEY}
-          ${OPTION_VALUE}
-          CACHE INTERNAL ""
-      )
-    endforeach()
-  endif()
-
   if(DEFINED CPM_ARGS_GIT_TAG)
     set(PACKAGE_INFO "${CPM_ARGS_GIT_TAG}")
   elseif(DEFINED CPM_ARGS_SOURCE_DIR)
@@ -553,7 +542,7 @@ function(CPMAddPackage)
       cpm_add_subdirectory(
         "${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}"
         "${${CPM_ARGS_NAME}_SOURCE_DIR}/${CPM_ARGS_SOURCE_SUBDIR}" "${${CPM_ARGS_NAME}_BINARY_DIR}"
-        "${CPM_ARGS_EXCLUDE_FROM_ALL}"
+        "${CPM_ARGS_EXCLUDE_FROM_ALL}" "${CPM_ARGS_OPTIONS}"
       )
       set(CPM_SKIP_FETCH TRUE)
       set(PACKAGE_INFO "${PACKAGE_INFO} at ${download_directory}")
@@ -597,7 +586,7 @@ function(CPMAddPackage)
     cpm_add_subdirectory(
       "${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}"
       "${${CPM_ARGS_NAME}_SOURCE_DIR}/${CPM_ARGS_SOURCE_SUBDIR}" "${${CPM_ARGS_NAME}_BINARY_DIR}"
-      "${CPM_ARGS_EXCLUDE_FROM_ALL}"
+      "${CPM_ARGS_EXCLUDE_FROM_ALL}" "${CPM_ARGS_OPTIONS}"
     )
     cpm_get_fetch_properties("${CPM_ARGS_NAME}")
   endif()
@@ -722,12 +711,30 @@ function(cpm_get_fetch_properties PACKAGE)
 endfunction()
 
 # adds a package as a subdirectory if viable, according to provided options
-function(cpm_add_subdirectory PACKAGE DOWNLOAD_ONLY SOURCE_DIR BINARY_DIR EXCLUDE)
+function(
+  cpm_add_subdirectory
+  PACKAGE
+  DOWNLOAD_ONLY
+  SOURCE_DIR
+  BINARY_DIR
+  EXCLUDE
+  OPTIONS
+)
   if(NOT DOWNLOAD_ONLY AND EXISTS ${SOURCE_DIR}/CMakeLists.txt)
     if(EXCLUDE)
       set(addSubdirectoryExtraArgs EXCLUDE_FROM_ALL)
     else()
       set(addSubdirectoryExtraArgs "")
+    endif()
+    if(OPTIONS)
+      # the policy allows us to change options without caching
+      cmake_policy(SET CMP0077 NEW)
+      set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
+      foreach(OPTION ${OPTIONS})
+        cpm_parse_option(${OPTION})
+        set(${OPTION_KEY} ${OPTION_VALUE})
+      endforeach()
     endif()
     set(CPM_OLD_INDENT "${CPM_INDENT}")
     set(CPM_INDENT "${CPM_INDENT} ${PACKAGE}:")
