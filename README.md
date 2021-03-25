@@ -157,7 +157,6 @@ The most notable features are:
 
 - A simpler to use API
 - Version checking: CPM.cmake will check the version number of any added dependency and omit a warning if another dependency requires a more recent version.
-- Options: any Options passed to a dependency are stored and compared on later use, so if another dependency tries to add an existing dependency with incompatible options a warning will be emitted to the user.
 - Offline builds: CPM.cmake will override CMake's download and update commands, which allows new builds to be configured while offline if all dependencies [are available locally](#cpm_source_cache).
 - Automatic shallow clone: if a version tag (e.g. `v2.2.0`) is provided and `CPM_SOURCE_CACHE` is used, CPM.cmake will perform a shallow clone of the dependency, which should be significantly faster while using less storage than a full clone.
 - Overridable: all `CPMAddPackage` can be configured to use `find_package` by setting a [CMake flag](#cpm_use_local_packages), making it easy to integrate into projects that may require local versioning through the system's package manager.

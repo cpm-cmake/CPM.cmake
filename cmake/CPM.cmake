@@ -246,7 +246,7 @@ function(CPMFindPackage)
     return()
   endif()
 
-  cpm_check_if_package_already_added(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" "${CPM_ARGS_OPTIONS}")
+  cpm_check_if_package_already_added(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}")
   if(CPM_PACKAGE_ALREADY_ADDED)
     cpm_export_variables(${CPM_ARGS_NAME})
     return()
@@ -262,7 +262,7 @@ function(CPMFindPackage)
 endfunction()
 
 # checks if a package has been added before
-function(cpm_check_if_package_already_added CPM_ARGS_NAME CPM_ARGS_VERSION CPM_ARGS_OPTIONS)
+function(cpm_check_if_package_already_added CPM_ARGS_NAME CPM_ARGS_VERSION)
   if("${CPM_ARGS_NAME}" IN_LIST CPM_PACKAGES)
     CPMGetPackageVersion(${CPM_ARGS_NAME} CPM_PACKAGE_VERSION)
     if("${CPM_PACKAGE_VERSION}" VERSION_LESS "${CPM_ARGS_VERSION}")
@@ -270,17 +270,6 @@ function(cpm_check_if_package_already_added CPM_ARGS_NAME CPM_ARGS_VERSION CPM_A
         WARNING
           "${CPM_INDENT} requires a newer version of ${CPM_ARGS_NAME} (${CPM_ARGS_VERSION}) than currently included (${CPM_PACKAGE_VERSION})."
       )
-    endif()
-    if(CPM_ARGS_OPTIONS)
-      foreach(OPTION ${CPM_ARGS_OPTIONS})
-        cpm_parse_option(${OPTION})
-        if(NOT "${${OPTION_KEY}}" STREQUAL "${OPTION_VALUE}")
-          message(
-            WARNING
-              "${CPM_INDENT} ignoring package option for ${CPM_ARGS_NAME}: ${OPTION_KEY} = ${OPTION_VALUE} (${${OPTION_KEY}})"
-          )
-        endif()
-      endforeach()
     endif()
     cpm_get_fetch_properties(${CPM_ARGS_NAME})
     set(${CPM_ARGS_NAME}_ADDED NO)
@@ -466,7 +455,7 @@ function(CPMAddPackage)
   endif()
 
   # Check if package has been added before
-  cpm_check_if_package_already_added(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" "${CPM_ARGS_OPTIONS}")
+  cpm_check_if_package_already_added(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}")
   if(CPM_PACKAGE_ALREADY_ADDED)
     cpm_export_variables(${CPM_ARGS_NAME})
     return()
@@ -493,7 +482,7 @@ function(CPMAddPackage)
     CPMAddPackage(${declaration})
     cpm_export_variables(${CPM_ARGS_NAME})
     # checking again to ensure version and option compatibility
-    cpm_check_if_package_already_added(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" "${CPM_ARGS_OPTIONS}")
+    cpm_check_if_package_already_added(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}")
     return()
   endif()
 
