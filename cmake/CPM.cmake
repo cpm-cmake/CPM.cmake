@@ -279,8 +279,8 @@ function(cpm_check_if_package_already_added CPM_ARGS_NAME CPM_ARGS_VERSION CPM_A
         SET
       )
       if(OPTIONS_ARE_DEFINED)
-        cpmgetpackageoptions(${CPM_ARGS_NAME} CPM_ARGS_OPTIONS_DEFINED)
-        cpmgetpackageoptions(${CPM_ARGS_NAME} CPM_ARGS_OPTIONS_DEFINED_COPY)
+        CPMGetPackageOptions(${CPM_ARGS_NAME} CPM_ARGS_OPTIONS_DEFINED)
+        CPMGetPackageOptions(${CPM_ARGS_NAME} CPM_ARGS_OPTIONS_DEFINED_COPY)
         foreach(OPTION ${CPM_ARGS_OPTIONS})
           cpm_parse_option(${OPTION})
           set(OPTION_KEY_NEW ${OPTION_KEY})
