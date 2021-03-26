@@ -279,6 +279,7 @@ CPMAddPackage("gh:Orphis/boost-cmake@1.67.0")
 ### [Yaml-cpp](https://github.com/jbeder/yaml-cpp)
 
 ```CMake
+# as the tag is in an unusual format, we need to explicitly specify the version
 CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.6.3@0.6.3")
 ```
 
@@ -297,6 +298,7 @@ CPMAddPackage("gh:ericniebler/range-v3#0.11.0")
 ### [cxxopts](https://github.com/jarro2783/cxxopts)
 
 ```cmake
+# the install option has to be explicitly set to allow installation
 CPMAddPackage(
   GITHUB_REPOSITORY jarro2783/cxxopts
   VERSION 2.2.1
