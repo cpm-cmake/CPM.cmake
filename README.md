@@ -283,16 +283,21 @@ CPMAddPackage("gh:Orphis/boost-cmake@1.67.0")
 CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.6.3@0.6.3")
 ```
 
-### [nlohmann/json](https://github.com/nlohmann/json)
-
-```cmake
-CPMAddPackage("gh:nlohmann/json@3.9.1")
-```
-
 ### [Range-v3](https://github.com/ericniebler/range-v3)
 
 ```Cmake
 CPMAddPackage("gh:ericniebler/range-v3#0.11.0")
+```
+
+### [nlohmann/json](https://github.com/nlohmann/json)
+
+```cmake
+CPMAddPackage(
+  NAME nlohmann_json
+  VERSION 3.9.1
+  OPTIONS 
+    "JSON_BuildTests OFF"
+)
 ```
 
 ### [cxxopts](https://github.com/jarro2783/cxxopts)
