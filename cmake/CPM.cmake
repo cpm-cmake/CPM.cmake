@@ -271,12 +271,16 @@ function(cpm_check_if_package_already_added CPM_ARGS_NAME CPM_ARGS_VERSION CPM_A
           "${CPM_INDENT} requires a newer version of ${CPM_ARGS_NAME} (${CPM_ARGS_VERSION}) than currently included (${CPM_PACKAGE_VERSION})."
       )
     endif()
-  
+
     if(CPM_ARGS_OPTIONS)
-      get_property(OPTIONS_ARE_DEFINED GLOBAL PROPERTY CPM_PACKAGE_${CPM_ARGS_NAME}_OPTIONS SET)
+      get_property(
+        OPTIONS_ARE_DEFINED GLOBAL
+        PROPERTY CPM_PACKAGE_${CPM_ARGS_NAME}_OPTIONS
+        SET
+      )
       if(OPTIONS_ARE_DEFINED)
-        CPMGetPackageOptions(${CPM_ARGS_NAME} CPM_ARGS_OPTIONS_DEFINED)
-        CPMGetPackageOptions(${CPM_ARGS_NAME} CPM_ARGS_OPTIONS_DEFINED_COPY)
+        cpmgetpackageoptions(${CPM_ARGS_NAME} CPM_ARGS_OPTIONS_DEFINED)
+        cpmgetpackageoptions(${CPM_ARGS_NAME} CPM_ARGS_OPTIONS_DEFINED_COPY)
         foreach(OPTION ${CPM_ARGS_OPTIONS})
           cpm_parse_option(${OPTION})
           set(OPTION_KEY_NEW ${OPTION_KEY})
@@ -309,13 +313,13 @@ function(cpm_check_if_package_already_added CPM_ARGS_NAME CPM_ARGS_VERSION CPM_A
         foreach(OPTION ${CPM_ARGS_OPTIONS_DEFINED_COPY})
           cpm_parse_option(${OPTION})
           message(
-              WARNING
-                "${CPM_INDENT} package option for ${CPM_ARGS_NAME}: ${OPTION_KEY} = ${OPTION_VALUE} as been unset."
-            )
+            WARNING
+              "${CPM_INDENT} package option for ${CPM_ARGS_NAME}: ${OPTION_KEY} = ${OPTION_VALUE} was present in the first call."
+          )
         endforeach()
       endif()
     endif()
-  
+
     cpm_get_fetch_properties(${CPM_ARGS_NAME})
     set(${CPM_ARGS_NAME}_ADDED NO)
     set(CPM_PACKAGE_ALREADY_ADDED
@@ -727,7 +731,7 @@ function(CPMGetPackageOptions PACKAGE OUTPUT)
       "${OPTIONS}"
       PARENT_SCOPE
   )
-  
+
 endfunction()
 # declares a package in FetchContent_Declare
 function(cpm_declare_fetch PACKAGE VERSION INFO)
@@ -831,12 +835,21 @@ function(cpm_parse_option OPTION)
       PARENT_SCOPE
   )
   # https://cmake.org/cmake/help/latest/command/if.html#basic-expressions (1/0 is problematic)
-  if(${OPTION_VALUE} STREQUAL "YES" OR ${OPTION_VALUE} STREQUAL "ON" OR ${OPTION_VALUE} STREQUAL "TRUE" OR ${OPTION_VALUE} STREQUAL "Y")
+  if(${OPTION_VALUE} STREQUAL "YES"
+     OR ${OPTION_VALUE} STREQUAL "ON"
+     OR ${OPTION_VALUE} STREQUAL "TRUE"
+     OR ${OPTION_VALUE} STREQUAL "Y"
+  )
     set(OPTION_VALUE
         "ON"
         PARENT_SCOPE
     )
-  elseif(${OPTION_VALUE} STREQUAL "NO" OR ${OPTION_VALUE} STREQUAL "OFF" OR ${OPTION_VALUE} STREQUAL "FALSE" OR ${OPTION_VALUE} STREQUAL "N")
+  elseif(
+    ${OPTION_VALUE} STREQUAL "NO"
+    OR ${OPTION_VALUE} STREQUAL "OFF"
+    OR ${OPTION_VALUE} STREQUAL "FALSE"
+    OR ${OPTION_VALUE} STREQUAL "N"
+  )
     set(OPTION_VALUE
         "OFF"
         PARENT_SCOPE
