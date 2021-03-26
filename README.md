@@ -276,6 +276,24 @@ CPMAddPackage("gh:catchorg/Catch2@2.5.0")
 CPMAddPackage("gh:Orphis/boost-cmake@1.67.0")
 ```
 
+### [Yaml-cpp](https://github.com/jbeder/yaml-cpp)
+
+```CMake
+CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.6.3@0.6.3")
+```
+
+### [nlohmann/json](https://github.com/nlohmann/json)
+
+```cmake
+CPMAddPackage("gh:nlohmann/json@3.9.1")
+```
+
+### [Range-v3](https://github.com/ericniebler/range-v3)
+
+```Cmake
+CPMAddPackage("gh:ericniebler/range-v3#0.11.0")
+```
+
 ### [cxxopts](https://github.com/jarro2783/cxxopts)
 
 ```cmake
@@ -284,12 +302,6 @@ CPMAddPackage(
   VERSION 2.2.1
   OPTIONS "CXXOPTS_BUILD_EXAMPLES NO" "CXXOPTS_BUILD_TESTS NO" "CXXOPTS_ENABLE_INSTALL YES"
 )
-```
-
-### [Yaml-cpp](https://github.com/jbeder/yaml-cpp)
-
-```CMake
-CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.6.3@0.6.3")
 ```
 
 ### [google/benchmark](https://github.com/google/benchmark)
@@ -305,40 +317,6 @@ CPMAddPackage(
 if(benchmark_ADDED)
   # enable c++11 to avoid compilation errors
   set_target_properties(benchmark PROPERTIES CXX_STANDARD 11)
-endif()
-```
-
-### [nlohmann/json](https://github.com/nlohmann/json)
-
-```cmake
-CPMAddPackage(
-  NAME nlohmann_json
-  VERSION 3.6.1
-  # the git repo is incredibly large, so we download the archived include directory
-  URL https://github.com/nlohmann/json/releases/download/v3.6.1/include.zip
-  URL_HASH SHA256=69cc88207ce91347ea530b227ff0776db82dcb8de6704e1a3d74f4841bc651cf
-)
-
-if (nlohmann_json_ADDED)
-  add_library(nlohmann_json INTERFACE IMPORTED)
-  target_include_directories(nlohmann_json INTERFACE ${nlohmann_json_SOURCE_DIR})
-endif()
-```
-
-### [Range-v3](https://github.com/ericniebler/range-v3)
-
-```Cmake
-CPMAddPackage(
-  NAME range-v3
-  URL https://github.com/ericniebler/range-v3/archive/0.5.0.zip
-  VERSION 0.5.0
-  # the range-v3 CMakeLists screws with configuration options
-  DOWNLOAD_ONLY True
-)
-
-if(range-v3_ADDED)
-  add_library(range-v3 INTERFACE IMPORTED)
-  target_include_directories(range-v3 INTERFACE "${range-v3_SOURCE_DIR}/include")
 endif()
 ```
 

@@ -6,18 +6,7 @@ project(CPMRangev3Example)
 
 include(../../cmake/CPM.cmake)
 
-CPMAddPackage(
-  NAME range-v3
-  URL https://github.com/ericniebler/range-v3/archive/0.11.0.zip
-  VERSION 0.11.0
-  # the range-v3 CMakeLists screws with configuration options
-  DOWNLOAD_ONLY True
-)
-
-if(range-v3_ADDED)
-  add_library(range-v3 INTERFACE IMPORTED)
-  target_include_directories(range-v3 SYSTEM INTERFACE "${range-v3_SOURCE_DIR}/include")
-endif()
+CPMAddPackage("gh:ericniebler/range-v3#0.11.0")
 
 # ---- Executable ----
 
