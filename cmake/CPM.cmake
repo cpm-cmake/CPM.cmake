@@ -271,53 +271,51 @@ function(cpm_check_if_package_already_added CPM_ARGS_NAME CPM_ARGS_VERSION CPM_A
           "${CPM_INDENT} requires a newer version of ${CPM_ARGS_NAME} (${CPM_ARGS_VERSION}) than currently included (${CPM_PACKAGE_VERSION})."
       )
     endif()
-
-    if(CPM_ARGS_OPTIONS)
-      get_property(
-        OPTIONS_ARE_DEFINED GLOBAL
-        PROPERTY CPM_PACKAGE_${CPM_ARGS_NAME}_OPTIONS
-        SET
-      )
-      if(OPTIONS_ARE_DEFINED)
-        CPMGetPackageOptions(${CPM_ARGS_NAME} CPM_ARGS_OPTIONS_DEFINED)
-        CPMGetPackageOptions(${CPM_ARGS_NAME} CPM_ARGS_OPTIONS_DEFINED_COPY)
-        foreach(OPTION ${CPM_ARGS_OPTIONS})
-          cpm_parse_option(${OPTION})
-          set(OPTION_KEY_NEW ${OPTION_KEY})
-          set(OPTION_VALUE_NEW ${OPTION_VALUE})
-          set(ITERATION "0")
-          foreach(OPTION_DEFINED ${CPM_ARGS_OPTIONS_DEFINED})
-            cpm_parse_option(${OPTION_DEFINED})
-            set(OPTION_KEY_OLD ${OPTION_KEY})
-            set(OPTION_VALUE_OLD ${OPTION_VALUE})
-            if(${OPTION_KEY_OLD} STREQUAL ${OPTION_KEY_NEW})
-              list(REMOVE_ITEM CPM_ARGS_OPTIONS_DEFINED_COPY "${OPTION_DEFINED}")
-              if(NOT ${OPTION_VALUE_OLD} STREQUAL ${OPTION_VALUE_NEW})
-                message(
-                  WARNING
-                    "${CPM_INDENT} ignoring package option for ${CPM_ARGS_NAME}: ${OPTION_KEY_OLD} = ${OPTION_VALUE_NEW} (${OPTION_VALUE_OLD})"
-                )
-              endif()
-            else()
-              math(EXPR ITERATION "${ITERATION}+1")
+    
+    get_property(
+      OPTIONS_ARE_DEFINED GLOBAL
+      PROPERTY CPM_PACKAGE_${CPM_ARGS_NAME}_OPTIONS
+      SET
+    )
+    if(OPTIONS_ARE_DEFINED)
+      CPMGetPackageOptions(${CPM_ARGS_NAME} CPM_ARGS_OPTIONS_DEFINED)
+      CPMGetPackageOptions(${CPM_ARGS_NAME} CPM_ARGS_OPTIONS_DEFINED_COPY)
+      foreach(OPTION ${CPM_ARGS_OPTIONS})
+        cpm_parse_option(${OPTION})
+        set(OPTION_KEY_NEW ${OPTION_KEY})
+        set(OPTION_VALUE_NEW ${OPTION_VALUE})
+        set(ITERATION "0")
+        foreach(OPTION_DEFINED ${CPM_ARGS_OPTIONS_DEFINED})
+          cpm_parse_option(${OPTION_DEFINED})
+          set(OPTION_KEY_OLD ${OPTION_KEY})
+          set(OPTION_VALUE_OLD ${OPTION_VALUE})
+          if(${OPTION_KEY_OLD} STREQUAL ${OPTION_KEY_NEW})
+            list(REMOVE_ITEM CPM_ARGS_OPTIONS_DEFINED_COPY "${OPTION_DEFINED}")
+            if(NOT ${OPTION_VALUE_OLD} STREQUAL ${OPTION_VALUE_NEW})
+              message(
+                WARNING
+                  "${CPM_INDENT} ignoring package option for ${CPM_ARGS_NAME}: ${OPTION_KEY_OLD} = ${OPTION_VALUE_NEW} (${OPTION_VALUE_OLD})"
+              )
             endif()
-          endforeach()
-          list(LENGTH CPM_ARGS_OPTIONS_DEFINED OPTIONS_LENGTH)
-          if(${OPTIONS_LENGTH} STREQUAL ${ITERATION})
-            message(
-              WARNING
-                "${CPM_INDENT} ignoring package option for ${CPM_ARGS_NAME}: ${OPTION_KEY_NEW} = ${OPTION_VALUE_NEW}"
-            )
+          else()
+            math(EXPR ITERATION "${ITERATION}+1")
           endif()
         endforeach()
-        foreach(OPTION ${CPM_ARGS_OPTIONS_DEFINED_COPY})
-          cpm_parse_option(${OPTION})
+        list(LENGTH CPM_ARGS_OPTIONS_DEFINED OPTIONS_LENGTH)
+        if(${OPTIONS_LENGTH} STREQUAL ${ITERATION})
           message(
             WARNING
-              "${CPM_INDENT} package option for ${CPM_ARGS_NAME}: ${OPTION_KEY} = ${OPTION_VALUE} was present in the first call."
+              "${CPM_INDENT} ignoring package option for ${CPM_ARGS_NAME}: ${OPTION_KEY_NEW} = ${OPTION_VALUE_NEW}"
           )
-        endforeach()
-      endif()
+        endif()
+      endforeach()
+      foreach(OPTION ${CPM_ARGS_OPTIONS_DEFINED_COPY})
+        cpm_parse_option(${OPTION})
+        message(
+          WARNING
+            "${CPM_INDENT} package option for ${CPM_ARGS_NAME}: ${OPTION_KEY} = ${OPTION_VALUE} was present in the first call."
+        )
+      endforeach()
     endif()
 
     cpm_get_fetch_properties(${CPM_ARGS_NAME})
@@ -332,9 +330,7 @@ function(cpm_check_if_package_already_added CPM_ARGS_NAME CPM_ARGS_VERSION CPM_A
         NO
         PARENT_SCOPE
     )
-    if(CPM_ARGS_OPTIONS)
-      set_property(GLOBAL PROPERTY CPM_PACKAGE_${CPM_ARGS_NAME}_OPTIONS "${CPM_ARGS_OPTIONS}")
-    endif()
+    set_property(GLOBAL PROPERTY CPM_PACKAGE_${CPM_ARGS_NAME}_OPTIONS "${CPM_ARGS_OPTIONS}")
   endif()
 endfunction()
 
