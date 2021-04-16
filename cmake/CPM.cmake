@@ -512,6 +512,13 @@ function(CPMAddPackage)
     set(PACKAGE_INFO "${CPM_ARGS_VERSION}")
   endif()
 
+  if(DEFINED FETCHCONTENT_BASE_DIR)
+    # respect user's FETCHCONTENT_BASE_DIR if set
+    set(CPM_FETCHCONTENT_BASE_DIR ${FETCHCONTENT_BASE_DIR})
+  else()
+    set(CPM_FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/_deps)
+  endif()
+
   if(DEFINED CPM_ARGS_DOWNLOAD_COMMAND)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS DOWNLOAD_COMMAND ${CPM_ARGS_DOWNLOAD_COMMAND})
   elseif(DEFINED CPM_ARGS_SOURCE_DIR)
@@ -525,7 +532,7 @@ function(CPMAddPackage)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${download_directory})
     if(EXISTS ${download_directory})
       # avoid FetchContent modules to improve performance
-      set(${CPM_ARGS_NAME}_BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/${lower_case_name}-build)
+      set(${CPM_ARGS_NAME}_BINARY_DIR ${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-build)
       set(${CPM_ARGS_NAME}_ADDED YES)
       set(${CPM_ARGS_NAME}_SOURCE_DIR ${download_directory})
       cpm_add_subdirectory(
@@ -546,7 +553,7 @@ function(CPMAddPackage)
       endif()
 
       # remove timestamps so CMake will re-download the dependency
-      file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/_deps/${lower_case_name}-subbuild)
+      file(REMOVE_RECURSE ${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-subbuild)
       set(PACKAGE_INFO "${PACKAGE_INFO} to ${download_directory}")
     endif()
   endif()
