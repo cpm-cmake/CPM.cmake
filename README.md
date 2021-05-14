@@ -273,10 +273,8 @@ CPMAddPackage("gh:catchorg/Catch2@2.5.0")
 ### [Boost (via boost-cmake)](https://github.com/Orphis/boost-cmake)
 
 ```CMake
-# boost-cmake currently doesn't tag versions
-CPMAddPackage(
-  "gh:Orphis/boost-cmake#7f97a08b64bd5d2e53e932ddf80c40544cf45edf@1.71.0"
-)
+# boost-cmake currently doesn't tag versions, so we use the according boost version
+CPMAddPackage("gh:Orphis/boost-cmake#7f97a08b64bd5d2e53e932ddf80c40544cf45edf@1.71.0")
 ```
 
 ### [Yaml-cpp](https://github.com/jbeder/yaml-cpp)
