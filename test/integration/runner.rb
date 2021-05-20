@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'open3'
 
 CPMPath = File.expand_path('../../cmake/CPM.cmake')
 raise "Cannot file 'CPM.cmake' at '#{CPMPath}'" if !File.file?(CPMPath)
@@ -12,22 +13,58 @@ CMAKE
 TestDir = File.expand_path("./tmp/#{Time.now.strftime('%Y_%m_%d-%H_%M_%S')}")
 raise "Test directory '#{TestDir}' already exists" if File.exist?(TestDir)
 
+class CMakeListsBuilder
+  def initialize
+    @contents = ''
+  end
+  def literal(lit)
+    @contents += lit + "\n";
+    self
+  end
+  def package(pack)
+    literal "CPMAddPackage(#{pack})"
+  end
+  def exe(exe, sources)
+    @contents += "add_executable(#{exe}\n"
+    @contents += sources.map { |src|
+      '  ' + if src['/']
+        src
+      else
+        File.expand_path("./#{src}")
+      end
+    }.join("\n")
+    @contents += "\n)\n"
+    self
+  end
+  def link_libs(target, libs)
+    literal "target_link_libraries(#{target} #{libs})\n"
+  end
+  def to_s
+    @contents
+  end
+end
+
 class Project
   def initialize(name)
     @name = name
     @dir = File.join(TestDir, name)
 
-    @lists = CommonHeader + "project(#{name})\n"
-
     FileUtils.mkdir_p(File.join(TestDir, name))
   end
 
-  def set_body(body)
-    @lists += "\n" + body + "\n"
+  def build_cmake_lists(opts = {}, &block)
+    builder = CMakeListsBuilder.new
+    if !opts[:no_default_header]
+      builder.literal(CommonHeader)
+      builder.literal("project(#{@name})")
+    end
+    text = builder.instance_eval &block
+
+    File.write(File.join(@dir, 'CMakeLists.txt'), text)
   end
 
-  def configure()
-    File.write(File.join(@dir, 'CMakeLists.txt'), @lists)
+  def configure(args = '')
+    our, err, s = Open3.capture3("cmake . #{args}", chdir: @dir)
   end
 end
 
