@@ -466,10 +466,12 @@ function(CPMAddPackage)
     set(PACKAGE_SOURCE ${CPM_${CPM_ARGS_NAME}_SOURCE})
     set(CPM_${CPM_ARGS_NAME}_SOURCE "")
     CPMAddPackage(
-      NAME ${CPM_ARGS_NAME}
-      SOURCE_DIR ${PACKAGE_SOURCE}
+      NAME "${CPM_ARGS_NAME}"
+      SOURCE_DIR "${PACKAGE_SOURCE}"
       FORCE True
-      OPTIONS ${CPM_ARGS_OPTIONS}
+      EXCLUDE_FROM_ALL "${CPM_ARGS_EXCLUDE_FROM_ALL}"
+      OPTIONS "${CPM_ARGS_OPTIONS}"
+      SOURCE_SUBDIR "${CPM_ARGS_SOURCE_SUBDIR}"
     )
     cpm_export_variables(${CPM_ARGS_NAME})
     return()
