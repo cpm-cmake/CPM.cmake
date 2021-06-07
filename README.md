@@ -44,7 +44,6 @@ CPMAddPackage(
 The origin may be specified by a `GIT_REPOSITORY`, but other sources, such as direct URLs, are [also supported](https://cmake.org/cmake/help/v3.11/module/ExternalProject.html#external-project-definition).
 If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for git projects.
 On the other hand, if `VERSION` hasn't been explicitly specified, CPM can automatically identify the version from the git tag in some common cases.
-`GIT_TAG` can also be set to a specific commit or a branch name such as `master` to always download the most recent version.
 
 If an additional optional parameter `EXCLUDE_FROM_ALL` is set to a truthy value, then any targets defined inside the dependency won't be built by default. See the [CMake docs](https://cmake.org/cmake/help/latest/prop_tgt/EXCLUDE_FROM_ALL.html) for details.
 
@@ -53,7 +52,7 @@ A single-argument compact syntax is also supported:
 ```cmake
 # A git package from a given uri with a version
 CPMAddPackage("uri@version")
-# A git package from a given uri with a git tag or commit hash, or branch name
+# A git package from a given uri with a git tag or commit hash
 CPMAddPackage("uri#tag")
 # A git package with both version and tag provided
 CPMAddPackage("uri@version#tag")
