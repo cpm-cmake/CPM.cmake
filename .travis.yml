@@ -36,8 +36,7 @@ before_install:
   # Update compilers
   - eval "${MATRIX_EVAL}"
   - echo "CC=$CC CXX=$CXX"
-  # Install a supported cmake version (>= 3.14)
-  - wget -O cmake.sh https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh
+  - wget -O cmake.sh https://github.com/Kitware/CMake/releases/download/v3.20.3/cmake-3.20.3-linux-x86_64.sh
   - sudo sh cmake.sh --skip-license --exclude-subdir --prefix=/usr/local
   - export PATH=/usr/local/bin:$PATH
   - cmake --version
