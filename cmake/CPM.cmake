@@ -531,6 +531,9 @@ function(CPMAddPackage)
     list(SORT origin_parameters)
     string(SHA1 origin_hash "${origin_parameters}")
     set(download_directory ${CPM_SOURCE_CACHE}/${lower_case_name}/${origin_hash})
+    # Expand `download_directory` relative path. This is important because EXISTS doesn't work for
+    # relative paths.
+    get_filename_component(download_directory ${download_directory} ABSOLUTE)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${download_directory})
     if(EXISTS ${download_directory})
       # avoid FetchContent modules to improve performance
