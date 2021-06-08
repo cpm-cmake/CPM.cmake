@@ -30,6 +30,12 @@ assert_equal("GITLAB_REPOSITORY;foo/bar" "${args}")
 cpm_parse_add_package_single_arg("gl:foo/Bar" args)
 assert_equal("GITLAB_REPOSITORY;foo/Bar" "${args}")
 
+cpm_parse_add_package_single_arg("bb:foo/bar" args)
+assert_equal("BITBUCKET_REPOSITORY;foo/bar" "${args}")
+
+cpm_parse_add_package_single_arg("bb:foo/Bar" args)
+assert_equal("BITBUCKET_REPOSITORY;foo/Bar" "${args}")
+
 cpm_parse_add_package_single_arg("https://github.com/cpm-cmake/CPM.cmake.git@0.30.5" args)
 assert_equal("GIT_REPOSITORY;https://github.com/cpm-cmake/CPM.cmake.git;VERSION;0.30.5" "${args}")
 
