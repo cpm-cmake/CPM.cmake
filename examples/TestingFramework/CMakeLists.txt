@@ -4,7 +4,4 @@ project(CPMTestingFrameworkExample)
 
 include(../../cmake/CPM.cmake)
 CPMAddPackage("bb:HEMRND/TestingFramework@0.4.0")
-
-add_test_suites(
-        TESTS SomeTest
-        LINK_LIBRARIES ${PACKAGE_NAME})
+add_test_suites(TESTS SomeTest)
