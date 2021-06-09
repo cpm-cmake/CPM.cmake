@@ -156,7 +156,7 @@ CPM.cmake is a wrapper for CMake's FetchContent module and adds a number of feat
 The most notable features are:
 
 - A simpler to use API
-- Version checking: CPM.cmake will check the version number of any added dependency and omit a warning if another dependency requires a more recent version.
+- Version checking: CPM.cmake will check the version number of any added dependency and emit a warning if another dependency requires a more recent version.
 - Offline builds: CPM.cmake will override CMake's download and update commands, which allows new builds to be configured while offline if all dependencies [are available locally](#cpm_source_cache).
 - Automatic shallow clone: if a version tag (e.g. `v2.2.0`) is provided and `CPM_SOURCE_CACHE` is used, CPM.cmake will perform a shallow clone of the dependency, which should be significantly faster while using less storage than a full clone.
 - Overridable: all `CPMAddPackage` can be configured to use `find_package` by setting a [CMake flag](#cpm_use_local_packages), making it easy to integrate into projects that may require local versioning through the system's package manager.
