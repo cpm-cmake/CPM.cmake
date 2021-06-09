@@ -302,6 +302,9 @@ function(cpm_parse_add_package_single_arg arg outArgs)
     elseif(scheme STREQUAL "gl")
       set(out "GITLAB_REPOSITORY;${uri}")
       set(packageType "git")
+    elseif(scheme STREQUAL "bb")
+      set(out "BITBUCKET_REPOSITORY;${uri}")
+      set(packageType "git")
       # A CPM-specific scheme was not found. Looks like this is a generic URL so try to determine
       # type
     elseif(arg MATCHES ".git/?(@|#|$)")
@@ -369,6 +372,7 @@ function(CPMAddPackage)
       DOWNLOAD_ONLY
       GITHUB_REPOSITORY
       GITLAB_REPOSITORY
+      BITBUCKET_REPOSITORY
       GIT_REPOSITORY
       SOURCE_DIR
       DOWNLOAD_COMMAND
@@ -399,10 +403,10 @@ function(CPMAddPackage)
 
   if(DEFINED CPM_ARGS_GITHUB_REPOSITORY)
     set(CPM_ARGS_GIT_REPOSITORY "https://github.com/${CPM_ARGS_GITHUB_REPOSITORY}.git")
-  endif()
-
-  if(DEFINED CPM_ARGS_GITLAB_REPOSITORY)
+  elseif(DEFINED CPM_ARGS_GITLAB_REPOSITORY)
     set(CPM_ARGS_GIT_REPOSITORY "https://gitlab.com/${CPM_ARGS_GITLAB_REPOSITORY}.git")
+  elseif(DEFINED CPM_ARGS_BITBUCKET_REPOSITORY)
+    set(CPM_ARGS_GIT_REPOSITORY "https://bitbucket.org/${CPM_ARGS_BITBUCKET_REPOSITORY}.git")
   endif()
 
   if(DEFINED CPM_ARGS_GIT_REPOSITORY)
@@ -531,6 +535,9 @@ function(CPMAddPackage)
     list(SORT origin_parameters)
     string(SHA1 origin_hash "${origin_parameters};NEW_CACHE_STRUCTURE_TAG")
     set(download_directory ${CPM_SOURCE_CACHE}/${lower_case_name}/${origin_hash}/${CPM_ARGS_NAME})
+    # Expand `download_directory` relative path. This is important because EXISTS doesn't work for
+    # relative paths.
+    get_filename_component(download_directory ${download_directory} ABSOLUTE)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${download_directory})
     if(EXISTS ${download_directory})
       # avoid FetchContent modules to improve performance
