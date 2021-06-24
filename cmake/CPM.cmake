@@ -354,6 +354,32 @@ function(cpm_parse_add_package_single_arg arg outArgs)
   )
 endfunction()
 
+# Check that the working directory for a git repo is clean
+function(cpm_check_git_working_dir_is_clean repoPath isClean)
+  # Not sure this check is necessary given git is probably key to the rest of the script
+  find_package(Git REQUIRED)
+
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} status --porcelain
+    RESULT_VARIABLE result
+    OUTPUT_VARIABLE status
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    WORKING_DIRECTORY ${repoPath}
+  )
+
+  if(result)
+    message(FATAL_ERROR "Calling git status on folder ${repoPath} failed")
+  endif()
+
+  if("${status}" STREQUAL "")
+    set(${isClean} TRUE PARENT_SCOPE)
+  else()
+    set(${isClean} FALSE PARENT_SCOPE)
+  endif()
+
+endfunction()
+
+
 # Download and add a package from source
 function(CPMAddPackage)
   list(LENGTH ARGN argnLength)
@@ -544,6 +570,13 @@ function(CPMAddPackage)
       set(${CPM_ARGS_NAME}_BINARY_DIR ${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-build)
       set(${CPM_ARGS_NAME}_ADDED YES)
       set(${CPM_ARGS_NAME}_SOURCE_DIR ${download_directory})
+
+      # warn if cache has been changed since checkout
+      cpm_check_git_working_dir_is_clean(${download_directory} IS_CLEAN)
+      if(NOT ${IS_CLEAN})
+        message(WARNING "Cache for ${CPM_ARGS_NAME} (${download_directory}) is dirty")
+      endif()
+
       cpm_add_subdirectory(
         "${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}"
         "${${CPM_ARGS_NAME}_SOURCE_DIR}/${CPM_ARGS_SOURCE_SUBDIR}" "${${CPM_ARGS_NAME}_BINARY_DIR}"
