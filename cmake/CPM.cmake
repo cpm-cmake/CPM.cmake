@@ -76,9 +76,10 @@ option(CPM_INCLUDE_ALL_IN_PACKAGE_LOCK
        "Add all packages added through CPM.cmake to the package lock"
        $ENV{CPM_INCLUDE_ALL_IN_PACKAGE_LOCK}
 )
-option(CPM_USE_NAMED_CACHE_DIRECTORIES "Use additional directory of package name in cache on the most nested level."
-        $ENV{CPM_USE_NAMED_CACHE_DIRECTORIES}
-        )
+option(CPM_USE_NAMED_CACHE_DIRECTORIES
+       "Use additional directory of package name in cache on the most nested level."
+       $ENV{CPM_USE_NAMED_CACHE_DIRECTORIES}
+)
 
 set(CPM_VERSION
     ${CURRENT_CPM_VERSION}
