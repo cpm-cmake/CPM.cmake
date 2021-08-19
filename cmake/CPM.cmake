@@ -355,7 +355,7 @@ function(cpm_parse_add_package_single_arg arg outArgs)
 endfunction()
 
 # Check that the working directory for a git repo is clean
-function(cpm_check_git_working_dir_is_clean repoPath isClean)
+function(cpm_check_working_dir_is_clean repoPath isClean)
   # Not sure this check is necessary given git is probably key to the rest of the script
   find_package(Git REQUIRED)
 
@@ -367,11 +367,11 @@ function(cpm_check_git_working_dir_is_clean repoPath isClean)
     WORKING_DIRECTORY ${repoPath}
   )
 
+  # Not a git repo. for now, assume the directory is clean
   if(result)
-    message(FATAL_ERROR "Calling git status on folder ${repoPath} failed")
-  endif()
-
-  if("${status}" STREQUAL "")
+    message(STATUS "${repoPath} is not a git repo, can't check if it's clean")
+    set(${isClean} TRUE PARENT_SCOPE)
+  elseif("${status}" STREQUAL "")
     set(${isClean} TRUE PARENT_SCOPE)
   else()
     set(${isClean} FALSE PARENT_SCOPE)
@@ -572,7 +572,7 @@ function(CPMAddPackage)
       set(${CPM_ARGS_NAME}_SOURCE_DIR ${download_directory})
 
       # warn if cache has been changed since checkout
-      cpm_check_git_working_dir_is_clean(${download_directory} IS_CLEAN)
+      cpm_check_working_dir_is_clean(${download_directory} IS_CLEAN)
       if(NOT ${IS_CLEAN})
         message(WARNING "Cache for ${CPM_ARGS_NAME} (${download_directory}) is dirty")
       endif()
