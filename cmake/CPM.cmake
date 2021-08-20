@@ -364,12 +364,13 @@ function(cpm_check_working_dir_is_clean repoPath isClean)
     RESULT_VARIABLE result
     OUTPUT_VARIABLE status
     OUTPUT_STRIP_TRAILING_WHITESPACE
+	ERROR_QUIET
     WORKING_DIRECTORY ${repoPath}
   )
 
   # Not a git repo. for now, assume the directory is clean
   if(result)
-    message(STATUS "${repoPath} is not a git repo, can't check if it's clean")
+    message(STATUS "not a git repo, can't check if clean:  ${repoPath}")
     set(${isClean} TRUE PARENT_SCOPE)
   elseif("${status}" STREQUAL "")
     set(${isClean} TRUE PARENT_SCOPE)
