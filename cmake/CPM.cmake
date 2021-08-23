@@ -364,7 +364,7 @@ function(cpm_check_working_dir_is_clean repoPath isClean)
     RESULT_VARIABLE result
     OUTPUT_VARIABLE status
     OUTPUT_STRIP_TRAILING_WHITESPACE
-	ERROR_QUIET
+    ERROR_QUIET
     WORKING_DIRECTORY ${repoPath}
   )
 
