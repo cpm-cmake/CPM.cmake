@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: run tests
+      - name: build all
         env:
           CC: gcc
           CXX: g++
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: run tests
+      - name: build all
         env:
           CC: clang
           CXX: clang++
