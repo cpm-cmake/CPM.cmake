@@ -196,6 +196,11 @@ These options can also be set as environmental variables.
 
 In the case that `find_package` requires additional arguments, the parameter `FIND_PACKAGE_ARGUMENTS` may be specified in the `CPMAddPackage` call. The value of this parameter will be forwarded to `find_package`.
 
+### CPM_USE_NAMED_CACHE_DIRECTORIES
+
+If set, CPM use additional directory level in cache to improve readability of packages names in IDEs like CLion. It changes cache structure, so all dependencies are downloaded again. There is no problem to mix both structures in one cache directory but then there may be 2 copies of some dependencies.
+This can also be set as an environmental variable.
+
 ## Local package override
 
 Library developers are often in the situation where they work on a locally checked out dependency at the same time as on a consumer project.
