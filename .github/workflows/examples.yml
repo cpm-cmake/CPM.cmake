@@ -1,0 +1,30 @@
+name: Examples
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: build all
+        env:
+          CC: gcc
+          CXX: g++
+        run: python3 examples/build_all.py
+
+  clang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: build all
+        env:
+          CC: clang
+          CXX: clang++
+        run: python3 examples/build_all.py
