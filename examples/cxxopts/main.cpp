@@ -3,8 +3,14 @@
 
 int main(int argc, char** argv) {
   cxxopts::Options options("MyProgram", "One line description of MyProgram");
-  options.add_options()("h,help", "Show help")(
-      "d,debug", "Enable debugging")("f,file", "File name", cxxopts::value<std::string>());
+
+  // clang-format off
+  options.add_options()
+    ("h,help", "Show help")
+    ("d,debug", "Enable debugging")
+    ("f,file", "File name", cxxopts::value<std::string>()
+  );
+  // clang-format on
 
   auto result = options.parse(argc, argv);
 
