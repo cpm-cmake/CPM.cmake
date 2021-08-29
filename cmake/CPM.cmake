@@ -223,7 +223,7 @@ function(cpm_create_module_file Name)
   if(NOT CPM_DONT_UPDATE_MODULE_PATH)
     # erase any previous modules
     file(WRITE ${CPM_MODULE_PATH}/Find${Name}.cmake
-         "include(${CPM_FILE})\n${ARGN}\nset(${Name}_FOUND TRUE)"
+         "include(\"${CPM_FILE}\")\n${ARGN}\nset(${Name}_FOUND TRUE)"
     )
   endif()
 endfunction()
