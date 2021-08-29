@@ -587,12 +587,14 @@ function(CPMAddPackage)
     cpm_declare_fetch(
       "${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
     )
-    cpm_fetch_package("${CPM_ARGS_NAME}")
-    cpm_add_subdirectory(
-      "${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}"
-      "${${CPM_ARGS_NAME}_SOURCE_DIR}/${CPM_ARGS_SOURCE_SUBDIR}" "${${CPM_ARGS_NAME}_BINARY_DIR}"
-      "${CPM_ARGS_EXCLUDE_FROM_ALL}" "${CPM_ARGS_OPTIONS}"
-    )
+    cpm_fetch_package("${CPM_ARGS_NAME}" populated)
+    if(${populated})
+      cpm_add_subdirectory(
+        "${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}"
+        "${${CPM_ARGS_NAME}_SOURCE_DIR}/${CPM_ARGS_SOURCE_SUBDIR}" "${${CPM_ARGS_NAME}_BINARY_DIR}"
+        "${CPM_ARGS_EXCLUDE_FROM_ALL}" "${CPM_ARGS_OPTIONS}"
+      )
+    endif()
     cpm_get_fetch_properties("${CPM_ARGS_NAME}")
   endif()
 
@@ -750,7 +752,11 @@ endfunction()
 
 # downloads a previously declared package via FetchContent and exports the variables
 # `${PACKAGE}_SOURCE_DIR` and `${PACKAGE}_BINARY_DIR` to the parent scope
-function(cpm_fetch_package PACKAGE)
+function(cpm_fetch_package PACKAGE populated)
+  set(${populated}
+      FALSE
+      PARENT_SCOPE
+  )
   if(${CPM_DRY_RUN})
     message(STATUS "${CPM_INDENT} package ${PACKAGE} not fetched (dry run)")
     return()
@@ -758,11 +764,16 @@ function(cpm_fetch_package PACKAGE)
 
   FetchContent_GetProperties(${PACKAGE})
 
+  string(TOLOWER "${PACKAGE}" lower_case_name)
+
   if(NOT ${lower_case_name}_POPULATED)
     FetchContent_Populate(${PACKAGE})
+    set(${populated}
+        TRUE
+        PARENT_SCOPE
+    )
   endif()
 
-  string(TOLOWER "${PACKAGE}" lower_case_name)
   set(${PACKAGE}_SOURCE_DIR
       ${${lower_case_name}_SOURCE_DIR}
       PARENT_SCOPE
