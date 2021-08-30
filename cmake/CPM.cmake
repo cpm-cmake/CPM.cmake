@@ -388,8 +388,8 @@ function(cpm_check_working_dir_is_clean repoPath isClean)
   # remove trailing .git
   get_filename_component(gitFolderPath "${gitFolderPath}" DIRECTORY)
   if(NOT "${repoPath}" STREQUAL "${gitFolderPath}")
-    # edge case: not the repo base folder. maybe the cache is under a git repository assume clean
-	set(${isClean}
+    # edge case: not the repo base folder. maybe the cache is under a git repository. assume clean
+    set(${isClean}
         TRUE
         PARENT_SCOPE
     )
