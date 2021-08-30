@@ -1,0 +1,38 @@
+# ~~~
+#    ┌────────────────────────┐
+#    │ FetchContentDependency │
+#    └─────┬────────────┬─────┘
+#          │1.          │3.
+#          │            │
+# ┌────────▼────┐   ┌───▼─────────┐
+# │ Dependency  ├───►  Fibonacci  │
+# └─────────────┘2. └─────────────┘
+#
+# 1. Add Project with CPMAddPackage
+# 2. Dependency will add Fibonacci with FetchContent
+# 3. Our project add Fibonacci with CPMAddPackage
+# ~~~
+
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+
+project(CPMTest_FetchContentDependency)
+
+# ---- Dependencies ----
+
+include(@CPM_PATH@/CPM.cmake)
+
+# 1 & 2 Dependency will add Fibonacci using FetchContent (1 & 2)
+CPMAddPackage(NAME Dependency SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/dependency)
+
+# 3 Add again Fibonacci that have already been populated with FetchContent_MakeAvailable
+#
+# * This test should highlight the fact that cpm_add_subdirectory is always called, even when
+#   cpm_fetch_package isn't populating the dependency
+# * NO_CACHE YES highlight a bug introduced in 32b063eba5c754f833725ed4b9e5f352bc3ca959 where
+#   cpm_fetch_package was checking undefined ${lower_case_name}_POPULATED variable
+CPMAddPackage(
+  NAME Fibonacci
+  GIT_REPOSITORY https://github.com/cpm-cmake/testpack-fibonacci.git
+  VERSION 2.0
+  NO_CACHE YES
+)
