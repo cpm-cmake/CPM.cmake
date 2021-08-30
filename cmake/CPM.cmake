@@ -356,30 +356,73 @@ endfunction()
 
 # Check that the working directory for a git repo is clean
 function(cpm_check_working_dir_is_clean repoPath isClean)
-  # Not sure this check is necessary given git is probably key to the rest of the script
   find_package(Git REQUIRED)
 
+  if(NOT GIT_EXECUTABLE)
+    # No git executable, assume directory is clean
+    set(${isClean}
+        TRUE
+        PARENT_SCOPE
+    )
+    return()
+  endif()
+
+  # get absolute path of .git dir, to find if we are in a top-level repo path
   execute_process(
-    COMMAND ${GIT_EXECUTABLE} status --porcelain
-    RESULT_VARIABLE result
-    OUTPUT_VARIABLE status
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET
+    COMMAND ${GIT_EXECUTABLE} rev-parse --absolute-git-dir
+    RESULT_VARIABLE resultGitFolder
+    OUTPUT_VARIABLE gitFolderPath
+    OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET
     WORKING_DIRECTORY ${repoPath}
   )
 
-  # Not a git repo. for now, assume the directory is clean
-  if(result)
-    message(STATUS "not a git repo, can't check if clean:  ${repoPath}")
-    set(${isClean} TRUE PARENT_SCOPE)
-  elseif("${status}" STREQUAL "")
-    set(${isClean} TRUE PARENT_SCOPE)
+  if(resultGitFolder)
+    # Not a git repo. assume the directory is clean
+    set(${isClean}
+        TRUE
+        PARENT_SCOPE
+    )
+    return()
+  endif()
+
+  # remove trailing .git
+  get_filename_component(gitFolderPath "${gitFolderPath}" DIRECTORY)
+  if(NOT "${repoPath}" STREQUAL "${gitFolderPath}")
+    # edge case: not the repo base folder. maybe the cache is under a git repository assume clean
+	set(${isClean}
+        TRUE
+        PARENT_SCOPE
+    )
+    return()
+  endif()
+
+  # check for uncommited changes
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} status --porcelain
+    RESULT_VARIABLE resultGitStatus
+    OUTPUT_VARIABLE repoStatus
+    OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET
+    WORKING_DIRECTORY ${repoPath}
+  )
+  if(resultGitStatus)
+    # not supposed to happen
+    message(FATAL_ERROR "Calling git status on folder ${repoPath} failed")
+    return()
+  endif()
+
+  if("${repoStatus}" STREQUAL "")
+    set(${isClean}
+        TRUE
+        PARENT_SCOPE
+    )
   else()
-    set(${isClean} FALSE PARENT_SCOPE)
+    set(${isClean}
+        FALSE
+        PARENT_SCOPE
+    )
   endif()
 
 endfunction()
-
 
 # Download and add a package from source
 function(CPMAddPackage)
