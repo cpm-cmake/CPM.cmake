@@ -355,7 +355,8 @@ function(cpm_parse_add_package_single_arg arg outArgs)
 endfunction()
 
 # Check that the working directory for a git repo is clean
-function(cpm_check_working_dir_is_clean repoPath isClean)
+function(cpm_check_working_dir_is_clean repoPath gitTag isClean)
+
   find_package(Git REQUIRED)
 
   if(NOT GIT_EXECUTABLE)
@@ -405,12 +406,24 @@ function(cpm_check_working_dir_is_clean repoPath isClean)
     WORKING_DIRECTORY ${repoPath}
   )
   if(resultGitStatus)
-    # not supposed to happen
-    message(FATAL_ERROR "Calling git status on folder ${repoPath} failed")
+    # not supposed to happen, assume clean anyway
+    message(WARNING "Calling git status on folder ${repoPath} failed")
+    set(${isClean}
+        TRUE
+        PARENT_SCOPE
+    )
     return()
   endif()
 
-  if("${repoStatus}" STREQUAL "")
+  # check for commited changes
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} diff -s --exit-code ${gitTag}
+    RESULT_VARIABLE resultGitDiff
+    OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_QUIET
+    WORKING_DIRECTORY ${repoPath}
+  )
+
+  if("${repoStatus}" STREQUAL "" AND ${resultGitDiff} EQUAL 0)
     set(${isClean}
         TRUE
         PARENT_SCOPE
@@ -615,10 +628,12 @@ function(CPMAddPackage)
       set(${CPM_ARGS_NAME}_ADDED YES)
       set(${CPM_ARGS_NAME}_SOURCE_DIR ${download_directory})
 
-      # warn if cache has been changed since checkout
-      cpm_check_working_dir_is_clean(${download_directory} IS_CLEAN)
-      if(NOT ${IS_CLEAN})
-        message(WARNING "Cache for ${CPM_ARGS_NAME} (${download_directory}) is dirty")
+      if(DEFINED CPM_ARGS_GIT_TAG)
+        # warn if cache has been changed since checkout
+        cpm_check_working_dir_is_clean(${download_directory} ${CPM_ARGS_GIT_TAG} IS_CLEAN)
+        if(NOT ${IS_CLEAN})
+          message(WARNING "Cache for ${CPM_ARGS_NAME} (${download_directory}) is dirty")
+        endif()
       endif()
 
       cpm_add_subdirectory(
