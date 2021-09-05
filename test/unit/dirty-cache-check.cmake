@@ -8,7 +8,7 @@ find_package(Git REQUIRED)
 
 function(git_do dir)
   execute_process(
-    COMMAND ${GIT_EXECUTABLE} ${ARGN}
+    COMMAND ${GIT_EXECUTABLE}  -c user.name='User' -c user.email='user@email.org' ${ARGN}
     RESULT_VARIABLE result
     OUTPUT_VARIABLE status
     OUTPUT_STRIP_TRAILING_WHITESPACE
