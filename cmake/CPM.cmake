@@ -415,6 +415,14 @@ function(cpm_check_working_dir_is_clean repoPath gitTag isClean)
     return()
   endif()
 
+  if(NOT "${repoStatus}" STREQUAL "")
+    set(${isClean}
+        FALSE
+        PARENT_SCOPE
+    )
+    return()
+  endif()
+
   # check for commited changes
   execute_process(
     COMMAND ${GIT_EXECUTABLE} diff -s --exit-code ${gitTag}
@@ -423,7 +431,7 @@ function(cpm_check_working_dir_is_clean repoPath gitTag isClean)
     WORKING_DIRECTORY ${repoPath}
   )
 
-  if("${repoStatus}" STREQUAL "" AND ${resultGitDiff} EQUAL 0)
+  if(${resultGitDiff} EQUAL 0)
     set(${isClean}
         TRUE
         PARENT_SCOPE
