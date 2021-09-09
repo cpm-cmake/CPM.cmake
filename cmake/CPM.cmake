@@ -355,41 +355,12 @@ function(cpm_parse_add_package_single_arg arg outArgs)
 endfunction()
 
 # Check that the working directory for a git repo is clean
-function(cpm_check_working_dir_is_clean repoPath gitTag isClean)
+function(cpm_check_git_working_dir_is_clean repoPath gitTag isClean)
 
   find_package(Git REQUIRED)
 
   if(NOT GIT_EXECUTABLE)
     # No git executable, assume directory is clean
-    set(${isClean}
-        TRUE
-        PARENT_SCOPE
-    )
-    return()
-  endif()
-
-  # get absolute path of .git dir, to find if we are in a top-level repo path
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} rev-parse --absolute-git-dir
-    RESULT_VARIABLE resultGitFolder
-    OUTPUT_VARIABLE gitFolderPath
-    OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET
-    WORKING_DIRECTORY ${repoPath}
-  )
-
-  if(resultGitFolder)
-    # Not a git repo. assume the directory is clean
-    set(${isClean}
-        TRUE
-        PARENT_SCOPE
-    )
-    return()
-  endif()
-
-  # remove trailing .git
-  get_filename_component(gitFolderPath "${gitFolderPath}" DIRECTORY)
-  if(NOT "${repoPath}" STREQUAL "${gitFolderPath}")
-    # edge case: not the repo base folder. maybe the cache is under a git repository. assume clean
     set(${isClean}
         TRUE
         PARENT_SCOPE
@@ -638,7 +609,7 @@ function(CPMAddPackage)
 
       if(DEFINED CPM_ARGS_GIT_TAG)
         # warn if cache has been changed since checkout
-        cpm_check_working_dir_is_clean(${download_directory} ${CPM_ARGS_GIT_TAG} IS_CLEAN)
+        cpm_check_git_working_dir_is_clean(${download_directory} ${CPM_ARGS_GIT_TAG} IS_CLEAN)
         if(NOT ${IS_CLEAN})
           message(WARNING "Cache for ${CPM_ARGS_NAME} (${download_directory}) is dirty")
         endif()
