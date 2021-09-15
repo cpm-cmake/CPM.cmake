@@ -354,6 +354,68 @@ function(cpm_parse_add_package_single_arg arg outArgs)
   )
 endfunction()
 
+# Check that the working directory for a git repo is clean
+function(cpm_check_git_working_dir_is_clean repoPath gitTag isClean)
+
+  find_package(Git REQUIRED)
+
+  if(NOT GIT_EXECUTABLE)
+    # No git executable, assume directory is clean
+    set(${isClean}
+        TRUE
+        PARENT_SCOPE
+    )
+    return()
+  endif()
+
+  # check for uncommited changes
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} status --porcelain
+    RESULT_VARIABLE resultGitStatus
+    OUTPUT_VARIABLE repoStatus
+    OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET
+    WORKING_DIRECTORY ${repoPath}
+  )
+  if(resultGitStatus)
+    # not supposed to happen, assume clean anyway
+    message(WARNING "Calling git status on folder ${repoPath} failed")
+    set(${isClean}
+        TRUE
+        PARENT_SCOPE
+    )
+    return()
+  endif()
+
+  if(NOT "${repoStatus}" STREQUAL "")
+    set(${isClean}
+        FALSE
+        PARENT_SCOPE
+    )
+    return()
+  endif()
+
+  # check for commited changes
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} diff -s --exit-code ${gitTag}
+    RESULT_VARIABLE resultGitDiff
+    OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_QUIET
+    WORKING_DIRECTORY ${repoPath}
+  )
+
+  if(${resultGitDiff} EQUAL 0)
+    set(${isClean}
+        TRUE
+        PARENT_SCOPE
+    )
+  else()
+    set(${isClean}
+        FALSE
+        PARENT_SCOPE
+    )
+  endif()
+
+endfunction()
+
 # Download and add a package from source
 function(CPMAddPackage)
   list(LENGTH ARGN argnLength)
@@ -544,6 +606,15 @@ function(CPMAddPackage)
       set(${CPM_ARGS_NAME}_BINARY_DIR ${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-build)
       set(${CPM_ARGS_NAME}_ADDED YES)
       set(${CPM_ARGS_NAME}_SOURCE_DIR ${download_directory})
+
+      if(DEFINED CPM_ARGS_GIT_TAG)
+        # warn if cache has been changed since checkout
+        cpm_check_git_working_dir_is_clean(${download_directory} ${CPM_ARGS_GIT_TAG} IS_CLEAN)
+        if(NOT ${IS_CLEAN})
+          message(WARNING "Cache for ${CPM_ARGS_NAME} (${download_directory}) is dirty")
+        endif()
+      endif()
+
       cpm_add_subdirectory(
         "${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}"
         "${${CPM_ARGS_NAME}_SOURCE_DIR}/${CPM_ARGS_SOURCE_SUBDIR}" "${${CPM_ARGS_NAME}_BINARY_DIR}"
