@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.com/cpm-cmake/CPM.cmake.svg?branch=master)](https://travis-ci.com/cpm-cmake/CPM.cmake)
 [![Actions Status](https://github.com/cpm-cmake/CPM.cmake/workflows/MacOS/badge.svg)](https://github.com/cpm-cmake/CPM.cmake/actions)
 [![Actions Status](https://github.com/cpm-cmake/CPM.cmake/workflows/Windows/badge.svg)](https://github.com/cpm-cmake/CPM.cmake/actions)
 [![Actions Status](https://github.com/cpm-cmake/CPM.cmake/workflows/Ubuntu/badge.svg)](https://github.com/cpm-cmake/CPM.cmake/actions)
