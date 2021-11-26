@@ -869,21 +869,27 @@ function(cpm_parse_option OPTION)
   string(REGEX MATCH "^[^ ]+" OPTION_KEY ${OPTION})
   string(LENGTH ${OPTION} OPTION_LENGTH)
   string(LENGTH ${OPTION_KEY} OPTION_KEY_LENGTH)
+
   if(OPTION_KEY_LENGTH STREQUAL OPTION_LENGTH)
     # no value for key provided, assume user wants to set option to "ON"
     set(OPTION_VALUE "ON")
   else()
     math(EXPR OPTION_KEY_LENGTH "${OPTION_KEY_LENGTH}+1")
     string(SUBSTRING ${OPTION} "${OPTION_KEY_LENGTH}" "-1" OPTION_VALUE)
+    string(STRIP ${OPTION_VALUE} OPTION_VALUE)
+    string(REGEX REPLACE "[ ]+" ";" OPTION_VALUE ${OPTION_VALUE})
   endif()
+
   set(OPTION_KEY
-      "${OPTION_KEY}"
-      PARENT_SCOPE
-  )
+    "${OPTION_KEY}"
+    PARENT_SCOPE
+    )
+
   set(OPTION_VALUE
-      "${OPTION_VALUE}"
-      PARENT_SCOPE
-  )
+    "${OPTION_VALUE}"
+    PARENT_SCOPE
+    )
+
 endfunction()
 
 # guesses the package version from a git tag
