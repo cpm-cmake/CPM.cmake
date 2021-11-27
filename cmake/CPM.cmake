@@ -819,8 +819,8 @@ function(
       set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
       foreach(OPTION ${OPTIONS})
-        cpm_parse_option(${OPTION})
-        set(${OPTION_KEY} ${OPTION_VALUE})
+        cpm_parse_option("${OPTION}")
+        set(${OPTION_KEY} "${OPTION_VALUE}")
       endforeach()
     endif()
     set(CPM_OLD_INDENT "${CPM_INDENT}")
@@ -866,15 +866,15 @@ endfunction()
 
 # splits a package option
 function(cpm_parse_option OPTION)
-  string(REGEX MATCH "^[^ ]+" OPTION_KEY ${OPTION})
-  string(LENGTH ${OPTION} OPTION_LENGTH)
-  string(LENGTH ${OPTION_KEY} OPTION_KEY_LENGTH)
+  string(REGEX MATCH "^[^ ]+" OPTION_KEY "${OPTION}")
+  string(LENGTH "${OPTION}" OPTION_LENGTH)
+  string(LENGTH "${OPTION_KEY}" OPTION_KEY_LENGTH)
   if(OPTION_KEY_LENGTH STREQUAL OPTION_LENGTH)
     # no value for key provided, assume user wants to set option to "ON"
     set(OPTION_VALUE "ON")
   else()
     math(EXPR OPTION_KEY_LENGTH "${OPTION_KEY_LENGTH}+1")
-    string(SUBSTRING ${OPTION} "${OPTION_KEY_LENGTH}" "-1" OPTION_VALUE)
+    string(SUBSTRING "${OPTION}" "${OPTION_KEY_LENGTH}" "-1" OPTION_VALUE)
   endif()
   set(OPTION_KEY
       "${OPTION_KEY}"
