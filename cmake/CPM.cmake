@@ -821,6 +821,7 @@ function(
       foreach(OPTION ${OPTIONS})
         cpm_parse_option("${OPTION}")
         set(${OPTION_KEY} "${OPTION_VALUE}")
+        message("OPTION '${OPTION}': ${OPTION_KEY} is ${OPTION_VALUE}")
       endforeach()
     endif()
     set(CPM_OLD_INDENT "${CPM_INDENT}")
