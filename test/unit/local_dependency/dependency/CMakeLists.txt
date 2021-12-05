@@ -8,6 +8,12 @@ if(NOT DEFINE_ALTERNATIVE_FUNCTION)
     message("called external method")
   endfunction()
 else()
+
+  # check if list was passed correctly
+  if(NOT "${LIST_ARGUMENT}" STREQUAL "a;b;c")
+    message(FATAL_ERROR "list argument not properly passed to dependency: '${LIST_ARGUMENT}'")
+  endif()
+
   function(alternative_dependency_function)
     message("called alternative external method")
   endfunction()
