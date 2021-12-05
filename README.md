@@ -274,15 +274,10 @@ See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets) for mo
 CPMAddPackage("gh:catchorg/Catch2@2.5.0")
 ```
 
-### [Boost ](https://github.com/boostorg/boost)
+### [Range-v3](https://github.com/ericniebler/range-v3)
 
-```CMake
-CPMAddPackage(
-  NAME Boost
-  VERSION 1.77.0
-  GITHUB_REPOSITORY "boostorg/boost"
-  GIT_TAG "boost-1.77.0"
-)
+```Cmake
+CPMAddPackage("gh:ericniebler/range-v3#0.11.0")
 ```
 
 ### [Yaml-cpp](https://github.com/jbeder/yaml-cpp)
@@ -290,12 +285,6 @@ CPMAddPackage(
 ```CMake
 # as the tag is in an unusual format, we need to explicitly specify the version
 CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.6.3@0.6.3")
-```
-
-### [Range-v3](https://github.com/ericniebler/range-v3)
-
-```Cmake
-CPMAddPackage("gh:ericniebler/range-v3#0.11.0")
 ```
 
 ### [nlohmann/json](https://github.com/nlohmann/json)
@@ -306,6 +295,19 @@ CPMAddPackage(
   VERSION 3.9.1
   OPTIONS 
     "JSON_BuildTests OFF"
+)
+```
+
+### [Boost ](https://github.com/boostorg/boost)
+
+```CMake
+# boost is a huge project and will take a while to download
+# using `CPM_SOURCE_CACHE` is strongly recommended
+CPMAddPackage(
+  NAME Boost
+  VERSION 1.77.0
+  GITHUB_REPOSITORY "boostorg/boost"
+  GIT_TAG "boost-1.77.0"
 )
 ```
 
