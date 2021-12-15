@@ -548,6 +548,7 @@ function(CPMAddPackage)
       EXCLUDE_FROM_ALL "${CPM_ARGS_EXCLUDE_FROM_ALL}"
       OPTIONS "${CPM_ARGS_OPTIONS}"
       SOURCE_SUBDIR "${CPM_ARGS_SOURCE_SUBDIR}"
+      DOWNLOAD_ONLY "${DOWNLOAD_ONLY}"
       FORCE True
     )
     cpm_export_variables(${CPM_ARGS_NAME})
