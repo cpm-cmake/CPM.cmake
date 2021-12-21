@@ -619,10 +619,8 @@ function(CPMAddPackage)
     get_filename_component(download_directory ${download_directory} ABSOLUTE)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${download_directory})
     if(EXISTS ${download_directory})
-      # avoid FetchContent modules to improve performance
-      set(${CPM_ARGS_NAME}_BINARY_DIR ${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-build)
-      set(${CPM_ARGS_NAME}_ADDED YES)
-      set(${CPM_ARGS_NAME}_SOURCE_DIR ${download_directory})
+	  cpm_store_fetch_properties(${CPM_ARGS_NAME} "${download_directory}" "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-build")
+	  cpm_get_fetch_properties("${CPM_ARGS_NAME}")
 
       if(DEFINED CPM_ARGS_GIT_TAG)
         # warn if cache has been changed since checkout
@@ -793,16 +791,24 @@ function(cpm_get_fetch_properties PACKAGE)
   if(${CPM_DRY_RUN})
     return()
   endif()
-  FetchContent_GetProperties(${PACKAGE})
-  string(TOLOWER ${PACKAGE} lpackage)
+
   set(${PACKAGE}_SOURCE_DIR
-      "${${lpackage}_SOURCE_DIR}"
+      "${CPM_PACKAGE_${PACKAGE}_SOURCE_DIR}"
       PARENT_SCOPE
   )
   set(${PACKAGE}_BINARY_DIR
-      "${${lpackage}_BINARY_DIR}"
+      "${CPM_PACKAGE_${PACKAGE}_BINARY_DIR}"
       PARENT_SCOPE
   )
+endfunction()
+
+function(cpm_store_fetch_properties PACKAGE source_dir binary_dir)
+  if(${CPM_DRY_RUN})
+    return()
+  endif()
+
+  set(CPM_PACKAGE_${PACKAGE}_SOURCE_DIR "${source_dir}" CACHE INTERNAL "")
+  set(CPM_PACKAGE_${PACKAGE}_BINARY_DIR "${binary_dir}" CACHE INTERNAL "")
 endfunction()
 
 # adds a package as a subdirectory if viable, according to provided options
@@ -861,6 +867,8 @@ function(cpm_fetch_package PACKAGE populated)
         PARENT_SCOPE
     )
   endif()
+  
+  cpm_store_fetch_properties(${CPM_ARGS_NAME} ${${lower_case_name}_SOURCE_DIR} ${${lower_case_name}_BINARY_DIR})
 
   set(${PACKAGE}_SOURCE_DIR
       ${${lower_case_name}_SOURCE_DIR}
