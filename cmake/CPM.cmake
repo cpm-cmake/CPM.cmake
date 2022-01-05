@@ -740,7 +740,7 @@ function(cpm_add_comment_to_package_lock Name)
   endif()
 endfunction()
 
-# includes the package lock file if it exists and creates a target `cpm-write-package-lock` to
+# includes the package lock file if it exists and creates a target `cpm-update-package-lock` to
 # update it
 macro(CPMUsePackageLock file)
   if(NOT CPM_DONT_CREATE_PACKAGE_LOCK)
