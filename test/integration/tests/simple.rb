@@ -4,5 +4,7 @@ add_test 'basic', ->(prj) {
     exe 'using-adder', ['using-adder.cpp']
     link_libs 'using-adder', 'adder'
   }
-  prj.configure
+  cfg = prj.configure
+
+  check cfg.status.success?
 }

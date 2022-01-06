@@ -44,6 +44,15 @@ class CMakeListsBuilder
   end
 end
 
+class ExecuteResult
+  def initialize(out, err, status)
+    @out = out
+    @err = err
+    @status = status
+  end
+  attr :out, :err, :status
+end
+
 class Project
   def initialize(name)
     @name = name
@@ -64,7 +73,7 @@ class Project
   end
 
   def configure(args = '')
-    our, err, s = Open3.capture3("cmake . #{args}", chdir: @dir)
+    ExecuteResult.new *Open3.capture3("cmake . #{args}", chdir: @dir)
   end
 end
 
@@ -75,6 +84,17 @@ def add_test(name, func)
   @tests[name] = func
 end
 
+# check funcs
+class CheckFail < StandardError
+  def initialize(msg)
+    super
+  end
+end
+
+def check(b)
+  raise CheckFail.new "expected 'true'" if !b
+end
+
 Dir['tests/*.rb'].sort.each do |file|
   @cur_file = file
   load './' + file
@@ -83,7 +103,26 @@ end
 # sort alphabetically
 sorted_tests = @tests.to_a.sort {|a, b| a[0] <=> b[0] }
 
+num_succeeded = 0
+num_failed = 0
+
 sorted_tests.each do |name, func|
+  puts "Running '#{name}'"
   proj = Project.new(name)
-  func.(proj)
+  begin
+    func.(proj)
+    num_succeeded += 1
+    puts '  success'
+  rescue CheckFail => error
+    num_failed += 1
+    STDERR.puts "  #{name}: check failed '#{error.message}'"
+    STDERR.puts "  backtrace:\n  #{error.backtrace.join("\n  ")}"
+    STDERR.puts
+  end
 end
+
+puts "Ran #{num_succeeded + num_failed} tests"
+puts "Succeeded: #{num_succeeded}"
+puts "Failed: #{num_failed}"
+
+exit(num_failed)
