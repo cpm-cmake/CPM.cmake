@@ -1,10 +1,9 @@
 # this test does nothing
 # it's, in a way, a test of the integration testing framework
+require './lib'
 
-class Noop < Test::Unit::TestCase
+class Noop < IntegrationTest
   def test_tt
-    puts 'run'
-    assert true
-    assert_equal 1, 1
+    make_project
   end
 end
