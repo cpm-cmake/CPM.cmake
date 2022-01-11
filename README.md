@@ -1,6 +1,3 @@
-[![Actions Status](https://github.com/cpm-cmake/CPM.cmake/workflows/MacOS/badge.svg)](https://github.com/cpm-cmake/CPM.cmake/actions)
-[![Actions Status](https://github.com/cpm-cmake/CPM.cmake/workflows/Windows/badge.svg)](https://github.com/cpm-cmake/CPM.cmake/actions)
-[![Actions Status](https://github.com/cpm-cmake/CPM.cmake/workflows/Ubuntu/badge.svg)](https://github.com/cpm-cmake/CPM.cmake/actions)
 
 <br />
 <p align="center">
@@ -10,7 +7,7 @@
 
 # Setup-free CMake dependency management
 
-CPM.cmake is a CMake script that adds dependency management capabilities to CMake.
+CPM.cmake is a cross-platform CMake script that adds dependency management capabilities to CMake.
 It's built as a thin wrapper around CMake's [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module that adds version control, caching, a simple API [and more](#comparison-to-pure-fetchcontent--externalproject).
 
 ## Manage everything
