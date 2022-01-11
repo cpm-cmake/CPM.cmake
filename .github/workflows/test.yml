@@ -1,0 +1,25 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: clone
+        uses: actions/checkout@v2
+
+      - name: unit tests
+        run: |
+          cmake -Htest -Bbuild/test
+          cmake --build build/test --target test-verbose
