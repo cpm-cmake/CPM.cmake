@@ -5,6 +5,8 @@ project(CPMJSONExample)
 # ---- Dependencies ----
 
 include(../../cmake/CPM.cmake)
+# Disable building json tests that pollute the project's ctest environment 
+set(JSON_BuildTests OFF CACHE INTERNAL "")
 CPMAddPackage("gh:nlohmann/json@3.9.1")
 
 # ---- Executable ----
