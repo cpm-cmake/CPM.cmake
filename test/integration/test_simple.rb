@@ -1,4 +1,4 @@
-require './lib'
+require_relative './lib'
 
 class Simple < IntegrationTest
   P_ADDER = 'testpack-adder'
