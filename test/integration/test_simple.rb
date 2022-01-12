@@ -3,7 +3,7 @@ require_relative './lib'
 class Simple < IntegrationTest
   P_ADDER = 'testpack-adder'
 
-  def test_basics
+  def test_add_remove_packages
     prj = make_project 'using-adder'
 
     prj.create_lists_with package: 'CPMAddPackage("gh:cpm-cmake/testpack-adder#cad1cd4b4cdf957c5b59e30bc9a1dd200dbfc716")'

@@ -37,6 +37,8 @@ class Project
     @build_dir = build_dir
   end
 
+  attr :src_dir, :build_dir
+
   def create_file(target_path, text)
     target_path = File.join(@src_dir, target_path)
     File.write target_path, text
@@ -47,9 +49,9 @@ class Project
     raise "#{source_path} doesn't exist" if !File.file?(source_path)
 
     # tweak args
-    args[:cpm_path] = TestLib::CPM_PATH
+    args[:cpm_path] = TestLib::CPM_PATH if !args[:cpm_path]
     args[:packages] = [args[:package]] if args[:package] # if args contain package, create the array
-    args[:packages] = args[:packages].join("\n") # join all packages
+    args[:packages] = args[:packages].join("\n") if args[:packages] # join all packages if any
 
     src_text = File.read source_path
     create_file target_path, src_text % args
@@ -145,6 +147,11 @@ class IntegrationTest < Test::Unit::TestCase
   def assert_success(res)
     msg = build_message(nil, "command status was expected to be a success, but failed with code <?> and STDERR:\n\n#{res.err}", res.status.to_i)
     assert_block(msg) { res.status.success? }
+  end
+
+  def assert_same_path(a, b)
+    msg = build_message(nil, "<?> expected but was\n<?>", a, b)
+    assert_block(msg) { File.identical? a, b }
   end
 
   # utils
