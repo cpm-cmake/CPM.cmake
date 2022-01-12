@@ -9,7 +9,7 @@ class Simple < IntegrationTest
     prj.create_lists_with package: 'CPMAddPackage("gh:cpm-cmake/testpack-adder#cad1cd4b4cdf957c5b59e30bc9a1dd200dbfc716")'
     cfg_result = prj.configure
 
-    assert cfg_result.status.success?
+    assert_success cfg_result
 
     cache = prj.read_cache
 
@@ -29,7 +29,7 @@ class Simple < IntegrationTest
     prj.create_lists_with package: 'CPMAddPackage("gh:cpm-cmake/testpack-adder@1.0.0")'
     cfg_result = prj.configure
 
-    assert cfg_result.status.success?
+    assert_success cfg_result
 
     cache = prj.read_cache
 

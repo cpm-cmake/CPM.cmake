@@ -128,6 +128,15 @@ class IntegrationTest < Test::Unit::TestCase
     TestLib.clear_env
   end
 
+  # extra assertions
+
+  def assert_success(res)
+    msg = build_message(nil, "command status was expected to be a success, but failed with code <?> and STDERR:\n\n#{res.err}", res.status.to_i)
+    assert_block(msg) { res.status.success? }
+  end
+
+  # utils
+
   def make_project(template_dir = nil)
     test_name = local_name
     test_name = test_name[5..] if test_name.start_with?('test_')
