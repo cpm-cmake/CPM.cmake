@@ -5,7 +5,7 @@ project(CPMJSONExample)
 # ---- Dependencies ----
 
 include(../../cmake/CPM.cmake)
-CPMAddPackage("gh:nlohmann/json@3.9.1")
+CPMAddPackage("gh:nlohmann/json@3.10.5")
 
 # ---- Executable ----
 
