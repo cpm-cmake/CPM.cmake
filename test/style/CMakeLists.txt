@@ -6,7 +6,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/../../cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME Format.cmake
-  VERSION 1.6
+  VERSION 1.7.3
   GITHUB_REPOSITORY TheLartians/Format.cmake
-  OPTIONS "FORMAT_CHECK_CMAKE ON"
+  OPTIONS "CMAKE_FORMAT_EXCLUDE integration/templates"
 )
