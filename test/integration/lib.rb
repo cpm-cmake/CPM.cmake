@@ -4,7 +4,7 @@ require 'tmpdir'
 require 'test/unit'
 
 module TestLib
-  TMP_DIR = ENV['CPM_INTEGRATION_TEST_DIR'] || File.join(Dir.tmpdir, 'cpm-test', Time.now.strftime('%Y_%m_%d-%H_%M_%S'))
+  TMP_DIR = File.expand_path(ENV['CPM_INTEGRATION_TEST_DIR'] || File.join(Dir.tmpdir, 'cpm-test', Time.now.strftime('%Y_%m_%d-%H_%M_%S')))
   CPM_PATH = File.expand_path('../../cmake/CPM.cmake', __dir__)
 
   TEMPLATES_DIR = File.expand_path('templates', __dir__)
