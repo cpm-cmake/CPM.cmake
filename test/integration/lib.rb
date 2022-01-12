@@ -4,7 +4,7 @@ require 'tmpdir'
 require 'test/unit'
 
 module TestLib
-  TMP_DIR = File.join(Dir.tmpdir, 'cpm-test', Time.now.strftime('%Y_%m_%d-%H_%M_%S'))
+  TMP_DIR = ENV['CPM_INTEGRATION_TEST_DIR'] || File.join(Dir.tmpdir, 'cpm-test', Time.now.strftime('%Y_%m_%d-%H_%M_%S'))
   CPM_PATH = File.expand_path('../../cmake/CPM.cmake', __dir__)
 
   TEMPLATES_DIR = File.expand_path('templates', __dir__)
@@ -25,7 +25,7 @@ module TestLib
   end
 end
 
-raise "Test directory '#{TestLib::TMP_DIR}' already exists" if File.exist?(TestLib::TMP_DIR)
+puts "Warning: test directory '#{TestLib::TMP_DIR}' already exists" if File.exist?(TestLib::TMP_DIR)
 raise "Cannot find 'CPM.cmake' at '#{TestLib::CPM_PATH}'" if !File.file?(TestLib::CPM_PATH)
 
 puts "Running CPM.cmake integration tests"
