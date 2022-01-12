@@ -65,23 +65,23 @@ class Project
     CommandResult.new *Open3.capture3("cmake -S #{@src_dir} -B #{@build_dir} #{extra_args}")
   end
 
-  class CMakeCacheEntry
-    def initialize(val, type, advanced, desc)
-      @val = val
-      @type = type
-      @advanced = advanced
-      @desc = desc
-    end
-    attr :val, :type, :advanced, :desc
-    alias_method :advanced?, :advanced
-    def inspect
-      "(#{val.inspect} #{type}" + (advanced? ? ' ADVANCED)' : ')')
-    end
-  end
   class CMakeCache
-    def initialize(entries)
-      @entries = entries
+    class Entry
+      def initialize(val, type, advanced, desc)
+        @val = val
+        @type = type
+        @advanced = advanced
+        @desc = desc
+      end
+      attr :val, :type, :advanced, :desc
+      alias_method :advanced?, :advanced
+      def inspect
+        "(#{val.inspect} #{type}" + (advanced? ? ' ADVANCED)' : ')')
+      end
     end
+
+    Package = Struct.new(:ver, :src_dir, :bin_dir)
+
     def self.from_dir(dir)
       entries = {}
       cur_desc = ''
@@ -96,25 +96,37 @@ class Project
         else
           m = /(.+?)(-ADVANCED)?:([A-Z]+)=(.*)/.match(line)
           raise "Error parsing '#{line}' in #{file}" if !m
-          entries[m[1]] = CMakeCacheEntry.new(m[4], m[3], !!m[2], cur_desc)
+          entries[m[1]] = Entry.new(m[4], m[3], !!m[2], cur_desc)
           cur_desc = ''
         end
       }
       CMakeCache.new entries
     end
 
+    def initialize(entries)
+      @entries = entries
+
+      package_list = self['CPM_PACKAGES']
+      @packages = if package_list
+        # collect package data
+        @packages = package_list.split(';').map { |name|
+          [name, Package.new(
+            self["CPM_PACKAGE_#{name}_VERSION"],
+            self["CPM_PACKAGE_#{name}_SOURCE_DIR"],
+            self["CPM_PACKAGE_#{name}_BINARY_DIR"]
+          )]
+        }.to_h
+      else
+        {}
+      end
+    end
+
+    attr :entries, :packages
+
     def [](key)
       e = @entries[key]
       return nil if !e
       e.val
-    end
-
-    def get_package_data(package)
-      [
-        self["CPM_PACKAGE_#{package}_VERSION"],
-        self["CPM_PACKAGE_#{package}_SOURCE_DIR"],
-        self["CPM_PACKAGE_#{package}_BINARY_DIR"],
-      ]
     end
   end
   def read_cache
