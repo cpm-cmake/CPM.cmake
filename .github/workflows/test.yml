@@ -26,3 +26,5 @@ jobs:
 
       - name: integration tests
         run: ruby test/integration/runner.rb
+        env:
+          CPM_INTEGRATION_TEST_DIR: ${{ env.GITHUB_WORKSPACE }}/build/integration
