@@ -1,10 +1,13 @@
 require_relative './lib'
 
+# Tests of cpm caches and vars when no packages are used
+
 class Basics < IntegrationTest
-  # test cpm coherency with no cpm-related env vars
+  # Test cpm caches with no cpm-related env vars
   def test_cpm_default
     prj = make_project 'no-deps'
     prj.create_lists_with({})
+
     cfg_result = prj.configure
     assert_success cfg_result
 
@@ -27,10 +30,10 @@ class Basics < IntegrationTest
 
     assert_equal 'OFF', check_and_get('CPM_DONT_CREATE_PACKAGE_LOCK', 'BOOL')
     assert_equal 'OFF', check_and_get('CPM_INCLUDE_ALL_IN_PACKAGE_LOCK', 'BOOL')
-    assert_same_path File.join(prj.build_dir, 'cpm-package-lock.cmake'), check_and_get('CPM_PACKAGE_LOCK_FILE')
+    assert_same_path File.join(prj.bin_dir, 'cpm-package-lock.cmake'), check_and_get('CPM_PACKAGE_LOCK_FILE')
 
     assert_equal 'OFF', check_and_get('CPM_DONT_UPDATE_MODULE_PATH', 'BOOL')
-    assert_same_path File.join(prj.build_dir, 'CPM_modules'), check_and_get('CPM_MODULE_PATH')
+    assert_same_path File.join(prj.bin_dir, 'CPM_modules'), check_and_get('CPM_MODULE_PATH')
   end
 
   def check_and_get(key, type = 'INTERNAL')

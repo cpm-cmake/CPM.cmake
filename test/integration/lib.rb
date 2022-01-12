@@ -32,12 +32,12 @@ puts "Running CPM.cmake integration tests"
 puts "Temp directory: '#{TestLib::TMP_DIR}'"
 
 class Project
-  def initialize(src_dir, build_dir)
+  def initialize(src_dir, bin_dir)
     @src_dir = src_dir
-    @build_dir = build_dir
+    @bin_dir = bin_dir
   end
 
-  attr :src_dir, :build_dir
+  attr :src_dir, :bin_dir
 
   def create_file(target_path, text)
     target_path = File.join(@src_dir, target_path)
@@ -64,7 +64,10 @@ class Project
 
   CommandResult = Struct.new :out, :err, :status
   def configure(extra_args = '')
-    CommandResult.new *Open3.capture3("cmake -S #{@src_dir} -B #{@build_dir} #{extra_args}")
+    CommandResult.new *Open3.capture3("cmake -S #{@src_dir} -B #{@bin_dir} #{extra_args}")
+  end
+  def build(extra_args = '')
+    CommandResult.new *Open3.capture3("cmake --build #{@bin_dir} #{extra_args}")
   end
 
   class CMakeCache
@@ -132,7 +135,7 @@ class Project
     end
   end
   def read_cache
-    CMakeCache.from_dir @build_dir
+    CMakeCache.from_dir @bin_dir
   end
 end
 
@@ -171,6 +174,6 @@ class IntegrationTest < Test::Unit::TestCase
       FileUtils.copy_entry template_dir, src_dir
     end
 
-    Project.new src_dir, base + '-build'
+    Project.new src_dir, base + '-bin'
   end
 end
