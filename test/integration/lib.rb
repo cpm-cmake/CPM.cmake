@@ -65,7 +65,7 @@ class Project
     CommandResult.new *Open3.capture3("cmake -S #{@src_dir} -B #{@build_dir} #{extra_args}")
   end
 
-  class CMakeCacheValue
+  class CMakeCacheEntry
     def initialize(val, type, advanced, desc)
       @val = val
       @type = type
@@ -78,24 +78,47 @@ class Project
       "(#{val.inspect} #{type}" + (advanced? ? ' ADVANCED)' : ')')
     end
   end
+  class CMakeCache
+    def initialize(entries)
+      @entries = entries
+    end
+    def self.from_dir(dir)
+      entries = {}
+      cur_desc = ''
+      file = File.join(dir, 'CMakeCache.txt')
+      return nil if !File.file?(file)
+      File.readlines(file).each { |line|
+        line.strip!
+        next if line.empty?
+        next if line.start_with? '#' # comment
+        if line.start_with? '//'
+          cur_desc += line[2..]
+        else
+          m = /(.+?)(-ADVANCED)?:([A-Z]+)=(.*)/.match(line)
+          raise "Error parsing '#{line}' in #{file}" if !m
+          entries[m[1]] = CMakeCacheEntry.new(m[4], m[3], !!m[2], cur_desc)
+          cur_desc = ''
+        end
+      }
+      CMakeCache.new entries
+    end
+
+    def [](key)
+      e = @entries[key]
+      return nil if !e
+      e.val
+    end
+
+    def get_package_data(package)
+      [
+        self["CPM_PACKAGE_#{package}_VERSION"],
+        self["CPM_PACKAGE_#{package}_SOURCE_DIR"],
+        self["CPM_PACKAGE_#{package}_BINARY_DIR"],
+      ]
+    end
+  end
   def read_cache
-    vars = {}
-    cur_desc = ''
-    file = File.join(@build_dir, 'CMakeCache.txt')
-    File.readlines(file).each { |line|
-      line.strip!
-      next if line.empty?
-      next if line.start_with? '#' # comment
-      if line.start_with? '//'
-        cur_desc += line[2..]
-      else
-        m = /(.+?)(-ADVANCED)?:([A-Z]+)=(.*)/.match(line)
-        raise "Error parsing '#{line}' in #{file}" if !m
-        vars[m[1]] = CMakeCacheValue.new(m[4], m[3], !!m[2], cur_desc)
-        cur_desc = ''
-      end
-    }
-    vars
+    CMakeCache.from_dir @build_dir
   end
 end
 

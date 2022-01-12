@@ -1,13 +1,7 @@
 require './lib'
 
 class Simple < IntegrationTest
-  def get_adder_data(cache)
-    [
-      cache['CPM_PACKAGE_testpack-adder_VERSION'].val,
-      cache['CPM_PACKAGE_testpack-adder_SOURCE_DIR'].val,
-      cache['CPM_PACKAGE_testpack-adder_BINARY_DIR'].val,
-    ]
-  end
+  P_ADDER = 'testpack-adder'
 
   def test_basics
     prj = make_project 'using-adder'
@@ -19,9 +13,9 @@ class Simple < IntegrationTest
 
     cache = prj.read_cache
 
-    assert_equal 'testpack-adder', cache['CPM_PACKAGES'].val
+    assert_equal P_ADDER, cache['CPM_PACKAGES']
 
-    ver, src, bin = get_adder_data cache
+    ver, src, bin = cache.get_package_data(P_ADDER)
 
     assert_equal ver, '0'
     assert File.directory? src
@@ -35,8 +29,11 @@ class Simple < IntegrationTest
     prj.create_lists_with package: 'CPMAddPackage("gh:cpm-cmake/testpack-adder@1.0.0")'
     cfg_result = prj.configure
 
-    cache_new = prj.read_cache
-    ver, src, bin = get_adder_data cache_new
+    assert cfg_result.status.success?
+
+    cache = prj.read_cache
+
+    ver, src, bin = cache.get_package_data(P_ADDER)
 
     assert_equal '1.0.0', ver
 
