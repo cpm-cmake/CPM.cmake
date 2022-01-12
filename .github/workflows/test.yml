@@ -13,7 +13,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        # windows-latest is windows-2019 which carries a pretty old version of ruby (2.5)
+        # we need at least ruby 2.7 for the tests
+        # instead of dealing with installing a modern version of ruby on 2019, we'll just use windows-2022 here
+        os: [ubuntu-latest, windows-2022, macos-latest]
 
     steps:
       - name: clone
