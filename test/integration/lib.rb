@@ -158,12 +158,28 @@ class IntegrationTest < Test::Unit::TestCase
   end
 
   # utils
+  class << self
+    def startup
+      @@test_dir = File.join(TestLib::TMP_DIR, self.name.
+        # to-underscore conversion from Rails
+        gsub(/::/, '/').
+        gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+        gsub(/([a-z\d])([A-Z])/,'\1_\2').
+        tr("-", "_").
+        downcase
+      )
+    end
+  end
+
+  def cur_test_dir
+    @@test_dir
+  end
 
   def make_project(template_dir = nil)
     test_name = local_name
     test_name = test_name[5..] if test_name.start_with?('test_')
 
-    base = File.join(TestLib::TMP_DIR, self.class.name.downcase, test_name)
+    base = File.join(cur_test_dir, test_name)
     src_dir = base + '-src'
 
     FileUtils.mkdir_p src_dir

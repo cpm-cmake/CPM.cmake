@@ -7,9 +7,7 @@ class Basics < IntegrationTest
   def test_cpm_default
     prj = make_project 'no-deps'
     prj.create_lists_with({})
-
-    cfg_result = prj.configure
-    assert_success cfg_result
+    assert_success prj.configure
 
     @cache = prj.read_cache
 
@@ -34,6 +32,19 @@ class Basics < IntegrationTest
 
     assert_equal 'OFF', check_and_get('CPM_DONT_UPDATE_MODULE_PATH', 'BOOL')
     assert_same_path File.join(prj.bin_dir, 'CPM_modules'), check_and_get('CPM_MODULE_PATH')
+  end
+
+  # Test when env CPM_SOURCE_CACHE is set
+  def test_env_cpm_source_cache
+    ENV['CPM_SOURCE_CACHE'] = cur_test_dir
+
+    prj = make_project 'no-deps'
+    prj.create_lists_with({})
+    assert_success prj.configure
+
+    @cache = prj.read_cache
+
+    assert_equal cur_test_dir, check_and_get('CPM_SOURCE_CACHE', 'PATH')
   end
 
   def check_and_get(key, type = 'INTERNAL')
