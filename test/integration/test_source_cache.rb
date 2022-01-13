@@ -4,7 +4,6 @@ require_relative './lib'
 
 class SourceCache < IntegrationTest
   def setup
-    super
     @cache_dir = File.join(cur_test_dir, 'cpmcache')
     ENV['CPM_SOURCE_CACHE'] = @cache_dir
   end

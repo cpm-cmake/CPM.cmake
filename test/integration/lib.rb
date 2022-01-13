@@ -31,6 +31,9 @@ raise "Cannot find 'CPM.cmake' at '#{TestLib::CPM_PATH}'" if !File.file?(TestLib
 puts "Running CPM.cmake integration tests"
 puts "Temp directory: '#{TestLib::TMP_DIR}'"
 
+# Clean all CPM-related env vars
+TestLib.clear_env
+
 class Project
   def initialize(src_dir, bin_dir)
     @src_dir = src_dir
@@ -142,8 +145,8 @@ end
 class IntegrationTest < Test::Unit::TestCase
   self.test_order = :defined # run tests in order of defintion (as opposed to alphabetical)
 
-  def setup
-    # Clear existing cpm-related env vars
+  def cleanup
+    # Clear cpm-related env vars which may have been set by the test
     TestLib.clear_env
   end
 
