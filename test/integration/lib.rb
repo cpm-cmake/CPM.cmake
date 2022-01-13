@@ -140,6 +140,8 @@ class Project
 end
 
 class IntegrationTest < Test::Unit::TestCase
+  self.test_order = :defined # run tests in order of defintion (as opposed to alphabetical)
+
   def setup
     # Clear existing cpm-related env vars
     TestLib.clear_env
