@@ -9,7 +9,8 @@ class Simple < IntegrationTest
     adder_ver_file = nil
 
     create_with_commit_sha = -> {
-      prj.create_lists_with package: 'CPMAddPackage("gh:cpm-cmake/testpack-adder#cad1cd4b4cdf957c5b59e30bc9a1dd200dbfc716")'
+      prj.create_lists_from_default_template package:
+        'CPMAddPackage("gh:cpm-cmake/testpack-adder#cad1cd4b4cdf957c5b59e30bc9a1dd200dbfc716")'
       assert_success prj.configure
 
       cache = prj.read_cache
@@ -35,7 +36,8 @@ class Simple < IntegrationTest
       adder_cache0 = adder_cache
     }
     update_to_version_1 = -> {
-      prj.create_lists_with package: 'CPMAddPackage("gh:cpm-cmake/testpack-adder@1.0.0")'
+      prj.create_lists_from_default_template package:
+        'CPMAddPackage("gh:cpm-cmake/testpack-adder@1.0.0")'
       assert_success prj.configure
 
       cache = prj.read_cache
@@ -52,7 +54,7 @@ class Simple < IntegrationTest
       assert_equal '1.0.0', File.read(adder_ver_file).strip
     }
     update_with_option_off_and_build = -> {
-      prj.create_lists_with package: <<~PACK
+      prj.create_lists_from_default_template package: <<~PACK
         CPMAddPackage(
           NAME testpack-adder
           GITHUB_REPOSITORY cpm-cmake/testpack-adder

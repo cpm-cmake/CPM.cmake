@@ -13,7 +13,7 @@ class SourceCache < IntegrationTest
 
     ###################################
     # create
-    prj.create_lists_with package: 'CPMAddPackage("gh:cpm-cmake/testpack-fibadder@1.0.0")'
+    prj.create_lists_from_default_template package: 'CPMAddPackage("gh:cpm-cmake/testpack-fibadder@1.0.0")'
     assert_success prj.configure
 
     @cache = prj.read_cache
@@ -29,7 +29,7 @@ class SourceCache < IntegrationTest
 
     ###################################
     # add one package with a newer version
-    prj.create_lists_with packages: [
+    prj.create_lists_from_default_template packages: [
       'CPMAddPackage("gh:cpm-cmake/testpack-adder@1.0.1")',
       'CPMAddPackage("gh:cpm-cmake/testpack-fibadder@1.0.0")',
     ]
@@ -46,7 +46,7 @@ class SourceCache < IntegrationTest
 
   def test_second_project
     prj = make_project 'using-fibadder'
-    prj.create_lists_with package: 'CPMAddPackage("gh:cpm-cmake/testpack-fibadder@1.1.0")'
+    prj.create_lists_from_default_template package: 'CPMAddPackage("gh:cpm-cmake/testpack-fibadder@1.1.0")'
     assert_success prj.configure
 
     @cache = prj.read_cache

@@ -42,27 +42,27 @@ class Project
 
   attr :src_dir, :bin_dir
 
-  def create_file(target_path, text)
+  def create_file(target_path, text, args = {})
     target_path = File.join(@src_dir, target_path)
-    File.write target_path, text
-  end
-
-  def create_file_with(target_path, source_path, args)
-    source_path = File.join(@src_dir, source_path)
-    raise "#{source_path} doesn't exist" if !File.file?(source_path)
 
     # tweak args
     args[:cpm_path] = TestLib::CPM_PATH if !args[:cpm_path]
     args[:packages] = [args[:package]] if args[:package] # if args contain package, create the array
     args[:packages] = args[:packages].join("\n") if args[:packages] # join all packages if any
 
+    File.write target_path, text % args
+  end
+
+  def create_file_from_template(target_path, source_path, args = {})
+    source_path = File.join(@src_dir, source_path)
+    raise "#{source_path} doesn't exist" if !File.file?(source_path)
     src_text = File.read source_path
-    create_file target_path, src_text % args
+    create_file target_path, src_text, args
   end
 
   # common function to create ./CMakeLists.txt from ./lists.in.cmake
-  def create_lists_with(args)
-    create_file_with 'CMakeLists.txt', 'lists.in.cmake', args
+  def create_lists_from_default_template(args = {})
+    create_file_from_template 'CMakeLists.txt', 'lists.in.cmake', args
   end
 
   CommandResult = Struct.new :out, :err, :status
