@@ -41,3 +41,4 @@ Writing tests makes use of the custom integration test framework in `lib.rb`. It
 * [A basic tutorial on writing integration tests.](tutorial.md)
 * [A brief reference of the integration test framework](reference.md)
 * Make sure you're familiar with the [idiosyncrasies](idiosyncrasies.md) of writing integration tests
+* [Some tips and tricks](tips.md)
