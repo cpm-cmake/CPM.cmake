@@ -28,13 +28,50 @@ Writing tests makes use of the custom integration test framework in `lib.rb`. It
 
 ### The Gist
 
-* Tests written in ruby scripts in this directory. The file names of tests must be prefixed with `test_`
-* The file should `require_relative './lib'` to allow for individual execution (or else if will only be executable from the runner)
-* A test file should contain a class which inherits from `IntegrationTest`. It can contain multiple classes, but that's typicall bad practice as it makes individual execution harder and implies dependency between the classes.
+* Tests cases are Ruby scripts in this directory. The file names must be prefixed with `test_`
+* The script should `require_relative './lib'` to allow for individual execution (or else if will only be executable from the runner)
+* A test case file should contain a single class which inherits from `IntegrationTest`. It *can* contain multiple classes, but that's bad practice as it makes individual execution harder and implies a dependency between the classes.
 * There should be no dependency between the test scripts. Each should be executable individually and the order in which multiple ones are executed mustn't matter.
 * The class should contain methods, also prefixed with `test_` which will be executed by the framework. In most cases there would be a single test method per class.
 * In case there are multiple test methods, they will be executed in the order in which they are defined.
 * The test methods should contain assertions which check for the expected state of things at varous points of the test's execution.
+
+
+### A simple tutorial
+
+Let's create a test which checks that CPM.cmake can make a specific package available.
+
+First we do some boilerplate.
+
+```ruby
+require_relative './lib'
+
+class MyTest < IntegrationTest
+  # test that CPM.cmake can make https://github.com/cpm-cmake/testpack-adder/ available as a package
+  def test_make_adder_available
+  end
+end
+```
+
+Now we have our test case class, and the single test method that we will require. Let's focus on the method's contents. The integration test framework provides us with a helper class, `Project`, which can be used for this scenario. A project has an assoiciated pair of source and binary directories in the temporary directory and it provides methods to work with them.
+
+We start by creating the project:
+
+```ruby
+prj = make_project
+```
+
+`make_project` is method of IntegrationTest which generates a source and a binary directory for it based on the name of our test class and test method. The project doesn't contain anything yet, so let's create some source files:
+
+```ruby
+prj.create_file 'main.cpp', <<~SRC
+  #include <iostream>
+  #include <adder/adder.hpp>
+  int main() {
+      cout << adder::add(1, 2);
+      return 0;
+  }
+```
 
 ### Notable Idiosyncrasies
 
