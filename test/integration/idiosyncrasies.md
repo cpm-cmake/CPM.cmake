@@ -12,7 +12,7 @@ class MyTest < IntegrationTest
     @x = 123
     assert_equal 123, @x # Pass. @x is 123
   end
-  def tese_something_else
+  def test_something_else
     assert_equal 123, @x # Fail! @x would be nil here
   end
 end
@@ -28,7 +28,7 @@ class MyTest < IntegrationTest
   def test_something
     assert_equal 123, @x # Pass. @x is 123 thanks to setup
   end
-  def tese_something_else
+  def test_something_else
     assert_equal 123, @x # Pass. @x is 123 thanks to setup
   end
 end
