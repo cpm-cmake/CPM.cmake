@@ -6,7 +6,9 @@ include(${CMAKE_CURRENT_LIST_DIR}/../../cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME Format.cmake
-  VERSION 1.6
+  VERSION 1.7.3
   GITHUB_REPOSITORY TheLartians/Format.cmake
-  OPTIONS "FORMAT_CHECK_CMAKE ON"
+  # We exclude cmake files from integration tests as they contain invalid lines of code which are
+  # used by the integration test scripts
+  OPTIONS "CMAKE_FORMAT_EXCLUDE integration/templates"
 )
