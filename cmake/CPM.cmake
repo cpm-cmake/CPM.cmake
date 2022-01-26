@@ -316,6 +316,9 @@ function(cpm_parse_add_package_single_arg arg outArgs)
     elseif(scheme STREQUAL "bb")
       set(out "BITBUCKET_REPOSITORY;${uri}")
       set(packageType "git")
+    elseif(scheme STREQUAL "rel")
+      set(out "RELATIVE_REPOSITORY;${uri}")
+      set(packageType "git")
       # A CPM-specific scheme was not found. Looks like this is a generic URL so try to determine
       # type
     elseif(arg MATCHES ".git/?(@|#|$)")
@@ -365,10 +368,10 @@ function(cpm_parse_add_package_single_arg arg outArgs)
   )
 endfunction()
 
+find_package(Git REQUIRED)
+
 # Check that the working directory for a git repo is clean
 function(cpm_check_git_working_dir_is_clean repoPath gitTag isClean)
-
-  find_package(Git REQUIRED)
 
   if(NOT GIT_EXECUTABLE)
     # No git executable, assume directory is clean
@@ -427,6 +430,48 @@ function(cpm_check_git_working_dir_is_clean repoPath gitTag isClean)
 
 endfunction()
 
+# Convert a URI relative to that of the URL of the remote of our current Git repository
+# e.g. github.com/user/repo.git + ../other.git = github.com/user/other.git
+function(cpm_git_relative_uri_to_url relative_uri absolute_url)
+  if (NOT Git_FOUND)
+    message(SEND_ERROR "Git not found, cannot convert relative URI to absolute Git URL")
+    return()
+  endif()
+
+  # Get the list of remotes available
+  execute_process(COMMAND ${GIT_EXECUTABLE} remote
+          WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+          OUTPUT_VARIABLE remotes_names
+          OUTPUT_STRIP_TRAILING_WHITESPACE
+          ERROR_QUIET)
+
+  string(REPLACE "\n" ";" remotes_names_list ${remotes_names})
+
+  list(LENGTH remotes_names_list remotes_count)
+
+  if (remotes_count EQUAL 0)
+    message(ERROR "Repository located at ${CMAKE_CURRENT_SOURCE_DIR} has no remote, cannot use relative URLs")
+    return()
+  endif()
+
+  # Get the first remote
+  list(GET remotes_names_list 0 remote_name)
+
+  # Get the fetch URL of that remote
+  execute_process(COMMAND ${GIT_EXECUTABLE} remote get-url ${remote_name}
+          WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+          OUTPUT_VARIABLE remote_url
+          OUTPUT_STRIP_TRAILING_WHITESPACE
+          ERROR_QUIET)
+
+  string(CONCAT absolute_url_local "${remote_url}" "/" "${relative_uri}")
+
+  set(${absolute_url}
+          "${absolute_url_local}"
+          PARENT_SCOPE
+          )
+endfunction()
+
 # Download and add a package from source
 function(CPMAddPackage)
   list(LENGTH ARGN argnLength)
@@ -446,6 +491,7 @@ function(CPMAddPackage)
       GITHUB_REPOSITORY
       GITLAB_REPOSITORY
       BITBUCKET_REPOSITORY
+      RELATIVE_REPOSITORY
       GIT_REPOSITORY
       SOURCE_DIR
       DOWNLOAD_COMMAND
@@ -480,6 +526,9 @@ function(CPMAddPackage)
     set(CPM_ARGS_GIT_REPOSITORY "https://gitlab.com/${CPM_ARGS_GITLAB_REPOSITORY}.git")
   elseif(DEFINED CPM_ARGS_BITBUCKET_REPOSITORY)
     set(CPM_ARGS_GIT_REPOSITORY "https://bitbucket.org/${CPM_ARGS_BITBUCKET_REPOSITORY}.git")
+  elseif(DEFINED CPM_ARGS_RELATIVE_REPOSITORY)
+    cpm_git_relative_uri_to_url("${CPM_ARGS_RELATIVE_REPOSITORY}" absolute_git_url)
+    set(CPM_ARGS_GIT_REPOSITORY "${absolute_git_url}.git")
   endif()
 
   if(DEFINED CPM_ARGS_GIT_REPOSITORY)
