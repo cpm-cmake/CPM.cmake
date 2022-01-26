@@ -841,6 +841,12 @@ function(
       cmake_policy(SET CMP0077 NEW)
       set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
+      # the policy allows us to change set(CACHE) without caching
+      if(POLICY CMP0126)
+        cmake_policy(SET CMP0126 NEW)
+        set(CMAKE_POLICY_DEFAULT_CMP0126 NEW)
+      endif()
+
       foreach(OPTION ${OPTIONS})
         cpm_parse_option("${OPTION}")
         set(${OPTION_KEY} "${OPTION_VALUE}")
