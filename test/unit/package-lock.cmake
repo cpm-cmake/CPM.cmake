@@ -24,7 +24,7 @@ function(configure_with_declare DECLARE_DEPENDENCY)
   )
 
   execute_process(
-    COMMAND ${CMAKE_COMMAND} -H${CMAKE_CURRENT_LIST_DIR}/local_dependency -B${TEST_BUILD_DIR}
+    COMMAND ${CMAKE_COMMAND} -S${CMAKE_CURRENT_LIST_DIR}/local_dependency -B${TEST_BUILD_DIR}
             -DCPM_INCLUDE_ALL_IN_PACKAGE_LOCK=1 RESULT_VARIABLE ret
   )
 

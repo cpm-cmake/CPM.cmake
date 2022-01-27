@@ -11,7 +11,7 @@ function(init_project EXCLUDE_FROM_ALL)
   )
 
   execute_process(
-    COMMAND ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/broken_dependency" "-B${TEST_BUILD_DIR}"
+    COMMAND ${CMAKE_COMMAND} "-S${CMAKE_CURRENT_LIST_DIR}/broken_dependency" "-B${TEST_BUILD_DIR}"
     RESULT_VARIABLE ret
   )
 
