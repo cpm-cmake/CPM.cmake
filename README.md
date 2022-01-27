@@ -290,6 +290,7 @@ CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.6.3@0.6.3")
 CPMAddPackage(
   NAME nlohmann_json
   VERSION 3.9.1
+  GITHUB_REPOSITORY nlohmann/json
   OPTIONS 
     "JSON_BuildTests OFF"
 )
