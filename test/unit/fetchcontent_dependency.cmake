@@ -31,7 +31,7 @@ endfunction()
 reset_test()
 
 execute_process(
-  COMMAND ${CMAKE_COMMAND} "-H${CMAKE_CURRENT_LIST_DIR}/fetchcontent_dependency"
+  COMMAND ${CMAKE_COMMAND} "-S${CMAKE_CURRENT_LIST_DIR}/fetchcontent_dependency"
           "-B${TEST_BUILD_DIR}" "-DCPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" RESULT_VARIABLE ret
 )
 

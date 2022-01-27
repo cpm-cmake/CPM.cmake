@@ -22,7 +22,7 @@ jobs:
         pip3 install cmake_format==0.6.11 pyyaml
 
     - name: configure
-      run: cmake -Htest/style -Bbuild/style
+      run: cmake -Stest/style -Bbuild/style
 
     - name: check style
       run: cmake --build build/style --target check-format
