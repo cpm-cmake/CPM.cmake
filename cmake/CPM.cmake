@@ -432,39 +432,64 @@ endfunction()
 
 # Convert a URI relative to that of the URL of the remote of our current Git repository
 # e.g. github.com/user/repo.git + ../other.git = github.com/user/other.git
-function(cpm_git_relative_uri_to_url relative_uri absolute_url)
+function(cpm_git_relative_uri_to_url relative_uri name absolute_url)
+
+  if (NOT name)
+    # If no name was provided, get it from the relative uri
+    cpm_package_name_from_git_uri("${relative_uri}.git" name)
+
+    if (NOT name)
+      message(SEND_ERROR "Name of the project couldn't be inferred from the relative URI")
+      return()
+    endif()
+  endif()
+
+  # If it has been cached, do not resolve it
+  if (DEFINED CPM_PACKAGE_${name}_RESOLVED_URL)
+    set(${absolute_url}
+            "${CPM_PACKAGE_${name}_RESOLVED_URL}"
+            PARENT_SCOPE
+            )
+    return()
+  endif()
+
   if (NOT Git_FOUND)
     message(SEND_ERROR "Git not found, cannot convert relative URI to absolute Git URL")
     return()
   endif()
 
   # Get the list of remotes available
-  execute_process(COMMAND ${GIT_EXECUTABLE} remote
+  execute_process(COMMAND ${GIT_EXECUTABLE} remote -v
           WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-          OUTPUT_VARIABLE remotes_names
+          OUTPUT_VARIABLE remotes_infos
           OUTPUT_STRIP_TRAILING_WHITESPACE
           ERROR_QUIET)
 
-  string(REPLACE "\n" ";" remotes_names_list ${remotes_names})
+  string(REPLACE "\n" ";" remotes_infos_list "${remotes_infos}")
 
-  list(LENGTH remotes_names_list remotes_count)
+  # Since this was a verbose output, the output is in the format <remote_name> <remote_url> (fetch/push)
+  # Get the first remote fetch URL
+  foreach(remote_info ${remotes_infos_list})
+    string(REGEX MATCH "^[^ \t]+[ \t]+([^ \t]+) \\(fetch\\)$" match "${remote_info}")
 
-  if (remotes_count EQUAL 0)
-    message(ERROR "Repository located at ${CMAKE_CURRENT_SOURCE_DIR} has no remote, cannot use relative URLs")
+    if (match)
+      set(remote_url "${CMAKE_MATCH_1}")
+      break()
+    endif()
+  endforeach()
+
+  if (NOT DEFINED remote_url)
+    message(SEND_ERROR "No remote with fetch ability was detected in this repository")
     return()
   endif()
 
-  # Get the first remote
-  list(GET remotes_names_list 0 remote_name)
-
-  # Get the fetch URL of that remote
-  execute_process(COMMAND ${GIT_EXECUTABLE} remote get-url ${remote_name}
-          WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-          OUTPUT_VARIABLE remote_url
-          OUTPUT_STRIP_TRAILING_WHITESPACE
-          ERROR_QUIET)
-
   string(CONCAT absolute_url_local "${remote_url}" "/" "${relative_uri}")
+
+  # Save it within the cache
+  set("CPM_PACKAGE_${name}_RESOLVED_URL"
+          "${absolute_url_local}"
+          CACHE INTERNAL ""
+          )
 
   set(${absolute_url}
           "${absolute_url_local}"
@@ -527,7 +552,7 @@ function(CPMAddPackage)
   elseif(DEFINED CPM_ARGS_BITBUCKET_REPOSITORY)
     set(CPM_ARGS_GIT_REPOSITORY "https://bitbucket.org/${CPM_ARGS_BITBUCKET_REPOSITORY}.git")
   elseif(DEFINED CPM_ARGS_RELATIVE_REPOSITORY)
-    cpm_git_relative_uri_to_url("${CPM_ARGS_RELATIVE_REPOSITORY}" absolute_git_url)
+    cpm_git_relative_uri_to_url("${CPM_ARGS_RELATIVE_REPOSITORY}" "${CPM_ARGS_NAME}" absolute_git_url)
     set(CPM_ARGS_GIT_REPOSITORY "${absolute_git_url}.git")
   endif()
 
