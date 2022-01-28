@@ -430,6 +430,16 @@ function(cpm_check_git_working_dir_is_clean repoPath gitTag isClean)
 
 endfunction()
 
+# Set a specific URL to be used as a base for all relative URIs, e.g. "https://github.com/myorg"
+function(CPMSetRelativeUriBaseUrl base_url)
+  set(CPM_RELATIVE_URI_BASE_URL "${base_url}" PARENT_SCOPE)
+endfunction()
+
+# Specify that the base URL for relative URIs should be inferred from the current directory (default behavior)
+function(CPMSetRelativeUriBaseAuto)
+  unset(CPM_RELATIVE_URI_BASE_URL PARENT_SCOPE)
+endfunction()
+
 # Convert a URI relative to that of the URL of the remote of our current Git repository
 # e.g. github.com/user/repo.git + ../other.git = github.com/user/other.git
 function(cpm_git_relative_uri_to_url relative_uri name absolute_url)
@@ -453,34 +463,39 @@ function(cpm_git_relative_uri_to_url relative_uri name absolute_url)
     return()
   endif()
 
-  if (NOT Git_FOUND)
-    message(SEND_ERROR "Git not found, cannot convert relative URI to absolute Git URL")
-    return()
-  endif()
-
-  # Get the list of remotes available
-  execute_process(COMMAND ${GIT_EXECUTABLE} remote -v
-          WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-          OUTPUT_VARIABLE remotes_infos
-          OUTPUT_STRIP_TRAILING_WHITESPACE
-          ERROR_QUIET)
-
-  string(REPLACE "\n" ";" remotes_infos_list "${remotes_infos}")
-
-  # Since this was a verbose output, the output is in the format <remote_name> <remote_url> (fetch/push)
-  # Get the first remote fetch URL
-  foreach(remote_info ${remotes_infos_list})
-    string(REGEX MATCH "^[^ \t]+[ \t]+([^ \t]+) \\(fetch\\)$" match "${remote_info}")
-
-    if (match)
-      set(remote_url "${CMAKE_MATCH_1}")
-      break()
+  # If a base URL is specified, use that
+  if (CPM_RELATIVE_URI_BASE_URL)
+    set(remote_url "${CPM_RELATIVE_URI_BASE_URL}")
+  else()
+    if (NOT Git_FOUND)
+      message(SEND_ERROR "Git not found, cannot convert relative URI to absolute Git URL")
+      return()
     endif()
-  endforeach()
 
-  if (NOT DEFINED remote_url)
-    message(SEND_ERROR "No remote with fetch ability was detected in this repository")
-    return()
+    # Get the list of remotes available
+    execute_process(COMMAND ${GIT_EXECUTABLE} remote -v
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+            OUTPUT_VARIABLE remotes_infos
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_QUIET)
+
+    string(REPLACE "\n" ";" remotes_infos_list "${remotes_infos}")
+
+    # Since this was a verbose output, the output is in the format <remote_name> <remote_url> (fetch/push)
+    # Get the first remote fetch URL
+    foreach(remote_info ${remotes_infos_list})
+      string(REGEX MATCH "^[^ \t]+[ \t]+([^ \t]+) \\(fetch\\)$" match "${remote_info}")
+
+      if (match)
+        set(remote_url "${CMAKE_MATCH_1}")
+        break()
+      endif()
+    endforeach()
+
+    if (NOT DEFINED remote_url)
+      message(SEND_ERROR "No remote with fetch ability was detected in this repository")
+      return()
+    endif()
   endif()
 
   string(CONCAT absolute_url_local "${remote_url}" "/" "${relative_uri}")
