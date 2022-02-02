@@ -444,7 +444,7 @@ endfunction()
 function(cpm_normalize_uri input output)
   # Extract the scheme and the authority (if present) from the path
   # Can either be http(s)://authority/ or git@authority:
-  string(REGEX MATCH "^(https{0,1}:\\/\\/[^\\/]+\\/)(.*)$" match "${input}")
+  string(REGEX MATCH "^(https?:\\/\\/[^\\/]+\\/)(.*)$" match "${input}")
 
   if(match)
     set(schemeAndAuthority "${CMAKE_MATCH_1}")
