@@ -440,9 +440,43 @@ function(CPMSetRelativeUriBaseAuto)
   unset(CPM_RELATIVE_URI_BASE_URL PARENT_SCOPE)
 endfunction()
 
+# Normalize the URI, mainly for "cd up" (..) directives, as those are not supported by SSH
+function(cpm_normalize_uri input output)
+  # Extract the scheme and the authority (if present) from the path
+  # Can either be http(s)://authority/ or git@authority:
+  string(REGEX MATCH "^(https{0,1}:\\/\\/[^\\/]+\\/)(.*)$" match "${input}")
+
+  if(match)
+    set(schemeAndAuthority "${CMAKE_MATCH_1}")
+    set(path "${CMAKE_MATCH_2}")
+  else()
+    string(REGEX MATCH "^(git@[^:]+:)(.*)$" match "${input}")
+
+    if(match)
+      set(schemeAndAuthority "${CMAKE_MATCH_1}")
+      set(path "${CMAKE_MATCH_2}")
+    else()
+      set(schemeAndAuthority "")
+      set(path "${input}")
+    endif()
+  endif()
+
+  # Normalize the path, which should get rid of the "cd up" directives
+  cmake_path(NORMAL_PATH path)
+
+  set(${output}
+          "${schemeAndAuthority}${path}"
+          PARENT_SCOPE
+          )
+endfunction()
+
 # Convert a URI relative to that of the URL of the remote of our current Git repository
 # e.g. github.com/user/repo.git + ../other.git = github.com/user/other.git
 function(cpm_git_relative_uri_to_url relative_uri name absolute_url)
+  if(${CMAKE_VERSION} VERSION_LESS "3.20.0")
+    message(ERROR "Relative URIs require CMake 3.20+")
+    return()
+  endif()
 
   if (NOT name)
     # If no name was provided, get it from the relative uri
@@ -463,7 +497,7 @@ function(cpm_git_relative_uri_to_url relative_uri name absolute_url)
     return()
   endif()
 
-  # If a base URL is specified, use that
+    # If a base URL is specified, use that
   if (CPM_RELATIVE_URI_BASE_URL)
     set(remote_url "${CPM_RELATIVE_URI_BASE_URL}")
   else()
@@ -498,16 +532,18 @@ function(cpm_git_relative_uri_to_url relative_uri name absolute_url)
     endif()
   endif()
 
-  string(CONCAT absolute_url_local "${remote_url}" "/" "${relative_uri}")
+  string(CONCAT absoluteUrl "${remote_url}" "/" "${relative_uri}")
+
+  cpm_normalize_uri("${absoluteUrl}" absoluteUrlNormalized)
 
   # Save it within the cache
   set("CPM_PACKAGE_${name}_RESOLVED_URL"
-          "${absolute_url_local}"
+          "${absoluteUrlNormalized}"
           CACHE INTERNAL ""
           )
 
   set(${absolute_url}
-          "${absolute_url_local}"
+          "${absoluteUrlNormalized}"
           PARENT_SCOPE
           )
 endfunction()
