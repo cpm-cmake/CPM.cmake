@@ -368,10 +368,9 @@ function(cpm_parse_add_package_single_arg arg outArgs)
   )
 endfunction()
 
-find_package(Git REQUIRED)
-
 # Check that the working directory for a git repo is clean
 function(cpm_check_git_working_dir_is_clean repoPath gitTag isClean)
+  find_package(Git REQUIRED)
 
   if(NOT GIT_EXECUTABLE)
     # No git executable, assume directory is clean
@@ -501,6 +500,8 @@ function(cpm_git_relative_uri_to_url relative_uri name absolute_url)
   if (CPM_RELATIVE_URI_BASE_URL)
     set(remote_url "${CPM_RELATIVE_URI_BASE_URL}")
   else()
+    find_package(Git REQUIRED)
+
     if (NOT Git_FOUND)
       message(SEND_ERROR "Git not found, cannot convert relative URI to absolute Git URL")
       return()
