@@ -183,6 +183,7 @@ You can use `CPM_SOURCE_CACHE` on GitHub Actions workflows [cache](https://githu
 If set, CPM will forward all calls to `CPMFindPackage` as `CPMAddPackage`.
 This is useful to create reproducible builds or to determine if the source parameters have all been set correctly.
 This can also be set as an environmental variable.
+This can be controlled on a per package basis with the `CPM_DOWNLOAD_<dependency name>` variable.
 
 ### CPM_USE_LOCAL_PACKAGES
 
