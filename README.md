@@ -258,6 +258,14 @@ If you know others, feel free to add them here through a PR.
         <p align="center"><b>ModernCppStarter</b></p>
       </a>
     </td>
+    <td>
+      <a href="https://git.io/liblava">
+        <p align="center">
+          <img src="https://github.com/liblava.png" alt="liblava" width="100pt" />
+        </p>
+        <p align="center"><b>liblava - Modern Vulkan library</b></p>
+      </a>
+    </td>
   </tr>
 </table>
 
