@@ -33,6 +33,9 @@ class SourceCache < IntegrationTest
     assert_success prj.configure
     assert_success prj.build
 
+    # cache is populated
+    assert_true File.exist?(File.join(@cache_dir, "testpack-adder"))
+
     # configure with populated cache
     assert_success prj.configure
     assert_success prj.build
