@@ -1,6 +1,6 @@
 require_relative './lib'
 
-# Tests with source cache
+# Tests FetchContent overriding with CPM
 
 class SourceCache < IntegrationTest
   def setup
