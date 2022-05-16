@@ -78,6 +78,41 @@ For using CPM.cmake projects with external package managers, such as conan or vc
 
 In rare cases, this behaviour may be desirable by default. The function `CPMFindPackage` will try to find a local dependency via CMake's `find_package` and fallback to `CPMAddPackage`, if the dependency is not found.
 
+### Customize repository URL
+
+When using a private repository, it could be tempting to write URL with authentication token, which can be be quite annoying to maintain, hard to use, can lead to cache misses if `CI_TOKEN` often change, etc... 
+
+```cmake
+# Don't do this.
+CPMAddPackage("https://${CI_USERNAME}:${CI_TOKEN}@example.com/my-package")
+```
+
+It is recommended to use [git-config](https://git-scm.com/docs/git-config) to handle such cases.
+
+```bash
+CI_USERNAME=your_username
+CI_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Github
+git config --global url."https://$CI_USERNAME:$CI_TOKEN@github.com".insteadOf "https://github.com"
+
+CI_JOB_TOKEN = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Gitlab
+# More info: https://docs.gitlab.com/ee/ci/jobs/ci_job_token.html
+git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.company.com".insteadOf "https://gitlab.company.com"
+
+# Edit your config file
+git config --global --edit
+```
+
+This trick can also be used to modify from where a dependency is coming from:
+
+```bash
+# Overwrite googletest with a self hosted google test version
+git config --global url."https://github.com/company/googletest".insteadOf "https://github.com/google/googletest"
+```
+
 ## Full CMakeLists Example
 
 ```cmake
