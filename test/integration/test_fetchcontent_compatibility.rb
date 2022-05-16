@@ -2,7 +2,7 @@ require_relative './lib'
 
 # Tests FetchContent overriding with CPM
 
-class SourceCache < IntegrationTest
+class FetchContentCompatibility < IntegrationTest
   def setup
     @cache_dir = File.join(cur_test_dir, 'cpmcache')
     ENV['CPM_SOURCE_CACHE'] = @cache_dir
