@@ -231,10 +231,14 @@ See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Package-lock) for mor
 
 When using CPM.cmake with private repositories, there may be a need to provide an [access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) to be able to clone other projects. Instead of providing the token in CMake, we recommend to provide the regular URL and use [git-config](https://git-scm.com/docs/git-config) to rewrite the URLs to include the token.
 
+As an example, you could include one of the following in your CI script.
+
 ```bash
 # Github
 git config --global url."https://${USERNAME}:${TOKEN}@github.com".insteadOf "https://github.com"
+```
 
+```bash
 # GitLab
 git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com".insteadOf "https://gitlab.com"
 ```
