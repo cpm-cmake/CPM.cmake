@@ -282,6 +282,14 @@ If you know others, feel free to add them here through a PR.
         <p align="center"><b>liblava - Modern Vulkan library</b></p>
       </a>
     </td>
+    <td>
+      <a href="https://github.com/variar/klogg">
+        <p align="center">
+          <img src="https://github.com/variar/klogg/blob/master/src/app/images/hicolor/scalable/klogg.svg" alt="klogg" width="100pt" />
+        </p>
+        <p align="center"><b>klogg - fast advanced log explorer</b></p>
+      </a>
+    </td>
   </tr>
 </table>
 
