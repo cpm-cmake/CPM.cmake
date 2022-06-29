@@ -6,7 +6,7 @@ project(CPMRangev3Example)
 
 include(../../cmake/CPM.cmake)
 
-CPMAddPackage("gh:ericniebler/range-v3#0.11.0")
+CPMAddPackage("gh:ericniebler/range-v3#0.12.0")
 
 # ---- Executable ----
 
