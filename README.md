@@ -307,7 +307,7 @@ CPMAddPackage("gh:catchorg/Catch2@2.5.0")
 ### [Range-v3](https://github.com/ericniebler/range-v3)
 
 ```Cmake
-CPMAddPackage("gh:ericniebler/range-v3#0.11.0")
+CPMAddPackage("gh:ericniebler/range-v3#0.12.0")
 ```
 
 ### [Yaml-cpp](https://github.com/jbeder/yaml-cpp)
