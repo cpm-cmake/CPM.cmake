@@ -108,6 +108,10 @@ set(CPM_DRY_RUN
     OFF
     CACHE INTERNAL "Don't download or configure dependencies (for testing)"
 )
+set(CPM_SET_RECOMMENDED_CMAKE_POLICIES
+    OFF
+    CACHE INTERNAL "Have CPM enable all recommended CMake policies"
+)
 
 if(DEFINED ENV{CPM_SOURCE_CACHE})
   set(CPM_SOURCE_CACHE_DEFAULT $ENV{CPM_SOURCE_CACHE})
@@ -239,8 +243,30 @@ function(cpm_create_module_file Name)
   endif()
 endfunction()
 
+macro(cpm_set_cmake_policies)
+  if(CPM_SET_RECOMMENDED_CMAKE_POLICIES)
+    # the policy allows us to change options without caching
+    cmake_policy(SET CMP0077 NEW)
+    set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
+    # the policy allows us to change set(CACHE) without caching
+    if(POLICY CMP0126)
+      cmake_policy(SET CMP0126 NEW)
+      set(CMAKE_POLICY_DEFAULT_CMP0126 NEW)
+    endif()
+
+    # The policy uses the download time for timestamp, instead of the timestamp in the archive.
+    # This allows for proper rebuilds when a projects url changes
+    if(POLICY CMP0135)
+      cmake_policy(SET CMP0135 NEW)
+      set(CMAKE_POLICY_DEFAULT_CMP0135 NEW)
+    endif()
+  endif()
+endmacro()
+
 # Find a package locally or fallback to CPMAddPackage
 function(CPMFindPackage)
+  cpm_set_cmake_policies()
   set(oneValueArgs NAME VERSION GIT_TAG FIND_PACKAGE_ARGUMENTS)
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "" ${ARGN})
@@ -476,6 +502,8 @@ endfunction()
 
 # Download and add a package from source
 function(CPMAddPackage)
+  cpm_set_cmake_policies()
+
   list(LENGTH ARGN argnLength)
   if(argnLength EQUAL 1)
     cpm_parse_add_package_single_arg("${ARGN}" ARGN)

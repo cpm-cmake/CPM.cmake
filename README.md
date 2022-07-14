@@ -198,6 +198,13 @@ In the case that `find_package` requires additional arguments, the parameter `FI
 If set, CPM use additional directory level in cache to improve readability of packages names in IDEs like CLion. It changes cache structure, so all dependencies are downloaded again. There is no problem to mix both structures in one cache directory but then there may be 2 copies of some dependencies.
 This can also be set as an environmental variable.
 
+### CPM_SET_RECOMMENDED_CMAKE_POLICIES
+If set, CPM will default the following CMake policies to `NEW` for all packages brought
+in via CPM
+  * CMP0077 - The option() command does nothing when a normal variable of the given name already exists.
+  * CMP0126 - The set(CACHE) command will not remove an existing normal variable of the given name.
+  * CMP0135 - Use the download time for timestamps, instead of the timestamps in the archive. This allows for proper rebuilds when a projects url changes
+
 ## Local package override
 
 Library developers are often in the situation where they work on a locally checked out dependency at the same time as on a consumer project.
