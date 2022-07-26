@@ -650,6 +650,20 @@ function(CPMAddPackage)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS DOWNLOAD_COMMAND ${CPM_ARGS_DOWNLOAD_COMMAND})
   elseif(DEFINED CPM_ARGS_SOURCE_DIR)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${CPM_ARGS_SOURCE_DIR})
+    if(NOT IS_ABSOLUTE ${CPM_ARGS_SOURCE_DIR})
+      # Expand `CPM_ARGS_SOURCE_DIR` relative path. This is important because EXISTS doesn't work
+      # for relative paths.
+      get_filename_component(
+        source_directory ${CPM_ARGS_SOURCE_DIR} REALPATH BASE_DIR ${CMAKE_CURRENT_BINARY_DIR}
+      )
+    else()
+      set(source_directory ${CPM_ARGS_SOURCE_DIR})
+    endif()
+    if(NOT EXISTS ${source_directory})
+      string(TOLOWER ${CPM_ARGS_NAME} lower_case_name)
+      # remove timestamps so CMake will re-download the dependency
+      file(REMOVE_RECURSE "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-subbuild")
+    endif()
   elseif(CPM_SOURCE_CACHE AND NOT CPM_ARGS_NO_CACHE)
     string(TOLOWER ${CPM_ARGS_NAME} lower_case_name)
     set(origin_parameters ${CPM_ARGS_UNPARSED_ARGUMENTS})
