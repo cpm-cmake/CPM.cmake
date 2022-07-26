@@ -1,14 +1,7 @@
 require_relative './lib'
 
-# Tests FetchContent overriding with CPM
-
-class FetchContentSourceDir < IntegrationTest
-  def setup
-    @cache_dir = File.join(cur_test_dir, 'cpmcache')
-    ENV['CPM_SOURCE_CACHE'] = @cache_dir
-  end
-
-  def test_add_dependency_cpm_and_fetchcontent
+class RemoveSourceDir < IntegrationTest
+  def test_remove_source_dir
     prj = make_project 'using-adder'
     
     prj.create_lists_from_default_template package: <<~PACK
@@ -21,7 +14,7 @@ class FetchContentSourceDir < IntegrationTest
       )
     PACK
 
-    # configure with unpopulated cache
+    # configure and build
     assert_success prj.configure
     assert_success prj.build
 
@@ -32,7 +25,7 @@ class FetchContentSourceDir < IntegrationTest
     FileUtils.remove_dir(File.join(prj.bin_dir, 'testpack-adder'), true)
     assert_false File.exist?(File.join(prj.bin_dir, 'testpack-adder'))
 
-    # configure with missing source_dir to fetch content
+    # configure and build with missing source_dir to fetch new content
     assert_success prj.configure
     assert_success prj.build
 
