@@ -30,9 +30,9 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 set(CURRENT_CPM_VERSION 1.0.0-development-version)
 
+get_filename_component(CPM_CURRENT_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" REALPATH)
 if(CPM_DIRECTORY)
-  get_filename_component(_CPM_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" REALPATH)
-  if(NOT CPM_DIRECTORY STREQUAL _CPM_DIRECTORY)
+  if(NOT CPM_DIRECTORY STREQUAL CPM_CURRENT_DIRECTORY)
     if(CPM_VERSION VERSION_LESS CURRENT_CPM_VERSION)
       message(
         AUTHOR_WARNING
@@ -56,8 +56,6 @@ See https://github.com/cpm-cmake/CPM.cmake for more information."
   if(CPM_INITIALIZED)
     return()
   endif()
-else()
-  get_filename_component(_CPM_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" REALPATH)
 endif()
 
 if(CURRENT_CPM_VERSION MATCHES "development-version")
@@ -96,7 +94,7 @@ set(CPM_VERSION
     CACHE INTERNAL ""
 )
 set(CPM_DIRECTORY
-    ${_CPM_DIRECTORY}
+    ${CPM_CURRENT_DIRECTORY}
     CACHE INTERNAL ""
 )
 set(CPM_FILE
