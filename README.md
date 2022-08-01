@@ -290,6 +290,14 @@ If you know others, feel free to add them here through a PR.
         <p align="center"><b>klogg - fast advanced log explorer</b></p>
       </a>
     </td>
+    <td>
+      <a href="https://github.com/MethanePowered/MethaneKit">
+        <p align="center">
+          <img src="https://github.com/MethanePowered/MethaneKit/raw/master/Docs/Images/Logo/MethaneLogoSmall.png" alt="MethaneKit" width="100pt" />
+        </p>
+        <p align="center"><b>Methane Kit - modern 3D graphics framework and rendering abstraction API on top of DirectX 12, Metal & Vulkan</b></p>
+      </a>
+    </td>
   </tr>
 </table>
 
