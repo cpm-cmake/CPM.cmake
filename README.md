@@ -274,6 +274,8 @@ If you know others, feel free to add them here through a PR.
         <p align="center"><b>ModernCppStarter</b></p>
       </a>
     </td>
+  </tr>
+  <tr>
     <td>
       <a href="https://git.io/liblava">
         <p align="center">
@@ -290,8 +292,6 @@ If you know others, feel free to add them here through a PR.
         <p align="center"><b>klogg - fast advanced log explorer</b></p>
       </a>
     </td>
-  </tr>
-  <tr>
     <td>
       <a href="https://github.com/MethanePowered/MethaneKit">
         <p align="center">
