@@ -199,11 +199,12 @@ If set, CPM use additional directory level in cache to improve readability of pa
 This can also be set as an environmental variable.
 
 ### CPM_SET_RECOMMENDED_CMAKE_POLICIES
-If set, CPM will default the following CMake policies to `NEW` for all packages brought
-in via CPM
-  * CMP0077 - The option() command does nothing when a normal variable of the given name already exists.
-  * CMP0126 - The set(CACHE) command will not remove an existing normal variable of the given name.
-  * CMP0135 - Use the download time for timestamps, instead of the timestamps in the archive. This allows for proper rebuilds when a projects url changes
+
+If set, CPM will default the following CMake policies to `NEW` for all packages brought in via CPM.
+
+  * [CMP0077](https://cmake.org/cmake/help/latest/policy/CMP0077.html) - The option() command does nothing when a normal variable of the given name already exists.
+  * [CMP0126](https://cmake.org/cmake/help/latest/policy/CMP0126.html) - The set(CACHE) command will not remove an existing normal variable of the given name.
+  * [CMP0135](https://cmake.org/cmake/help/latest/policy/CMP0135.html) - Use the download time for timestamps, instead of the timestamps in the archive. This allows for proper rebuilds when a projects url changes.
 
 ## Local package override
 
