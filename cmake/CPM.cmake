@@ -109,7 +109,7 @@ set(CPM_DRY_RUN
     CACHE INTERNAL "Don't download or configure dependencies (for testing)"
 )
 set(CPM_SET_RECOMMENDED_CMAKE_POLICIES
-    OFF
+    ON
     CACHE INTERNAL "Have CPM enable all recommended CMake policies"
 )
 
