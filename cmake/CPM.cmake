@@ -28,6 +28,23 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
+# the policy allows us to change options without caching
+cmake_policy(SET CMP0077 NEW)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
+# the policy allows us to change set(CACHE) without caching
+if(POLICY CMP0126)
+  cmake_policy(SET CMP0126 NEW)
+  set(CMAKE_POLICY_DEFAULT_CMP0126 NEW)
+endif()
+
+# The policy uses the download time for timestamp, instead of the timestamp in the archive. This
+# allows for proper rebuilds when a projects url changes
+if(POLICY CMP0135)
+  cmake_policy(SET CMP0135 NEW)
+  set(CMAKE_POLICY_DEFAULT_CMP0135 NEW)
+endif()
+
 set(CURRENT_CPM_VERSION 1.0.0-development-version)
 
 get_filename_component(CPM_CURRENT_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" REALPATH)
@@ -477,6 +494,7 @@ endfunction()
 
 # Download and add a package from source
 function(CPMAddPackage)
+
   list(LENGTH ARGN argnLength)
   if(argnLength EQUAL 1)
     cpm_parse_add_package_single_arg("${ARGN}" ARGN)
@@ -906,16 +924,6 @@ function(
       set(addSubdirectoryExtraArgs "")
     endif()
     if(OPTIONS)
-      # the policy allows us to change options without caching
-      cmake_policy(SET CMP0077 NEW)
-      set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-
-      # the policy allows us to change set(CACHE) without caching
-      if(POLICY CMP0126)
-        cmake_policy(SET CMP0126 NEW)
-        set(CMAKE_POLICY_DEFAULT_CMP0126 NEW)
-      endif()
-
       foreach(OPTION ${OPTIONS})
         cpm_parse_option("${OPTION}")
         set(${OPTION_KEY} "${OPTION_VALUE}")
