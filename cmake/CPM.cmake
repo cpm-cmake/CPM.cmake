@@ -28,6 +28,23 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
+# the policy allows us to change options without caching
+cmake_policy(SET CMP0077 NEW)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
+# the policy allows us to change set(CACHE) without caching
+if(POLICY CMP0126)
+  cmake_policy(SET CMP0126 NEW)
+  set(CMAKE_POLICY_DEFAULT_CMP0126 NEW)
+endif()
+
+# The policy uses the download time for timestamp, instead of the timestamp in the archive. This
+# allows for proper rebuilds when a projects url changes
+if(POLICY CMP0135)
+  cmake_policy(SET CMP0135 NEW)
+  set(CMAKE_POLICY_DEFAULT_CMP0135 NEW)
+endif()
+
 set(CURRENT_CPM_VERSION 1.0.0-development-version)
 
 if(CPM_DIRECTORY)
@@ -108,29 +125,6 @@ set(CPM_DRY_RUN
     OFF
     CACHE INTERNAL "Don't download or configure dependencies (for testing)"
 )
-set(CPM_SET_RECOMMENDED_CMAKE_POLICIES
-    ON
-    CACHE INTERNAL "Have CPM enable all recommended CMake policies"
-)
-
-if(CPM_SET_RECOMMENDED_CMAKE_POLICIES)
-  # the policy allows us to change options without caching
-  cmake_policy(SET CMP0077 NEW)
-  set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-
-  # the policy allows us to change set(CACHE) without caching
-  if(POLICY CMP0126)
-    cmake_policy(SET CMP0126 NEW)
-    set(CMAKE_POLICY_DEFAULT_CMP0126 NEW)
-  endif()
-
-  # The policy uses the download time for timestamp, instead of the timestamp in the archive. This
-  # allows for proper rebuilds when a projects url changes
-  if(POLICY CMP0135)
-    cmake_policy(SET CMP0135 NEW)
-    set(CMAKE_POLICY_DEFAULT_CMP0135 NEW)
-  endif()
-endif()
 
 if(DEFINED ENV{CPM_SOURCE_CACHE})
   set(CPM_SOURCE_CACHE_DEFAULT $ENV{CPM_SOURCE_CACHE})
