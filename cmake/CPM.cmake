@@ -36,10 +36,10 @@ if(CPM_DIRECTORY)
     if(CPM_VERSION VERSION_LESS CURRENT_CPM_VERSION)
       message(
         AUTHOR_WARNING
-          "${CPM_INDENT} \
+          "${CPM_LEFT_LOG}${CPM_INDENT} \
 A dependency is using a more recent CPM version (${CURRENT_CPM_VERSION}) than the current project (${CPM_VERSION}). \
 It is recommended to upgrade CPM to the most recent version. \
-See https://github.com/cpm-cmake/CPM.cmake for more information."
+See https://github.com/cpm-cmake/CPM.cmake for more information.${CPM_RIGHT_LOG}"
       )
     endif()
     if(${CMAKE_VERSION} VERSION_LESS "3.17.0")
@@ -211,11 +211,25 @@ if(NOT CPM_INDENT)
   )
 endif()
 
+if(NOT CPM_LEFT_LOG)
+  set(CPM_LEFT_LOG
+      ""
+      CACHE INTERNAL ""
+  )
+endif()
+
+if(NOT CPM_RIGHT_LOG)
+  set(CPM_RIGHT_LOG
+      ""
+      CACHE INTERNAL ""
+  )
+endif()
+
 function(cpm_find_package NAME VERSION)
   string(REPLACE " " ";" EXTRA_ARGS "${ARGN}")
   find_package(${NAME} ${VERSION} ${EXTRA_ARGS} QUIET)
   if(${CPM_ARGS_NAME}_FOUND)
-    message(STATUS "${CPM_INDENT} using local package ${CPM_ARGS_NAME}@${VERSION}")
+    message(STATUS "${CPM_LEFT_LOG}${CPM_INDENT} using local package ${CPM_ARGS_NAME}@${VERSION}${CPM_RIGHT_LOG}")
     CPMRegisterPackage(${CPM_ARGS_NAME} "${VERSION}")
     set(CPM_PACKAGE_FOUND
         YES
@@ -286,7 +300,7 @@ function(cpm_check_if_package_already_added CPM_ARGS_NAME CPM_ARGS_VERSION)
     if("${CPM_PACKAGE_VERSION}" VERSION_LESS "${CPM_ARGS_VERSION}")
       message(
         WARNING
-          "${CPM_INDENT} requires a newer version of ${CPM_ARGS_NAME} (${CPM_ARGS_VERSION}) than currently included (${CPM_PACKAGE_VERSION})."
+          "${CPM_LEFT_LOG}${CPM_INDENT} requires a newer version of ${CPM_ARGS_NAME} (${CPM_ARGS_VERSION}) than currently included (${CPM_PACKAGE_VERSION}).${CPM_RIGHT_LOG}"
       )
     endif()
     cpm_get_fetch_properties(${CPM_ARGS_NAME})
@@ -396,7 +410,7 @@ function(cpm_check_git_working_dir_is_clean repoPath gitTag isClean)
   )
   if(resultGitStatus)
     # not supposed to happen, assume clean anyway
-    message(WARNING "Calling git status on folder ${repoPath} failed")
+    message(WARNING "${CPM_LEFT_LOG}${CPM_INDENT}Calling git status on folder ${repoPath} failed${CPM_RIGHT_LOG}")
     set(${isClean}
         TRUE
         PARENT_SCOPE
@@ -691,7 +705,7 @@ function(CPMAddPackage)
         # warn if cache has been changed since checkout
         cpm_check_git_working_dir_is_clean(${download_directory} ${CPM_ARGS_GIT_TAG} IS_CLEAN)
         if(NOT ${IS_CLEAN})
-          message(WARNING "Cache for ${CPM_ARGS_NAME} (${download_directory}) is dirty")
+          message(WARNING "${CPM_INDENT}${CPM_LEFT_LOG}Cache for ${CPM_ARGS_NAME} (${download_directory}) is dirty${CPM_RIGHT_LOG}")
         endif()
       endif()
 
@@ -738,7 +752,7 @@ function(CPMAddPackage)
   endif()
 
   message(
-    STATUS "${CPM_INDENT} adding package ${CPM_ARGS_NAME}@${CPM_ARGS_VERSION} (${PACKAGE_INFO})"
+    STATUS "${CPM_INDENT}${CPM_LEFT_LOG} adding package ${CPM_ARGS_NAME}@${CPM_ARGS_VERSION} (${PACKAGE_INFO})${CPM_RIGHT_LOG}"
   )
 
   if(NOT CPM_SKIP_FETCH)
@@ -851,7 +865,7 @@ endfunction()
 # declares a package in FetchContent_Declare
 function(cpm_declare_fetch PACKAGE VERSION INFO)
   if(${CPM_DRY_RUN})
-    message(STATUS "${CPM_INDENT} package not declared (dry run)")
+    message(STATUS "${CPM_INDENT}${CPM_LEFT_LOG} package not declared (dry run)${CPM_RIGHT_LOG}")
     return()
   endif()
 
@@ -936,7 +950,7 @@ function(cpm_fetch_package PACKAGE populated)
       PARENT_SCOPE
   )
   if(${CPM_DRY_RUN})
-    message(STATUS "${CPM_INDENT} package ${PACKAGE} not fetched (dry run)")
+    message(STATUS "${CPM_INDENT}${CPM_LEFT_LOG} package ${PACKAGE} not fetched (dry run)${CPM_RIGHT_LOG}")
     return()
   endif()
 
