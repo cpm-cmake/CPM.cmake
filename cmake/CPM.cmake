@@ -115,7 +115,6 @@ set(CPM_SET_RECOMMENDED_CMAKE_POLICIES
 
 if(CPM_SET_RECOMMENDED_CMAKE_POLICIES)
   # the policy allows us to change options without caching
-  cmake_policy(PUSH)
   cmake_policy(SET CMP0077 NEW)
   set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
