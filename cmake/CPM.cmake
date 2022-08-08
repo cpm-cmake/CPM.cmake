@@ -28,23 +28,6 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-# the policy allows us to change options without caching
-cmake_policy(SET CMP0077 NEW)
-set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-
-# the policy allows us to change set(CACHE) without caching
-if(POLICY CMP0126)
-  cmake_policy(SET CMP0126 NEW)
-  set(CMAKE_POLICY_DEFAULT_CMP0126 NEW)
-endif()
-
-# The policy uses the download time for timestamp, instead of the timestamp in the archive. This
-# allows for proper rebuilds when a projects url changes
-if(POLICY CMP0135)
-  cmake_policy(SET CMP0135 NEW)
-  set(CMAKE_POLICY_DEFAULT_CMP0135 NEW)
-endif()
-
 set(CURRENT_CPM_VERSION 1.0.0-development-version)
 
 get_filename_component(CPM_CURRENT_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" REALPATH)
@@ -83,6 +66,23 @@ See https://github.com/cpm-cmake/CPM.cmake for details."
 endif()
 
 set_property(GLOBAL PROPERTY CPM_INITIALIZED true)
+
+# the policy allows us to change options without caching
+cmake_policy(SET CMP0077 NEW)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
+# the policy allows us to change set(CACHE) without caching
+if(POLICY CMP0126)
+  cmake_policy(SET CMP0126 NEW)
+  set(CMAKE_POLICY_DEFAULT_CMP0126 NEW)
+endif()
+
+# The policy uses the download time for timestamp, instead of the timestamp in the archive. This
+# allows for proper rebuilds when a projects url changes
+if(POLICY CMP0135)
+  cmake_policy(SET CMP0135 NEW)
+  set(CMAKE_POLICY_DEFAULT_CMP0135 NEW)
+endif()
 
 option(CPM_USE_LOCAL_PACKAGES "Always try to use `find_package` to get dependencies"
        $ENV{CPM_USE_LOCAL_PACKAGES}
