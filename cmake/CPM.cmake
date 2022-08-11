@@ -67,7 +67,7 @@ endif()
 
 set_property(GLOBAL PROPERTY CPM_INITIALIZED true)
 
-macro(cpm_set_policies )
+macro(cpm_set_policies)
   # the policy allows us to change options without caching
   cmake_policy(SET CMP0077 NEW)
   set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
