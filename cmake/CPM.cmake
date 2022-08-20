@@ -430,8 +430,8 @@ function(cpm_check_git_working_dir_is_clean repoPath gitTag isClean)
 endfunction()
 
 # Set a specific URL to be used as a base for all relative URIs, e.g. "https://github.com/myorg"
-function(CPMSetRelativeUriBaseUrl base_url)
-  set(CPM_RELATIVE_URI_BASE_URL "${base_url}" PARENT_SCOPE)
+function(CPMSetRelativeUriBaseUrl baseUrl)
+  set(CPM_RELATIVE_URI_BASE_URL "${baseUrl}" PARENT_SCOPE)
 endfunction()
 
 # Specify that the base URL for relative URIs should be inferred from the current directory (default behavior)
@@ -471,7 +471,7 @@ endfunction()
 
 # Convert a URI relative to that of the URL of the remote of our current Git repository
 # e.g. github.com/user/repo.git + ../other.git = github.com/user/other.git
-function(cpm_git_relative_uri_to_url relative_uri name absolute_url)
+function(cpm_git_relative_uri_to_url relativeUri name absoluteUri)
   if(${CMAKE_VERSION} VERSION_LESS "3.20.0")
     message(ERROR "Relative URIs require CMake 3.20+")
     return()
@@ -479,7 +479,7 @@ function(cpm_git_relative_uri_to_url relative_uri name absolute_url)
 
   if (NOT name)
     # If no name was provided, get it from the relative uri
-    cpm_package_name_from_git_uri("${relative_uri}.git" name)
+    cpm_package_name_from_git_uri("${relativeUri}.git" name)
 
     if (NOT name)
       message(SEND_ERROR "Name of the project couldn't be inferred from the relative URI")
@@ -489,7 +489,7 @@ function(cpm_git_relative_uri_to_url relative_uri name absolute_url)
 
   # If it has been cached, do not resolve it
   if (DEFINED CPM_PACKAGE_${name}_RESOLVED_URL)
-    set(${absolute_url}
+    set(${absoluteUrl}
             "${CPM_PACKAGE_${name}_RESOLVED_URL}"
             PARENT_SCOPE
             )
@@ -498,7 +498,7 @@ function(cpm_git_relative_uri_to_url relative_uri name absolute_url)
 
     # If a base URL is specified, use that
   if (CPM_RELATIVE_URI_BASE_URL)
-    set(remote_url "${CPM_RELATIVE_URI_BASE_URL}")
+    set(remoteUrl "${CPM_RELATIVE_URI_BASE_URL}")
   else()
     find_package(Git REQUIRED)
 
@@ -510,30 +510,30 @@ function(cpm_git_relative_uri_to_url relative_uri name absolute_url)
     # Get the list of remotes available
     execute_process(COMMAND ${GIT_EXECUTABLE} remote -v
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-            OUTPUT_VARIABLE remotes_infos
+            OUTPUT_VARIABLE remotesInfos
             OUTPUT_STRIP_TRAILING_WHITESPACE
             ERROR_QUIET)
 
-    string(REPLACE "\n" ";" remotes_infos_list "${remotes_infos}")
+    string(REPLACE "\n" ";" remotesInfosList "${remotesInfos}")
 
     # Since this was a verbose output, the output is in the format <remote_name> <remote_url> (fetch/push)
     # Get the first remote fetch URL
-    foreach(remote_info ${remotes_infos_list})
-      string(REGEX MATCH "^[^ \t]+[ \t]+([^ \t]+) \\(fetch\\)$" match "${remote_info}")
+    foreach(remote_info ${remotesInfosList})
+      string(REGEX MATCH "^[^ \t]+[ \t]+([^ \t]+) \\(fetch\\)$" match "${remoteInfo}")
 
       if (match)
-        set(remote_url "${CMAKE_MATCH_1}")
+        set(remoteUrl "${CMAKE_MATCH_1}")
         break()
       endif()
     endforeach()
 
-    if (NOT DEFINED remote_url)
+    if (NOT DEFINED remoteUrl)
       message(SEND_ERROR "No remote with fetch ability was detected in this repository")
       return()
     endif()
   endif()
 
-  string(CONCAT absoluteUrl "${remote_url}" "/" "${relative_uri}")
+  string(CONCAT absoluteUrl "${remoteUrl}" "/" "${relativeUri}")
 
   cpm_normalize_uri("${absoluteUrl}" absoluteUrlNormalized)
 
@@ -543,7 +543,7 @@ function(cpm_git_relative_uri_to_url relative_uri name absolute_url)
           CACHE INTERNAL ""
           )
 
-  set(${absolute_url}
+  set(${absoluteUrl}
           "${absoluteUrlNormalized}"
           PARENT_SCOPE
           )
@@ -604,8 +604,8 @@ function(CPMAddPackage)
   elseif(DEFINED CPM_ARGS_BITBUCKET_REPOSITORY)
     set(CPM_ARGS_GIT_REPOSITORY "https://bitbucket.org/${CPM_ARGS_BITBUCKET_REPOSITORY}.git")
   elseif(DEFINED CPM_ARGS_RELATIVE_REPOSITORY)
-    cpm_git_relative_uri_to_url("${CPM_ARGS_RELATIVE_REPOSITORY}" "${CPM_ARGS_NAME}" absolute_git_url)
-    set(CPM_ARGS_GIT_REPOSITORY "${absolute_git_url}.git")
+    cpm_git_relative_uri_to_url("${CPM_ARGS_RELATIVE_REPOSITORY}" "${CPM_ARGS_NAME}" absoluteGitUrl)
+    set(CPM_ARGS_GIT_REPOSITORY "${absoluteGitUrl}.git")
   endif()
 
   if(DEFINED CPM_ARGS_GIT_REPOSITORY)
