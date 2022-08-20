@@ -518,7 +518,7 @@ function(cpm_git_relative_uri_to_url relativeUri name absoluteUri)
 
     # Since this was a verbose output, the output is in the format <remote_name> <remote_url> (fetch/push)
     # Get the first remote fetch URL
-    foreach(remote_info ${remotesInfosList})
+    foreach(remoteInfo ${remotesInfosList})
       string(REGEX MATCH "^[^ \t]+[ \t]+([^ \t]+) \\(fetch\\)$" match "${remoteInfo}")
 
       if (match)
