@@ -131,6 +131,9 @@ Dependencies using CPM will automatically use the updated script of the outermos
 - **No pre-built binaries** For every new build directory, all dependencies are initially downloaded and built from scratch. To avoid extra downloads it is recommend to set the [`CPM_SOURCE_CACHE`](#CPM_SOURCE_CACHE) environmental variable. Using a caching compiler such as [ccache](https://github.com/TheLartians/Ccache.cmake) can drastically reduce build time.
 - **Dependent on good CMakeLists** Many libraries do not have CMakeLists that work well for subprojects. Luckily this is slowly changing, however, until then, some manual configuration may be required (see the snippets [below](#snippets) for examples). For best practices on preparing projects for CPM, see the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Preparing-projects-for-CPM.cmake).
 - **First version used** In diamond-shaped dependency graphs (e.g. `A` depends on `C`@1.1 and `B`, which itself depends on `C`@1.2 the first added dependency will be used (in this case `C`@1.1). In this case, B requires a newer version of `C` than `A`, so CPM will emit a warning. This can be easily resolved by adding a new version of the dependency in the outermost project, or by introducing a [package lock file](#package-lock).
+- **Some CMake policies set to `NEW`** Including CPM.cmake will lead to several CMake policies being set to `NEW`. Users which need the old behavior will need to manually modify their CMake code to ensure they're set to `OLD` at the appropriate places. The policies are:
+    - [CMP0077](https://cmake.org/cmake/help/latest/policy/CMP0077.html) and [CMP0126](https://cmake.org/cmake/help/latest/policy/CMP0126.html). They make setting package options from `CMPAddPackage` possible.
+    - [CMP0135](https://cmake.org/cmake/help/latest/policy/CMP0135.html) It allows for proper package rebuilds of packages which are archives, source cache is not used, and the package URL is changed to an older version.
 
 For projects with more complex needs and where an extra setup step doesn't matter, it may be worth to check out an external C++ package manager such as [vcpkg](https://github.com/microsoft/vcpkg), [conan](https://conan.io) or [hunter](https://github.com/ruslo/hunter).
 Dependencies added with `CPMFindPackage` should work with external package managers.
@@ -183,6 +186,7 @@ You can use `CPM_SOURCE_CACHE` on GitHub Actions workflows [cache](https://githu
 If set, CPM will forward all calls to `CPMFindPackage` as `CPMAddPackage`.
 This is useful to create reproducible builds or to determine if the source parameters have all been set correctly.
 This can also be set as an environmental variable.
+This can be controlled on a per package basis with the `CPM_DOWNLOAD_<dependency name>` variable.
 
 ### CPM_USE_LOCAL_PACKAGES
 
@@ -226,6 +230,22 @@ cmake --build build --target cpm-update-package-lock
 
 See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Package-lock) for more info.
 
+## Private repositories and CI
+
+When using CPM.cmake with private repositories, there may be a need to provide an [access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) to be able to clone other projects. Instead of providing the token in CMake, we recommend to provide the regular URL and use [git-config](https://git-scm.com/docs/git-config) to rewrite the URLs to include the token.
+
+As an example, you could include one of the following in your CI script.
+
+```bash
+# Github
+git config --global url."https://${USERNAME}:${TOKEN}@github.com".insteadOf "https://github.com"
+```
+
+```bash
+# GitLab
+git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com".insteadOf "https://gitlab.com"
+```
+
 ## Built with CPM.cmake
 
 Some amazing projects that are built using the CPM.cmake package manager.
@@ -258,6 +278,32 @@ If you know others, feel free to add them here through a PR.
       </a>
     </td>
   </tr>
+  <tr>
+    <td>
+      <a href="https://git.io/liblava">
+        <p align="center">
+          <img src="https://github.com/liblava.png" alt="liblava" width="100pt" />
+        </p>
+        <p align="center"><b>liblava - Modern Vulkan library</b></p>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/variar/klogg">
+        <p align="center">
+          <img src="https://github.com/variar/klogg/blob/master/src/app/images/hicolor/scalable/klogg.svg" alt="klogg" width="100pt" />
+        </p>
+        <p align="center"><b>klogg - fast advanced log explorer</b></p>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/MethanePowered/MethaneKit">
+        <p align="center">
+          <img src="https://github.com/MethanePowered/MethaneKit/raw/master/Docs/Images/Logo/MethaneLogoSmall.png" alt="MethaneKit" width="100pt" />
+        </p>
+        <p align="center"><b>Methane Kit - modern 3D graphics rendering framework</b></p>
+      </a>
+    </td>
+  </tr>
 </table>
 
 ## Snippets
@@ -274,7 +320,7 @@ CPMAddPackage("gh:catchorg/Catch2@2.5.0")
 ### [Range-v3](https://github.com/ericniebler/range-v3)
 
 ```Cmake
-CPMAddPackage("gh:ericniebler/range-v3#0.11.0")
+CPMAddPackage("gh:ericniebler/range-v3#0.12.0")
 ```
 
 ### [Yaml-cpp](https://github.com/jbeder/yaml-cpp)
@@ -290,7 +336,8 @@ CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.6.3@0.6.3")
 CPMAddPackage(
   NAME nlohmann_json
   VERSION 3.9.1
-  OPTIONS 
+  GITHUB_REPOSITORY nlohmann/json
+  OPTIONS
     "JSON_BuildTests OFF"
 )
 ```

@@ -26,7 +26,7 @@ for example in examples:
   print("running example %s" % example.name)
   print("================" + ('=' * len(example.name)))
   project = Path(".") / 'build' / example.name
-  configure = runCommand('cmake -H%s -B%s' % (example, project))
+  configure = runCommand('cmake -S%s -B%s' % (example, project))
   print('  ' + '\n  '.join([line for line in configure.split('\n') if 'CPM:' in line]))
   build = runCommand('cmake --build %s -- -j%i' % (project, os.cpu_count() / 2))
   print('  ' + '\n  '.join([line for line in build.split('\n') if 'Built target' in line]))

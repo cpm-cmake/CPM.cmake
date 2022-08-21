@@ -24,7 +24,7 @@ jobs:
 
       - name: unit tests
         run: |
-          cmake -Htest -Bbuild/test
+          cmake -Stest -Bbuild/test
           cmake --build build/test --target test-verbose
 
       - name: integration tests
