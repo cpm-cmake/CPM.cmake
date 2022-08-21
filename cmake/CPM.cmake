@@ -502,7 +502,7 @@ endfunction()
 
 # Convert a URI relative to that of the URL of the remote of our current Git repository e.g.
 # github.com/user/repo.git + ../other.git = github.com/user/other.git
-function(cpm_git_relative_uri_to_url relativeUri name absoluteUri)
+function(cpm_git_relative_uri_to_url relativeUri name url)
   if(${CMAKE_VERSION} VERSION_LESS "3.20.0")
     message(ERROR "Relative URIs require CMake 3.20+")
     return()
@@ -520,7 +520,7 @@ function(cpm_git_relative_uri_to_url relativeUri name absoluteUri)
 
   # If it has been cached, do not resolve it
   if(DEFINED CPM_PACKAGE_${name}_RESOLVED_URL)
-    set(${absoluteUrl}
+    set(${url}
         "${CPM_PACKAGE_${name}_RESOLVED_URL}"
         PARENT_SCOPE
     )
@@ -575,7 +575,7 @@ function(cpm_git_relative_uri_to_url relativeUri name absoluteUri)
       CACHE INTERNAL ""
   )
 
-  set(${absoluteUri}
+  set(${url}
       "${absoluteUrlNormalized}"
       PARENT_SCOPE
   )
