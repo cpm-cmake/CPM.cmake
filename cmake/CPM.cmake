@@ -519,13 +519,20 @@ function(cpm_git_relative_uri_to_url relativeUri name url)
   endif()
 
   # If it has been cached, do not resolve it
-  if(DEFINED CPM_PACKAGE_${name}_RESOLVED_URL)
+  if(DEFINED CPM_PACKAGE_${name}_RESOLVED_URL
+     AND "${CPM_PACKAGE_${name}_RELATIVE_URI}" STREQUAL "${relativeUri}")
     set(${url}
         "${CPM_PACKAGE_${name}_RESOLVED_URL}"
         PARENT_SCOPE
     )
     return()
   endif()
+
+  # Save the relative URI that was passed inside of the cache
+  set("CPM_PACKAGE_${name}_RELATIVE_URI"
+      "${relativeUri}"
+      CACHE INTERNAL ""
+  )
 
   # If a base URL is specified, use that
   if(CPM_RELATIVE_URI_BASE_URL)
