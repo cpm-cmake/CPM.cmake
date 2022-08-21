@@ -519,8 +519,9 @@ function(cpm_git_relative_uri_to_url relativeUri name url)
   endif()
 
   # If it has been cached, do not resolve it
-  if(DEFINED CPM_PACKAGE_${name}_RESOLVED_URL
-     AND "${CPM_PACKAGE_${name}_RELATIVE_URI}" STREQUAL "${relativeUri}")
+  if(DEFINED CPM_PACKAGE_${name}_RESOLVED_URL AND "${CPM_PACKAGE_${name}_RELATIVE_URI}" STREQUAL
+                                                  "${relativeUri}"
+  )
     set(${url}
         "${CPM_PACKAGE_${name}_RESOLVED_URL}"
         PARENT_SCOPE
