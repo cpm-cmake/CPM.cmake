@@ -262,13 +262,40 @@ endfunction()
 
 # Find a package locally or fallback to CPMAddPackage
 function(CPMFindPackage)
-  set(oneValueArgs NAME VERSION GIT_TAG FIND_PACKAGE_ARGUMENTS)
+  set(oneValueArgs NAME VERSION GIT_TAG FIND_PACKAGE_ARGUMENTS INCLUDE_IF)
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "" ${ARGN})
 
   if(NOT DEFINED CPM_ARGS_VERSION)
     if(DEFINED CPM_ARGS_GIT_TAG)
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
+    endif()
+  endif()
+
+  if(DEFINED CPM_ARGS_INCLUDE_IF)
+
+    # Filter out INCLUDE_IF from arguments
+    cpm_remove_one_value_arg(INCLUDE_IF ARGN ${ARGN})
+
+    # If INCLUDE_IF evaluates to false, do not add the package, but do add it to the package lock
+    # and register it.
+    if(NOT CPM_ARGS_INCLUDE_IF)
+      CPMRegisterPackage("${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}")
+      if(CPM_PACKAGE_LOCK_ENABLED)
+        if((CPM_ARGS_VERSION AND NOT CPM_ARGS_SOURCE_DIR) OR CPM_INCLUDE_ALL_IN_PACKAGE_LOCK)
+          cpm_add_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
+        elseif(CPM_ARGS_SOURCE_DIR)
+          cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "local directory")
+        else()
+          cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
+        endif()
+      endif()
+
+      message(
+        STATUS
+          "${CPM_INDENT} skipping package ${CPM_ARGS_NAME}@${CPM_ARGS_VERSION} (INCLUDE_IF: ${CPM_ARGS_INCLUDE_IF})"
+      )
+      return()
     endif()
   endif()
 
@@ -495,6 +522,25 @@ function(cpm_override_fetchcontent contentName)
   set_property(GLOBAL PROPERTY ${propertyName} TRUE)
 endfunction()
 
+# filter out a one value keyword and its value from a list of arguments
+function(cpm_remove_one_value_arg KEYWORD OUTPUT_VAR)
+  # Always start with a copy of the data
+  set(RESULT ${ARGN})
+
+  # Find the keyword location
+  list(FIND RESULT ${KEYWORD} KEYWORD_INDEX)
+  if(KEYWORD_INDEX GREATER_EQUAL 0)
+    # Keyword found; remove data at the same index twice to get rid of the keyword and its value
+    list(REMOVE_AT RESULT ${KEYWORD_INDEX})
+    list(REMOVE_AT RESULT ${KEYWORD_INDEX})
+  endif()
+
+  set(${OUTPUT_VAR}
+      ${RESULT}
+      PARENT_SCOPE
+  )
+endfunction()
+
 # Download and add a package from source
 function(CPMAddPackage)
   cpm_set_policies()
@@ -524,6 +570,7 @@ function(CPMAddPackage)
       GIT_SHALLOW
       EXCLUDE_FROM_ALL
       SOURCE_SUBDIR
+      INCLUDE_IF
   )
 
   set(multiValueArgs URL OPTIONS)
@@ -535,6 +582,33 @@ function(CPMAddPackage)
   if(NOT DEFINED CPM_ARGS_VERSION)
     if(DEFINED CPM_ARGS_GIT_TAG)
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
+    endif()
+  endif()
+
+  if(DEFINED CPM_ARGS_INCLUDE_IF)
+
+    # Filter out INCLUDE_IF from arguments
+    cpm_remove_one_value_arg(INCLUDE_IF ARGN ${ARGN})
+
+    # If INCLUDE_IF evaluates to false, do not add the package, but do add it to the package lock
+    # and register it.
+    if(NOT CPM_ARGS_INCLUDE_IF)
+      CPMRegisterPackage("${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}")
+      if(CPM_PACKAGE_LOCK_ENABLED)
+        if((CPM_ARGS_VERSION AND NOT CPM_ARGS_SOURCE_DIR) OR CPM_INCLUDE_ALL_IN_PACKAGE_LOCK)
+          cpm_add_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
+        elseif(CPM_ARGS_SOURCE_DIR)
+          cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "local directory")
+        else()
+          cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
+        endif()
+      endif()
+
+      message(
+        STATUS
+          "${CPM_INDENT} skipping package ${CPM_ARGS_NAME}@${CPM_ARGS_VERSION} (INCLUDE_IF: ${CPM_ARGS_INCLUDE_IF})"
+      )
+      return()
     endif()
   endif()
 

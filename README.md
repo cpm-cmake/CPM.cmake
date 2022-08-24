@@ -33,6 +33,7 @@ CPMAddPackage(
   VERSION       # The minimum version of the dependency (optional, defaults to 0)
   OPTIONS       # Configuration options passed to the dependency (optional)
   DOWNLOAD_ONLY # If set, the project is downloaded, but not configured (optional)
+  INCLUDE_IF    # If set, the value has to evaluate to true for the dependency to be added (optional)
   [...]         # Origin parameters forwarded to FetchContent_Declare, see below
 )
 ```
