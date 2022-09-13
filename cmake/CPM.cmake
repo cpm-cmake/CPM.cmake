@@ -712,7 +712,7 @@ function(CPMAddPackage)
       )
       cpm_get_fetch_properties("${CPM_ARGS_NAME}")
 
-      if(DEFINED CPM_ARGS_GIT_TAG)
+      if(DEFINED CPM_ARGS_GIT_TAG AND NOT (PATCH_COMMAND IN_LIST CPM_ARGS_UNPARSED_ARGUMENTS))
         # warn if cache has been changed since checkout
         cpm_check_git_working_dir_is_clean(${download_directory} ${CPM_ARGS_GIT_TAG} IS_CLEAN)
         if(NOT ${IS_CLEAN})
