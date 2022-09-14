@@ -808,6 +808,10 @@ macro(cpm_export_variables name)
       "${${name}_ADDED}"
       PARENT_SCOPE
   )
+  set(CPM_LAST_PACKAGE_NAME 
+      "${name}"
+      PARENT_SCOPE
+  )
 endmacro()
 
 # declares a package, so that any call to CPMAddPackage for the package name will use these
