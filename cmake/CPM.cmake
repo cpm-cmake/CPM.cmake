@@ -611,10 +611,17 @@ function(CPMAddPackage)
     return()
   endif()
 
+  # Check for ENV overide for local package-source when not already defined
+  # NOTE: Uses a recursive CPMAddPackage call where `CPM_${CPM_ARGS_NAME}_SOURCE` == "" which causes first if-case to stop recusrion
+  if( CPM_${CPM_ARGS_NAME}_SOURCE )
+    file(TO_CMAKE_PATH "${CPM_${CPM_ARGS_NAME}_SOURCE}" PACKAGE_SOURCE)
+  elseif( DEFINED ENV{CPM_${CPM_ARGS_NAME}_SOURCE})
+    file(TO_CMAKE_PATH "$ENV{CPM_${CPM_ARGS_NAME}_SOURCE}" PACKAGE_SOURCE)
+  endif()
+
   # Check for manual overrides
-  if(NOT CPM_ARGS_FORCE AND NOT "${CPM_${CPM_ARGS_NAME}_SOURCE}" STREQUAL "")
-    set(PACKAGE_SOURCE ${CPM_${CPM_ARGS_NAME}_SOURCE})
-    set(CPM_${CPM_ARGS_NAME}_SOURCE "")
+  if(NOT CPM_ARGS_FORCE AND NOT "${PACKAGE_SOURCE}" STREQUAL "")
+    set(CPM_${CPM_ARGS_NAME}_SOURCE "") # Assign empty to prevent recursion
     CPMAddPackage(
       NAME "${CPM_ARGS_NAME}"
       SOURCE_DIR "${PACKAGE_SOURCE}"
