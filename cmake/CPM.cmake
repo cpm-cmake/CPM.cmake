@@ -168,7 +168,7 @@ include(FetchContent)
 # Try to infer package name from git repository uri (path or url)
 function(cpm_package_name_from_git_uri URI RESULT)
   # i.e. https://github.com/cpm-cmake/testpack-fibonacci.git message(WARNING "${URI}")
-  if("${URI}" MATCHES [=[(.*)?/([a-zA-Z0-9_-]+)?.git/?$]=])
+  if("${URI}" MATCHES [=[(.*)?/([a-zA-Z0-9._-]+)?.git/?$]=])
     set(${RESULT}
         ${CMAKE_MATCH_2}
         PARENT_SCOPE
