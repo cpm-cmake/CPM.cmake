@@ -6,14 +6,23 @@ include(${CPM_PATH}/testing.cmake)
 cpm_package_name_from_git_uri("https://github.com/cpm-cmake/CPM.cmake.git" name)
 assert_equal("CPM.cmake" ${name})
 
+cpm_package_name_from_git_uri("https://github.com/cpm-cmake/testpack-fibonacci.git" name)
+assert_equal("testpack-fibonacci" ${name})
+
+cpm_package_name_from_git_uri("https://github.com/aminya/project_options.git" name)
+assert_equal("project_options" ${name})
+
 cpm_package_name_from_git_uri("ssh://user@host.xz:123/path/to/pkg.git/" name)
 assert_equal("pkg" ${name})
 
 cpm_package_name_from_git_uri("git://host.xz/path/to/pkg.git" name)
 assert_equal("pkg" ${name})
 
-cpm_package_name_from_git_uri("git@host.xz:cool-pkg.git" name)
+cpm_package_name_from_git_uri("git@host.xz:./cool-pkg.git" name)
 assert_equal("cool-pkg" ${name})
+
+cpm_package_name_from_git_uri("git@github.com:user/repo.git" name)
+assert_equal("repo" ${name})
 
 cpm_package_name_from_git_uri("file:///path/to/pkg33.git" name)
 assert_equal("pkg33" ${name})
