@@ -73,7 +73,7 @@ After calling `CPMAddPackage`, the following variables are defined in the local 
 - `<dependency>_SOURCE_DIR` is the path to the source of the dependency.
 - `<dependency>_BINARY_DIR` is the path to the build directory of the dependency.
 - `<dependency>_ADDED` is set to `YES` if the dependency has not been added before, otherwise it is set to `NO`.
-- CPM_LAST_PACKAGE_NAME is set to `<dependency>`. For single-argument syntax this will be the automatically determined name.
+- `CPM_LAST_PACKAGE_NAME` is set to the determined name of the last added dependency (equivalent to `<dependency>`).
 
 For using CPM.cmake projects with external package managers, such as conan or vcpkg, setting the variable [`CPM_USE_LOCAL_PACKAGES`](#options) will make CPM.cmake try to add a package through `find_package` first, and add it from source if it doesn't succeed.
 
