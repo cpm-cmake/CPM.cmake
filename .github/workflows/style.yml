@@ -11,15 +11,13 @@ on:
 jobs:
   style:
 
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v1
     
     - name: Install format dependencies
-      run: |
-        brew install clang-format
-        pip3 install cmake_format==0.6.11 pyyaml
+      run: pip3 install clang-format==14.0.6 cmake_format==0.6.11 pyyaml
 
     - name: configure
       run: cmake -Stest/style -Bbuild/style
