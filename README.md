@@ -40,7 +40,7 @@ CPMAddPackage("gh:nlohmann/json@3.10.5")
 CPMAddPackage("gh:catchorg/Catch2@2.5.0")
 
 # link dependencies
-target_link_libraries(main fmt nlohmann_json::nlohmann_json Catch2)
+target_link_libraries(main fmt::fmt nlohmann_json::nlohmann_json Catch2::Catch2)
 ```
 
 See the [examples directory](https://github.com/cpm-cmake/CPM.cmake/tree/master/examples) for complete examples with source code and check [below](#snippets) or in the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets) for example snippets.
