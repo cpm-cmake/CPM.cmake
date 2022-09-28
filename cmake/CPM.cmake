@@ -808,7 +808,7 @@ macro(cpm_export_variables name)
       "${${name}_ADDED}"
       PARENT_SCOPE
   )
-  set(CPM_LAST_PACKAGE_NAME 
+  set(CPM_LAST_PACKAGE_NAME
       "${name}"
       PARENT_SCOPE
   )
