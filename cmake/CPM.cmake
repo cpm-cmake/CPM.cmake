@@ -28,25 +28,29 @@
 
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-if (NOT DEFINED CPM_INDENT)
-  set(CPM_INDENT "CPM: ")
-endif ()
+# Initialize logging prefix
+if(NOT CPM_INDENT)
+  set(CPM_INDENT
+      "CPM:"
+      CACHE INTERNAL ""
+  )
+endif()
 
-if (NOT COMMAND cpm_message)
+if(NOT COMMAND cpm_message)
   function(cpm_message)
     message(${ARGV})
   endfunction()
-endif ()
+endif()
 
 set(CURRENT_CPM_VERSION 1.0.0-development-version)
 
 get_filename_component(CPM_CURRENT_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" REALPATH)
-if (CPM_DIRECTORY)
-  if (NOT CPM_DIRECTORY STREQUAL CPM_CURRENT_DIRECTORY)
-    if (CPM_VERSION VERSION_LESS CURRENT_CPM_VERSION)
+if(CPM_DIRECTORY)
+  if(NOT CPM_DIRECTORY STREQUAL CPM_CURRENT_DIRECTORY)
+    if(CPM_VERSION VERSION_LESS CURRENT_CPM_VERSION)
       message(
-              AUTHOR_WARNING
-              "${CPM_INDENT} \
+        AUTHOR_WARNING
+          "${CPM_INDENT} \
 A dependency is using a more recent CPM version (${CURRENT_CPM_VERSION}) than the current project (${CPM_VERSION}). \
 It is recommended to upgrade CPM to the most recent version. \
 See https://github.com/cpm-cmake/CPM.cmake for more information."
@@ -69,10 +73,11 @@ See https://github.com/cpm-cmake/CPM.cmake for more information."
 endif()
 
 if(CURRENT_CPM_VERSION MATCHES "development-version")
-  message(WARNING "${CPM_INDENT} Your project is using an unstable development version of CPM.cmake. \
+  message(
+    WARNING "${CPM_INDENT} Your project is using an unstable development version of CPM.cmake. \
 Please update to a recent release if possible. \
 See https://github.com/cpm-cmake/CPM.cmake for details."
-          )
+  )
 endif()
 
 set_property(GLOBAL PROPERTY CPM_INITIALIZED true)
@@ -233,14 +238,6 @@ function(cpm_package_name_and_ver_from_url url outName outVer)
   endif()
 endfunction()
 
-# Initialize logging prefix
-if(NOT CPM_INDENT)
-  set(CPM_INDENT
-      "CPM:"
-      CACHE INTERNAL ""
-  )
-endif()
-
 function(cpm_find_package NAME VERSION)
   string(REPLACE " " ";" EXTRA_ARGS "${ARGN}")
   find_package(${NAME} ${VERSION} ${EXTRA_ARGS} QUIET)
@@ -318,8 +315,8 @@ function(cpm_check_if_package_already_added CPM_ARGS_NAME CPM_ARGS_VERSION)
     CPMGetPackageVersion(${CPM_ARGS_NAME} CPM_PACKAGE_VERSION)
     if("${CPM_PACKAGE_VERSION}" VERSION_LESS "${CPM_ARGS_VERSION}")
       message(
-              WARNING
-              "${CPM_INDENT} Requires a newer version of ${CPM_ARGS_NAME} (${CPM_ARGS_VERSION}) than currently included (${CPM_PACKAGE_VERSION})."
+        WARNING
+          "${CPM_INDENT} Requires a newer version of ${CPM_ARGS_NAME} (${CPM_ARGS_VERSION}) than currently included (${CPM_PACKAGE_VERSION})."
       )
     endif()
     cpm_get_fetch_properties(${CPM_ARGS_NAME})
@@ -431,9 +428,9 @@ function(cpm_check_git_working_dir_is_clean repoPath gitTag isClean)
     # not supposed to happen, assume clean anyway
     message(WARNING "${CPM_INDENT} Calling git status on folder ${repoPath} failed")
     set(${isClean}
-            TRUE
-            PARENT_SCOPE
-            )
+        TRUE
+        PARENT_SCOPE
+    )
     return()
   endif()
 
@@ -609,8 +606,8 @@ function(CPMAddPackage)
 
   if(NOT DEFINED CPM_ARGS_NAME)
     message(
-            FATAL_ERROR
-            "${CPM_INDENT} 'NAME' was not provided and couldn't be automatically inferred for package added with arguments: '${ARGN}'"
+      FATAL_ERROR
+        "${CPM_INDENT} 'NAME' was not provided and couldn't be automatically inferred for package added with arguments: '${ARGN}'"
     )
   endif()
 
@@ -659,8 +656,8 @@ function(CPMAddPackage)
 
     if(CPM_LOCAL_PACKAGES_ONLY)
       message(
-              SEND_ERROR
-              "${CPM_INDENT} ${CPM_ARGS_NAME} not found via find_package(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION})"
+        SEND_ERROR
+          "${CPM_INDENT} ${CPM_ARGS_NAME} not found via find_package(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION})"
       )
     endif()
   endif()
@@ -726,7 +723,9 @@ function(CPMAddPackage)
         # warn if cache has been changed since checkout
         cpm_check_git_working_dir_is_clean(${download_directory} ${CPM_ARGS_GIT_TAG} IS_CLEAN)
         if(NOT ${IS_CLEAN})
-          message(WARNING "${CPM_INDENT} Cache for ${CPM_ARGS_NAME} (${download_directory}) is dirty")
+          message(
+            WARNING "${CPM_INDENT} Cache for ${CPM_ARGS_NAME} (${download_directory}) is dirty"
+          )
         endif()
       endif()
 
@@ -762,28 +761,28 @@ function(CPMAddPackage)
 
   cpm_create_module_file(${CPM_ARGS_NAME} "CPMAddPackage(\"${ARGN}\")")
 
-  if (CPM_PACKAGE_LOCK_ENABLED)
-    if ((CPM_ARGS_VERSION AND NOT CPM_ARGS_SOURCE_DIR) OR CPM_INCLUDE_ALL_IN_PACKAGE_LOCK)
+  if(CPM_PACKAGE_LOCK_ENABLED)
+    if((CPM_ARGS_VERSION AND NOT CPM_ARGS_SOURCE_DIR) OR CPM_INCLUDE_ALL_IN_PACKAGE_LOCK)
       cpm_add_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
-    elseif (CPM_ARGS_SOURCE_DIR)
+    elseif(CPM_ARGS_SOURCE_DIR)
       cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "local directory")
-    else ()
+    else()
       cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
-    endif ()
-  endif ()
+    endif()
+  endif()
 
   cpm_message(
-          STATUS "${CPM_INDENT} Adding package ${CPM_ARGS_NAME}@${CPM_ARGS_VERSION} (${PACKAGE_INFO})"
+    STATUS "${CPM_INDENT} Adding package ${CPM_ARGS_NAME}@${CPM_ARGS_VERSION} (${PACKAGE_INFO})"
   )
 
-  if (NOT CPM_SKIP_FETCH)
+  if(NOT CPM_SKIP_FETCH)
     cpm_declare_fetch(
-            "${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
+      "${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
     )
     cpm_fetch_package("${CPM_ARGS_NAME}" populated)
-    if (${populated})
+    if(${populated})
       cpm_add_subdirectory(
-              "${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}"
+        "${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}"
         "${${CPM_ARGS_NAME}_SOURCE_DIR}/${CPM_ARGS_SOURCE_SUBDIR}" "${${CPM_ARGS_NAME}_BINARY_DIR}"
         "${CPM_ARGS_EXCLUDE_FROM_ALL}" "${CPM_ARGS_OPTIONS}"
       )
