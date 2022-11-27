@@ -672,6 +672,8 @@ function(CPMAddPackage)
     set(CPM_FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/_deps)
   endif()
 
+  file(LOCK ${CPM_SOURCE_CACHE} DIRECTORY GUARD FILE)
+
   if(DEFINED CPM_ARGS_DOWNLOAD_COMMAND)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS DOWNLOAD_COMMAND ${CPM_ARGS_DOWNLOAD_COMMAND})
   elseif(DEFINED CPM_ARGS_SOURCE_DIR)
@@ -780,6 +782,8 @@ function(CPMAddPackage)
     endif()
     cpm_get_fetch_properties("${CPM_ARGS_NAME}")
   endif()
+
+  file(LOCK ${CPM_SOURCE_CACHE} DIRECTORY GUARD FILE RELEASE)
 
   set(${CPM_ARGS_NAME}_ADDED YES)
   cpm_export_variables("${CPM_ARGS_NAME}")
