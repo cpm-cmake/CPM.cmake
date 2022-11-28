@@ -672,10 +672,12 @@ function(CPMAddPackage)
     set(CPM_FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/_deps)
   endif()
 
+  message("GETTING LOCK!")
   if(NOT HAS_LOCK)
-    file(LOCK ${CPM_SOURCE_CACHE} DIRECTORY GUARD FILE)
+    file(LOCK ${CPM_SOURCE_CACHE} DIRECTORY)
     set(HAS_LOCK 1)
   endif()
+  message("GOT LOCK!")
 
   if(DEFINED CPM_ARGS_DOWNLOAD_COMMAND)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS DOWNLOAD_COMMAND ${CPM_ARGS_DOWNLOAD_COMMAND})
@@ -786,11 +788,7 @@ function(CPMAddPackage)
     cpm_get_fetch_properties("${CPM_ARGS_NAME}")
   endif()
 
-  file(
-    LOCK ${CPM_SOURCE_CACHE} DIRECTORY
-    GUARD FILE
-    RELEASE
-  )
+  file(LOCK ${CPM_SOURCE_CACHE} DIRECTORY RELEASE)
   set(HAS_LOCK 0)
 
   set(${CPM_ARGS_NAME}_ADDED YES)
