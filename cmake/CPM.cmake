@@ -674,11 +674,6 @@ function(CPMAddPackage)
     set(CPM_FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/_deps)
   endif()
 
-  if(NOT CPM_HAS_CACHE_LOCK AND CPM_SOURCE_CACHE)
-    file(LOCK ${CPM_SOURCE_CACHE}/${CPM_ARGS_NAME} DIRECTORY)
-    set(CPM_HAS_CACHE_LOCK 1)
-  endif()
-
   if(DEFINED CPM_ARGS_DOWNLOAD_COMMAND)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS DOWNLOAD_COMMAND ${CPM_ARGS_DOWNLOAD_COMMAND})
   elseif(DEFINED CPM_ARGS_SOURCE_DIR)
@@ -712,6 +707,12 @@ function(CPMAddPackage)
     # relative paths.
     get_filename_component(download_directory ${download_directory} ABSOLUTE)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${download_directory})
+
+    if(NOT CPM_HAS_CACHE_LOCK AND CPM_SOURCE_CACHE)
+      file(LOCK ${download_directory} DIRECTORY)
+      set(CPM_HAS_CACHE_LOCK ON)
+    endif()
+
     if(EXISTS ${download_directory})
       cpm_store_fetch_properties(
         ${CPM_ARGS_NAME} "${download_directory}"
@@ -789,8 +790,8 @@ function(CPMAddPackage)
   endif()
 
   if(CPM_SOURCE_CACHE)
-    file(LOCK ${CPM_SOURCE_CACHE}/${CPM_ARGS_NAME} DIRECTORY RELEASE)
-    set(CPM_HAS_CACHE_LOCK 0)
+    file(LOCK ${download_directory} DIRECTORY RELEASE)
+    set(CPM_HAS_CACHE_LOCK OFF)
   endif()
 
   set(${CPM_ARGS_NAME}_ADDED YES)
