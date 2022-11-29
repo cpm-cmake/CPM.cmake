@@ -789,10 +789,7 @@ function(CPMAddPackage)
     cpm_get_fetch_properties("${CPM_ARGS_NAME}")
   endif()
 
-  if(CPM_HAS_CACHE_LOCK
-     AND CPM_SOURCE_CACHE
-     AND NOT CPM_ARGS_NO_CACHE
-  )
+  if(CPM_HAS_CACHE_LOCK)
     file(LOCK ${CPM_SOURCE_CACHE} DIRECTORY RELEASE)
     set(CPM_HAS_CACHE_LOCK OFF)
   endif()
