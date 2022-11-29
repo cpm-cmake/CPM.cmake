@@ -141,6 +141,8 @@ set(CPM_SOURCE_CACHE
     CACHE PATH "Directory to download CPM dependencies"
 )
 
+set(CPM_HAS_CACHE_LOCK OFF)
+
 if(NOT CPM_DONT_UPDATE_MODULE_PATH)
   set(CPM_MODULE_PATH
       "${CMAKE_BINARY_DIR}/CPM_modules"
@@ -672,9 +674,9 @@ function(CPMAddPackage)
     set(CPM_FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/_deps)
   endif()
 
-  if(NOT HAS_LOCK)
-    file(LOCK ${CPM_SOURCE_CACHE} DIRECTORY)
-    set(HAS_LOCK 1)
+  if(NOT CPM_HAS_CACHE_LOCK AND CPM_SOURCE_CACHE)
+    file(LOCK ${CPM_SOURCE_CACHE}/${CPM_ARGS_NAME} DIRECTORY)
+    set(CPM_HAS_CACHE_LOCK 1)
   endif()
 
   if(DEFINED CPM_ARGS_DOWNLOAD_COMMAND)
@@ -786,8 +788,10 @@ function(CPMAddPackage)
     cpm_get_fetch_properties("${CPM_ARGS_NAME}")
   endif()
 
-  file(LOCK ${CPM_SOURCE_CACHE} DIRECTORY RELEASE)
-  set(HAS_LOCK 0)
+  if(CPM_SOURCE_CACHE)
+    file(LOCK ${CPM_SOURCE_CACHE}/${CPM_ARGS_NAME} DIRECTORY RELEASE)
+    set(CPM_HAS_CACHE_LOCK 0)
+  endif()
 
   set(${CPM_ARGS_NAME}_ADDED YES)
   cpm_export_variables("${CPM_ARGS_NAME}")
