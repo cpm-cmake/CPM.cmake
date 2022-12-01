@@ -709,7 +709,7 @@ function(CPMAddPackage)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${download_directory})
 
     if(NOT CPM_HAS_CACHE_LOCK)
-      file(LOCK ${CPM_SOURCE_CACHE} DIRECTORY)
+      file(LOCK ${download_directory}/../ DIRECTORY)
       set(CPM_HAS_CACHE_LOCK ON)
     endif()
 
@@ -790,7 +790,7 @@ function(CPMAddPackage)
   endif()
 
   if(CPM_HAS_CACHE_LOCK)
-    file(LOCK ${CPM_SOURCE_CACHE} DIRECTORY RELEASE)
+    file(LOCK ${download_directory}/../ DIRECTORY RELEASE)
     set(CPM_HAS_CACHE_LOCK OFF)
   endif()
 
