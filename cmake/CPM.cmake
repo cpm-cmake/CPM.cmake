@@ -790,6 +790,7 @@ function(CPMAddPackage)
   endif()
 
   if(CPM_HAS_CACHE_LOCK)
+    file(LOCK ${download_directory}/../ DIRECTORY RELEASE)
     file(REMOVE ${download_directory}/../cmake.lock)
     set(CPM_HAS_CACHE_LOCK OFF)
   endif()
