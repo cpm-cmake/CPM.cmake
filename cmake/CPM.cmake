@@ -716,7 +716,7 @@ function(CPMAddPackage)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${download_directory})
 
     if(NOT CPM_HAS_CACHE_LOCK)
-      file(LOCK ${download_directory}/../ DIRECTORY)
+      file(LOCK ${download_directory}/../cmake.lock)
       set(CPM_HAS_CACHE_LOCK ON)
     endif()
 
@@ -799,7 +799,7 @@ function(CPMAddPackage)
   endif()
 
   if(CPM_HAS_CACHE_LOCK)
-    file(LOCK ${download_directory}/../ DIRECTORY RELEASE)
+    file(LOCK ${download_directory}/../cmake.lock RELEASE)
     file(REMOVE ${download_directory}/../cmake.lock)
     set(CPM_HAS_CACHE_LOCK OFF)
   endif()
