@@ -1,8 +1,6 @@
-#define CATCH_CONFIG_MAIN
-
 #include <fibonacci.h>
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("fibonacci") {
   REQUIRE(fibonacci(0) == 0);
