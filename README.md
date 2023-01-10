@@ -308,6 +308,18 @@ If you know others, feel free to add them here through a PR.
       </a>
     </td>
   </tr>
+  <tr>
+    <td>
+      <a href="https://github.com/jhasse/jngl">
+        <p align="center">
+          <img src="https://github.com/jhasse/jngl/raw/master/doc/jngl-logo.svg" alt="JNGL" width="100pt" />
+        </p>
+        <p align="center"><b>JNGL - easy to use cross-platform 2D game library</b></p>
+      </a>
+    </td>
+    <td/>
+    <td/>
+  </tr>
 </table>
 
 ## Snippets
