@@ -156,8 +156,6 @@ set(CPM_SOURCE_CACHE
     CACHE PATH "Directory to download CPM dependencies"
 )
 
-set(CPM_HAS_CACHE_LOCK OFF)
-
 if(NOT CPM_DONT_UPDATE_MODULE_PATH)
   set(CPM_MODULE_PATH
       "${CMAKE_BINARY_DIR}/CPM_modules"
@@ -715,9 +713,9 @@ function(CPMAddPackage)
     get_filename_component(download_directory ${download_directory} ABSOLUTE)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${download_directory})
 
-    if(NOT CPM_HAS_CACHE_LOCK)
+    if(NOT ${CPM_ARGS_NAME}_CPM_HAS_CACHE_LOCK)
       file(LOCK ${download_directory}/../cmake.lock)
-      set(CPM_HAS_CACHE_LOCK ON)
+      set(${CPM_ARGS_NAME}_CPM_HAS_CACHE_LOCK ON)
     endif()
 
     if(EXISTS ${download_directory})
@@ -798,10 +796,10 @@ function(CPMAddPackage)
     cpm_get_fetch_properties("${CPM_ARGS_NAME}")
   endif()
 
-  if(CPM_HAS_CACHE_LOCK)
+  if(${CPM_ARGS_NAME}_CPM_HAS_CACHE_LOCK)
     file(LOCK ${download_directory}/../cmake.lock RELEASE)
     file(REMOVE ${download_directory}/../cmake.lock)
-    set(CPM_HAS_CACHE_LOCK OFF)
+    set(${CPM_ARGS_NAME}_CPM_HAS_CACHE_LOCK OFF)
   endif()
 
   set(${CPM_ARGS_NAME}_ADDED YES)
