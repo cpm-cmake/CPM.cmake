@@ -7,12 +7,12 @@ project(CPMExampleCatch2)
 include(../../cmake/CPM.cmake)
 
 CPMAddPackage("gh:cpm-cmake/testpack-fibonacci@2.0")
-CPMAddPackage("gh:catchorg/Catch2@2.13.4")
+CPMAddPackage("gh:catchorg/Catch2@3.2.1")
 
 # ---- Create binary ----
 
 add_executable(CPMExampleCatch2 main.cpp)
-target_link_libraries(CPMExampleCatch2 fibonacci Catch2)
+target_link_libraries(CPMExampleCatch2 fibonacci Catch2::Catch2WithMain)
 target_compile_features(CPMExampleCatch2 PRIVATE cxx_std_17)
 
 # ---- Enable testing ----

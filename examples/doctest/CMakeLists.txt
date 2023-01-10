@@ -7,7 +7,7 @@ project(CPMExampleDoctest)
 include(../../cmake/CPM.cmake)
 
 CPMAddPackage("gh:cpm-cmake/testpack-fibonacci@2.0")
-CPMAddPackage("gh:onqtam/doctest#2.4.5")
+CPMAddPackage("gh:onqtam/doctest@2.4.9")
 
 # ---- Create binary ----
 
