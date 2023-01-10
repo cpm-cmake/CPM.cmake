@@ -37,10 +37,10 @@ include(cmake/CPM.cmake)
 
 CPMAddPackage("gh:fmtlib/fmt#7.1.3")
 CPMAddPackage("gh:nlohmann/json@3.10.5")
-CPMAddPackage("gh:catchorg/Catch2@2.5.0")
+CPMAddPackage("gh:catchorg/Catch2@3.2.1")
 
 # link dependencies
-target_link_libraries(main fmt::fmt nlohmann_json::nlohmann_json Catch2::Catch2)
+target_link_libraries(main fmt::fmt nlohmann_json::nlohmann_json Catch2::Catch2WithMain)
 ```
 
 See the [examples directory](https://github.com/cpm-cmake/CPM.cmake/tree/master/examples) for complete examples with source code and check [below](#snippets) or in the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets) for example snippets.
@@ -353,9 +353,9 @@ CPMAddPackage(
 # using `CPM_SOURCE_CACHE` is strongly recommended
 CPMAddPackage(
   NAME Boost
-  VERSION 1.77.0
+  VERSION 1.81.0
   GITHUB_REPOSITORY "boostorg/boost"
-  GIT_TAG "boost-1.77.0"
+  GIT_TAG "boost-1.81.0"
 )
 ```
 
