@@ -173,6 +173,7 @@ class IntegrationTest < Test::Unit::TestCase
         tr("-", "_").
         downcase
       )
+      @@proj_count = 0
     end
   end
 
@@ -184,7 +185,8 @@ class IntegrationTest < Test::Unit::TestCase
     test_name = local_name
     test_name = test_name[5..] if test_name.start_with?('test_')
 
-    base = File.join(cur_test_dir, test_name)
+    @@proj_count += 1
+    base = File.join(cur_test_dir, test_name + '-' + @@proj_count.to_s)
     src_dir = base + '-src'
 
     FileUtils.mkdir_p src_dir
