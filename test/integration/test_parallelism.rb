@@ -1,7 +1,5 @@
 require_relative './lib'
 
-# Tests with source cache
-
 class Parallelism < IntegrationTest
   def setup
     @cache_dir = File.join(cur_test_dir, 'cpmcache')
@@ -23,5 +21,4 @@ class Parallelism < IntegrationTest
       .map { |t| t.join }
 
   end
-
 end
