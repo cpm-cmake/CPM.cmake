@@ -793,7 +793,9 @@ function(CPMAddPackage)
     cpm_get_fetch_properties("${CPM_ARGS_NAME}")
   endif()
 
-  file(LOCK ${download_directory}/../cmake.lock RELEASE)
+  if (EXISTS ${download_directory}/../cmake.lock)
+    file(LOCK ${download_directory}/../cmake.lock RELEASE)
+  endif ()
 
   set(${CPM_ARGS_NAME}_ADDED YES)
   cpm_export_variables("${CPM_ARGS_NAME}")
