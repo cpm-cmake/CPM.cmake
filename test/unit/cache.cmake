@@ -40,12 +40,22 @@ execute_process(
 assert_equal(${ret} "0")
 assert_exists("${CPM_SOURCE_CACHE_DIR}/fibonacci")
 
+set(VERSION_COUNT 0)
 file(GLOB FIBONACCI_VERSIONs "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
-list(LENGTH FIBONACCI_VERSIONs FIBONACCI_VERSION_count)
-assert_equal(${FIBONACCI_VERSION_count} "1")
+foreach(ENTRY ${FIBONACCI_VERSIONs})
+  if(IS_DIRECTORY ${ENTRY})
+    math(EXPR VERSION_COUNT "${VERSION_COUNT} + 1")
+  endif()
+endforeach()
+assert_equal(${VERSION_COUNT} "1")
 
+set(version_count 0)
 file(GLOB fibonacci_versions "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
-list(LENGTH fibonacci_versions fibonacci_version_count)
+foreach(entry ${fibonacci_versions})
+  if(IS_DIRECTORY ${entry})
+    math(EXPR version_count "${version_count} + 1")
+  endif()
+endforeach()
 assert_equal(${fibonacci_version_count} "1")
 
 # Update dependency and keep CPM_SOURCE_CACHE
