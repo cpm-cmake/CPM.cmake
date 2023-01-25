@@ -67,9 +67,14 @@ execute_process(COMMAND ${CMAKE_COMMAND} ${TEST_BUILD_DIR} RESULT_VARIABLE ret)
 
 assert_equal(${ret} "0")
 
+set(VERSION_COUNT 0)
 file(GLOB FIBONACCI_VERSIONs "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
-list(LENGTH FIBONACCI_VERSIONs FIBONACCI_VERSION_count)
-assert_equal(${FIBONACCI_VERSION_count} "2")
+foreach(ENTRY ${FIBONACCI_VERSIONs})
+  if(IS_DIRECTORY ${ENTRY})
+    math(EXPR VERSION_COUNT "${VERSION_COUNT} + 1")
+  endif()
+endforeach()
+assert_equal(${VERSION_COUNT} "2")
 
 # Clear cache and update
 
