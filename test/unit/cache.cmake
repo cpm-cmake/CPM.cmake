@@ -56,7 +56,7 @@ foreach(entry ${fibonacci_versions})
     math(EXPR version_count "${version_count} + 1")
   endif()
 endforeach()
-assert_equal(${fibonacci_version_count} "1")
+assert_equal(${version_count} "1")
 
 # Update dependency and keep CPM_SOURCE_CACHE
 
