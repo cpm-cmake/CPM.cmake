@@ -713,10 +713,7 @@ function(CPMAddPackage)
     get_filename_component(download_directory ${download_directory} ABSOLUTE)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${download_directory})
 
-    if(NOT ${CPM_ARGS_NAME}_CPM_HAS_CACHE_LOCK)
-      file(LOCK ${download_directory}/../cmake.lock)
-      set(${CPM_ARGS_NAME}_CPM_HAS_CACHE_LOCK ON)
-    endif()
+    file(LOCK ${download_directory}/../cmake.lock)
 
     if(EXISTS ${download_directory})
       cpm_store_fetch_properties(
@@ -796,11 +793,7 @@ function(CPMAddPackage)
     cpm_get_fetch_properties("${CPM_ARGS_NAME}")
   endif()
 
-  if(${CPM_ARGS_NAME}_CPM_HAS_CACHE_LOCK)
-    file(LOCK ${download_directory}/../cmake.lock RELEASE)
-    file(REMOVE ${download_directory}/../cmake.lock)
-    set(${CPM_ARGS_NAME}_CPM_HAS_CACHE_LOCK OFF)
-  endif()
+  file(REMOVE ${download_directory}/../cmake.lock)
 
   set(${CPM_ARGS_NAME}_ADDED YES)
   cpm_export_variables("${CPM_ARGS_NAME}")
