@@ -51,7 +51,7 @@ execute_process(
 assert_equal(${ret} "0")
 assert_exists("${CPM_SOURCE_CACHE_DIR}/fibonacci")
 
-assertCacheDirectoryCount("${CPM_SOURCE_CACHE_DIR}/fibonacci/*" 1)
+assertcachedirectorycount("${CPM_SOURCE_CACHE_DIR}/fibonacci/*" 1)
 
 # Update dependency and keep CPM_SOURCE_CACHE
 
@@ -61,7 +61,7 @@ update_cmake_lists()
 execute_process(COMMAND ${CMAKE_COMMAND} ${TEST_BUILD_DIR} RESULT_VARIABLE ret)
 assert_equal(${ret} "0")
 
-assertCacheDirectoryCount("${CPM_SOURCE_CACHE_DIR}/fibonacci/*" 2)
+assertcachedirectorycount("${CPM_SOURCE_CACHE_DIR}/fibonacci/*" 2)
 
 # Clear cache and update
 
