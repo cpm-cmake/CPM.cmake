@@ -26,6 +26,17 @@ function(reset_test)
   update_cmake_lists()
 endfunction()
 
+function(assertCacheDirectoryCount directory count)
+  set(version_count 0)
+  file(GLOB potential_versions ${directory})
+  foreach(entry ${potential_versions})
+    if(IS_DIRECTORY ${entry})
+      math(EXPR version_count "${version_count} + 1")
+    endif()
+  endforeach()
+  assert_equal("${version_count}" "${count}")
+endfunction()
+
 set(FIBONACCI_VERSION 1.0)
 
 # Read CPM_SOURCE_CACHE from arguments
@@ -40,23 +51,7 @@ execute_process(
 assert_equal(${ret} "0")
 assert_exists("${CPM_SOURCE_CACHE_DIR}/fibonacci")
 
-set(VERSION_COUNT 0)
-file(GLOB FIBONACCI_VERSIONs "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
-foreach(ENTRY ${FIBONACCI_VERSIONs})
-  if(IS_DIRECTORY ${ENTRY})
-    math(EXPR VERSION_COUNT "${VERSION_COUNT} + 1")
-  endif()
-endforeach()
-assert_equal(${VERSION_COUNT} "1")
-
-set(version_count 0)
-file(GLOB fibonacci_versions "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
-foreach(entry ${fibonacci_versions})
-  if(IS_DIRECTORY ${entry})
-    math(EXPR version_count "${version_count} + 1")
-  endif()
-endforeach()
-assert_equal(${version_count} "1")
+assertCacheDirectoryCount("${CPM_SOURCE_CACHE_DIR}/fibonacci/*" 1)
 
 # Update dependency and keep CPM_SOURCE_CACHE
 
@@ -64,17 +59,9 @@ set(FIBONACCI_VERSION 2.0)
 update_cmake_lists()
 
 execute_process(COMMAND ${CMAKE_COMMAND} ${TEST_BUILD_DIR} RESULT_VARIABLE ret)
-
 assert_equal(${ret} "0")
 
-set(VERSION_COUNT 0)
-file(GLOB FIBONACCI_VERSIONs "${CPM_SOURCE_CACHE_DIR}/fibonacci/*")
-foreach(ENTRY ${FIBONACCI_VERSIONs})
-  if(IS_DIRECTORY ${ENTRY})
-    math(EXPR VERSION_COUNT "${VERSION_COUNT} + 1")
-  endif()
-endforeach()
-assert_equal(${VERSION_COUNT} "2")
+assertCacheDirectoryCount("${CPM_SOURCE_CACHE_DIR}/fibonacci/*" 2)
 
 # Clear cache and update
 
