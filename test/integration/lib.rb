@@ -173,7 +173,6 @@ class IntegrationTest < Test::Unit::TestCase
         tr("-", "_").
         downcase
       )
-      @@proj_count = 0
     end
   end
 
@@ -181,20 +180,20 @@ class IntegrationTest < Test::Unit::TestCase
     @@test_dir
   end
 
-  def make_project(template_dir = nil)
+  def make_project(name: nil, from_template: nil)
     test_name = local_name
     test_name = test_name[5..] if test_name.start_with?('test_')
 
-    @@proj_count += 1
-    base = File.join(cur_test_dir, test_name + '-' + @@proj_count.to_s)
+    base = File.join(cur_test_dir, test_name)
+    base += "-#{name}" if name
     src_dir = base + '-src'
 
     FileUtils.mkdir_p src_dir
 
-    if template_dir
-      template_dir = File.join(TestLib::TEMPLATES_DIR, template_dir)
-      raise "#{template_dir} is not a directory" if !File.directory?(template_dir)
-      FileUtils.copy_entry template_dir, src_dir
+    if from_template
+      from_template = File.join(TestLib::TEMPLATES_DIR, from_template)
+      raise "#{from_template} is not a directory" if !File.directory?(from_template)
+      FileUtils.copy_entry from_template, src_dir
     end
 
     Project.new src_dir, base + '-bin'

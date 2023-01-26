@@ -9,8 +9,8 @@ class FetchContentCompatibility < IntegrationTest
   end
 
   def test_add_dependency_cpm_and_fetchcontent
-    prj = make_project 'using-adder'
-    
+    prj = make_project from_template: 'using-adder'
+
     prj.create_lists_from_default_template package: <<~PACK
       CPMAddPackage(
         NAME testpack-adder
