@@ -26,7 +26,7 @@ function(reset_test)
   update_cmake_lists()
 endfunction()
 
-function(assertCacheDirectoryCount directory count)
+function(assert_cache_directory_count directory count)
   set(version_count 0)
   file(GLOB potential_versions ${directory})
   foreach(entry ${potential_versions})
@@ -51,7 +51,7 @@ execute_process(
 assert_equal(${ret} "0")
 assert_exists("${CPM_SOURCE_CACHE_DIR}/fibonacci")
 
-assertcachedirectorycount("${CPM_SOURCE_CACHE_DIR}/fibonacci/*" 1)
+assert_cache_directory_count("${CPM_SOURCE_CACHE_DIR}/fibonacci/*" 1)
 
 # Update dependency and keep CPM_SOURCE_CACHE
 
@@ -61,7 +61,7 @@ update_cmake_lists()
 execute_process(COMMAND ${CMAKE_COMMAND} ${TEST_BUILD_DIR} RESULT_VARIABLE ret)
 assert_equal(${ret} "0")
 
-assertcachedirectorycount("${CPM_SOURCE_CACHE_DIR}/fibonacci/*" 2)
+assert_cache_directory_count("${CPM_SOURCE_CACHE_DIR}/fibonacci/*" 2)
 
 # Clear cache and update
 
