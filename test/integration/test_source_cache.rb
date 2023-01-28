@@ -9,7 +9,7 @@ class SourceCache < IntegrationTest
   end
 
   def test_add_remove_dependency
-    prj = make_project 'using-fibadder'
+    prj = make_project from_template: 'using-fibadder'
 
     ###################################
     # create
@@ -45,7 +45,7 @@ class SourceCache < IntegrationTest
   end
 
   def test_second_project
-    prj = make_project 'using-fibadder'
+    prj = make_project from_template: 'using-fibadder'
     prj.create_lists_from_default_template package: 'CPMAddPackage("gh:cpm-cmake/testpack-fibadder@1.1.0")'
     assert_success prj.configure
 
