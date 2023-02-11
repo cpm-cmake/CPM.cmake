@@ -81,6 +81,13 @@ CPMAddPackage("uri@version#tag")
 
 In the shorthand syntax if the URI is of the form `gh:user/name`, it is interpreted as GitHub URI and converted to `https://github.com/user/name.git`. If the URI is of the form `gl:user/name`, it is interpreted as a [GitLab](https://gitlab.com/explore/) URI and converted to `https://gitlab.com/user/name.git`. If the URI is of the form `bb:user/name`, it is interpreted as a [Bitbucket](https://bitbucket.org/) URI and converted to `https://bitbucket.org/user/name.git`. Otherwise the URI used verbatim as a git URL. All packages added using the shorthand syntax will be added using the [EXCLUDE_FROM_ALL](https://cmake.org/cmake/help/latest/prop_tgt/EXCLUDE_FROM_ALL.html) flag.
 
+In addition to the predefined prefixes, it is also possible to define custom prefixes, e.g.
+```cmake
+set(CPM_CUSTOM_PREFIXES c1:https://c1.example.com c2:https://c2.example.com)
+CPMAddPackage("c1:some/repo@1.2.3")
+CPMAddPackage("c2:another/repo#v1.2.3")
+```
+
 The single-argument syntax also works for URLs:
 
 ```cmake
