@@ -13,9 +13,9 @@ include(../../cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME Boost
-  VERSION 1.77.0
+  VERSION 1.81.0
   GITHUB_REPOSITORY "boostorg/boost"
-  GIT_TAG "boost-1.77.0"
+  GIT_TAG "boost-1.81.0"
 )
 
 target_link_libraries(CPMExampleBoost PRIVATE Boost::asio)

@@ -21,6 +21,30 @@ For everything else, the targets can be created manually after the dependency ha
 - [CPM: An Awesome Dependency Manager for C++ with CMake](https://medium.com/swlh/cpm-an-awesome-dependency-manager-for-c-with-cmake-3c53f4376766)
 - [CMake and the Future of C++ Package Management](https://ibob.github.io/blog/2020/01/13/cmake-package-management/)
 
+## Full CMakeLists Example
+
+```cmake
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+
+# create project
+project(MyProject)
+
+# add executable
+add_executable(main main.cpp)
+
+# add dependencies
+include(cmake/CPM.cmake)
+
+CPMAddPackage("gh:fmtlib/fmt#7.1.3")
+CPMAddPackage("gh:nlohmann/json@3.10.5")
+CPMAddPackage("gh:catchorg/Catch2@3.2.1")
+
+# link dependencies
+target_link_libraries(main fmt::fmt nlohmann_json::nlohmann_json Catch2::Catch2WithMain)
+```
+
+See the [examples directory](https://github.com/cpm-cmake/CPM.cmake/tree/master/examples) for complete examples with source code and check [below](#snippets) or in the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets) for example snippets.
+
 ## Usage
 
 After `CPM.cmake` has been [added](#adding-cpm) to your project, the function `CPMAddPackage` can be used to fetch and configure a dependency.
@@ -73,31 +97,11 @@ After calling `CPMAddPackage`, the following variables are defined in the local 
 - `<dependency>_SOURCE_DIR` is the path to the source of the dependency.
 - `<dependency>_BINARY_DIR` is the path to the build directory of the dependency.
 - `<dependency>_ADDED` is set to `YES` if the dependency has not been added before, otherwise it is set to `NO`.
+- `CPM_LAST_PACKAGE_NAME` is set to the determined name of the last added dependency (equivalent to `<dependency>`).
 
 For using CPM.cmake projects with external package managers, such as conan or vcpkg, setting the variable [`CPM_USE_LOCAL_PACKAGES`](#options) will make CPM.cmake try to add a package through `find_package` first, and add it from source if it doesn't succeed.
 
 In rare cases, this behaviour may be desirable by default. The function `CPMFindPackage` will try to find a local dependency via CMake's `find_package` and fallback to `CPMAddPackage`, if the dependency is not found.
-
-## Full CMakeLists Example
-
-```cmake
-cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
-
-# create project
-project(MyProject)
-
-# add executable
-add_executable(tests tests.cpp)
-
-# add dependencies
-include(cmake/CPM.cmake)
-CPMAddPackage("gh:catchorg/Catch2@2.5.0")
-
-# link dependencies
-target_link_libraries(tests Catch2)
-```
-
-See the [examples directory](https://github.com/cpm-cmake/CPM.cmake/tree/master/examples) for complete examples with source code and check [below](#snippets) or in the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets) for example snippets.
 
 ## Adding CPM
 
@@ -304,6 +308,18 @@ If you know others, feel free to add them here through a PR.
       </a>
     </td>
   </tr>
+  <tr>
+    <td>
+      <a href="https://github.com/jhasse/jngl">
+        <p align="center">
+          <img src="https://github.com/jhasse/jngl/raw/master/doc/jngl-logo.svg" alt="JNGL" width="100pt" />
+        </p>
+        <p align="center"><b>JNGL - easy to use cross-platform 2D game library</b></p>
+      </a>
+    </td>
+    <td/>
+    <td/>
+  </tr>
 </table>
 
 ## Snippets
@@ -349,9 +365,9 @@ CPMAddPackage(
 # using `CPM_SOURCE_CACHE` is strongly recommended
 CPMAddPackage(
   NAME Boost
-  VERSION 1.77.0
+  VERSION 1.81.0
   GITHUB_REPOSITORY "boostorg/boost"
-  GIT_TAG "boost-1.77.0"
+  GIT_TAG "boost-1.81.0"
 )
 ```
 
