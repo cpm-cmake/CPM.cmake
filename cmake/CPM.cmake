@@ -626,7 +626,8 @@ function(CPMAddPackage)
     CPMAddPackage(
       NAME "${CPM_ARGS_NAME}"
       SOURCE_DIR "${PACKAGE_SOURCE}"
-      EXCLUDE_FROM_ALL "${CPM_ARGS_EXCLUDE_FROM_ALL}" SYSTEM "${CPM_ARGS_SYSTEM}"
+      EXCLUDE_FROM_ALL "${CPM_ARGS_EXCLUDE_FROM_ALL}"
+      SYSTEM "${CPM_ARGS_SYSTEM}"
       OPTIONS "${CPM_ARGS_OPTIONS}"
       SOURCE_SUBDIR "${CPM_ARGS_SOURCE_SUBDIR}"
       DOWNLOAD_ONLY "${DOWNLOAD_ONLY}"
@@ -955,10 +956,12 @@ function(
   OPTIONS
 )
   if(NOT DOWNLOAD_ONLY AND EXISTS ${SOURCE_DIR}/CMakeLists.txt)
-    if(EXCLUDE OR SYSTEM)
-      set(addSubdirectoryExtraArgs EXCLUDE_FROM_ALL SYSTEM)
-    else()
-      set(addSubdirectoryExtraArgs "")
+    set(addSubdirectoryExtraArgs "")
+    if(EXCLUDE)
+      list(APPEND addSubdirectoryExtraArgs EXCLUDE_FROM_ALL)
+    endif()
+    if(SYSTEM)
+      list(APPEND addSubdirectoryExtraArgs SYSTEM)
     endif()
     if(OPTIONS)
       foreach(OPTION ${OPTIONS})
