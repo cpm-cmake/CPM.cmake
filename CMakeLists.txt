@@ -6,8 +6,6 @@ project(
   LANGUAGES NONE
 )
 
-option(CPM_INSTALL "Install CPM" OFF)
-
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPMConfig.cmake.in"
