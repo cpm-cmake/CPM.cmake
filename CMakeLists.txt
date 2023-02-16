@@ -19,18 +19,13 @@ write_basic_package_version_file(
 
 # For consumer using FetchContent
 if(NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-  # Trick to use the find_package
-  configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake" "${CMAKE_CURRENT_BINARY_DIR}/CPM.cmake" COPYONLY
-  )
-  set(CPM_DIR "${CMAKE_CURRENT_BINARY_DIR}")
   # Check if the user download the repo with git and not in an official release
   if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git" AND IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.git")
     find_package(Git REQUIRED QUIET)
     # Generate a git-describe version string from Git repository tags.
     execute_process(
       COMMAND ${GIT_EXECUTABLE} tag --points-at HEAD
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       OUTPUT_VARIABLE CPM_TAG
       RESULT_VARIABLE GIT_DESCRIBE_ERROR_CODE
       OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -43,7 +38,7 @@ if(NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
   else()
     set(CPM_RELEASE TRUE)
   endif()
-  find_package(CPM CONFIG REQUIRED NO_POLICY_SCOPE)
+  include(cmake/CPM.cmake)
 endif()
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
