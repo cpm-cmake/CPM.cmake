@@ -26,7 +26,6 @@ if(NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake" "${CMAKE_CURRENT_BINARY_DIR}/CPM.cmake" COPYONLY
   )
   set(CPM_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-  find_package(CPM CONFIG REQUIRED NO_POLICY_SCOPE)
   # Check if the user download the repo with git and not in an official release
   if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git" AND IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.git")
     find_package(Git REQUIRED QUIET)
@@ -44,6 +43,7 @@ if(NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
       set(CPM_RELEASE FALSE)
     endif()
   endif()
+  find_package(CPM CONFIG REQUIRED NO_POLICY_SCOPE)
 endif()
 
 if(CPM_INSTALL)
