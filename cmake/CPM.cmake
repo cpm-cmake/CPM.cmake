@@ -42,7 +42,7 @@ if(NOT COMMAND cpm_message)
   endfunction()
 endif()
 
-if(${PROJECT_NAME} STREQUAL "CPM" AND CPM_RELEASE)
+if("${PROJECT_NAME}" STREQUAL "CPM" AND CPM_RELEASE)
   set(CURRENT_CPM_VERSION "${PROJECT_VERSION}")
 else()
   set(CURRENT_CPM_VERSION 1.0.0-development-version)
