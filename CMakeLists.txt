@@ -42,7 +42,7 @@ if(NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
   configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake" "${CMAKE_CURRENT_BINARY_DIR}/CPM.cmake" COPYONLY
   )
-  set(CPM_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+  set(CPM_DIR "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
   include(cmake/CPM.cmake)
 endif()
 
