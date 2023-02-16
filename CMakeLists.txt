@@ -40,11 +40,13 @@ if(NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     else()
       set(CPM_RELEASE FALSE)
     endif()
+  else()
+    set(CPM_RELEASE TRUE)
   endif()
   find_package(CPM CONFIG REQUIRED NO_POLICY_SCOPE)
 endif()
 
-if(NOT CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   # Without it : Unable to determine default CMAKE_INSTALL_LIBDIR directory because no target
   # architecture is known.  Please enable at least one language before including GNUInstallDirs.
   enable_language(C)
