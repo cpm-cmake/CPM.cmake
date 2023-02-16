@@ -14,7 +14,7 @@ configure_package_config_file(
 )
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/CPMConfigVersion.cmake" COMPATIBILITY SameMajorVersion
-  ARCH_INDEPENDENT
+                                                                     ARCH_INDEPENDENT
 )
 
 # For consumer using FetchContent
@@ -44,15 +44,15 @@ if(NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
   find_package(CPM CONFIG REQUIRED NO_POLICY_SCOPE)
 endif()
 
-if (NOT CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+if(NOT CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   # Without it : Unable to determine default CMAKE_INSTALL_LIBDIR directory because no target
   # architecture is known.  Please enable at least one language before including GNUInstallDirs.
   enable_language(C)
   include(GNUInstallDirs)
   install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/CPMConfig.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/CPMConfigVersion.cmake"
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake"
+          "${CMAKE_CURRENT_BINARY_DIR}/CPMConfigVersion.cmake"
+          "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/CPM"
   )
 endif()
