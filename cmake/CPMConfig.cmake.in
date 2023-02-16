@@ -1,0 +1,5 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/CPM.cmake" NO_POLICY_SCOPE)
+
+check_required_components(CPM)
