@@ -42,7 +42,7 @@ if(NOT COMMAND cpm_message)
   endfunction()
 endif()
 
-if(DEFINED CPM_VERSION)
+if(DEFINED CPM_VERSION AND CPM_RELEASE)
   set(CURRENT_CPM_VERSION "${CPM_VERSION}${CPM_DEVELOPMENT}")
 else()
   set(CURRENT_CPM_VERSION 1.0.0-development-version)
