@@ -12,7 +12,7 @@ target_compile_features(CPMExampleAsio PRIVATE cxx_std_17)
 include(../../cmake/CPM.cmake)
 
 # using unofficial fork as boost's lacking good CMake support
-CPMAddPackage("gh:ClausKlein/boost-cmake@1.79.2")
+CPMAddPackage("gh:ClausKlein/boost-cmake@1.79.3")
 
 target_link_libraries(CPMExampleAsio PRIVATE Boost::asio)
 
