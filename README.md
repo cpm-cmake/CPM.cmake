@@ -367,12 +367,9 @@ CPMAddPackage(
 ```CMake
 # boost is a huge project and will take a while to download
 # using `CPM_SOURCE_CACHE` is strongly recommended
-CPMAddPackage(
-  NAME Boost
-  VERSION 1.81.0
-  GITHUB_REPOSITORY "boostorg/boost"
-  GIT_TAG "boost-1.81.0"
-)
+
+# using unofficial fork as boost's lacking good CMake support
+CPMAddPackage("gh:ClausKlein/boost-cmake@1.79.2")
 ```
 
 ### [cxxopts](https://github.com/jarro2783/cxxopts)
