@@ -513,7 +513,7 @@ function(CPMAddPackage)
   if(argnLength EQUAL 1)
     cpm_parse_add_package_single_arg("${ARGN}" ARGN)
 
-    # The shorthand syntax implies EXCLUDE_FROM_ALL and SYSTEM
+    # The shorthand syntax implies EXCLUDE_FROM_ALL
     set(ARGN "${ARGN};EXCLUDE_FROM_ALL;YES;")
   endif()
 
