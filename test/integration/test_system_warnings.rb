@@ -1,18 +1,46 @@
 require_relative './lib'
 
 class SystemWarnings < IntegrationTest
-  def test_add_dependency_cpm_and_fetchcontent
+  def test_dependency_added_using_system
     prj = make_project from_template: 'using-adder'
     prj.create_lists_from_default_template package: <<~PACK
       # this commit has a warning in a public header
-      CPMAddPackage("gh:cpm-cmake/testpack-adder#3046a5837ffc6a304c4a60258d39d6d2a4255548")
+      CPMAddPackage(
+        NAME Adder
+        GITHUB_REPOSITORY cpm-cmake/testpack-adder
+        GIT_TAG 8805960927ef97960dfc7d121760c8201e12d906
+        SYSTEM YES
+      )
       # all packages using `adder` will error on warnings
-      target_compile_options(adder INTERFACE "-Werror")
+      target_compile_options(adder INTERFACE
+        $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+      )
     PACK
 
     assert_success prj.configure
-    # as the dependency's headers are treated as system headers, 
-    # the project should build without errors 
     assert_success prj.build
   end
+
+  def test_dependency_added_not_using_system
+    prj = make_project from_template: 'using-adder'
+    prj.create_lists_from_default_template package: <<~PACK
+      # this commit has a warning in a public header
+      CPMAddPackage(
+        NAME Adder
+        GITHUB_REPOSITORY cpm-cmake/testpack-adder
+        GIT_TAG 8805960927ef97960dfc7d121760c8201e12d906
+        SYSTEM NO
+      )
+      # all packages using `adder` will error on warnings
+      target_compile_options(adder INTERFACE
+        $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+      )
+    PACK
+
+    assert_success prj.configure
+    assert_failure prj.build
+  end
+
 end
