@@ -13,8 +13,8 @@ class SystemWarnings < IntegrationTest
       )
       # all packages using `adder` will error on warnings
       target_compile_options(adder INTERFACE
-        $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
-        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+        $<$<CXX_COMPILER_ID:MSVC>:/we4033 /we4716 /we4715 /WX>
+        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wreturn-type -Werror>
       )
     PACK
 
@@ -34,8 +34,8 @@ class SystemWarnings < IntegrationTest
       )
       # all packages using `adder` will error on warnings
       target_compile_options(adder INTERFACE
-        $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
-        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+        $<$<CXX_COMPILER_ID:MSVC>:/we4033 /we4716 /we4715 /WX>
+        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wreturn-type -Werror>
       )
     PACK
 
