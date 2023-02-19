@@ -950,6 +950,10 @@ function(
     else()
       set(addSubdirectoryExtraArgs "")
     endif()
+    if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.25")
+      # https://cmake.org/cmake/help/latest/prop_dir/SYSTEM.html#prop_dir:SYSTEM
+      set(addSubdirectoryExtraArgs ${addSubdirectoryExtraArgs} SYSTEM)
+    endif()
     if(OPTIONS)
       foreach(OPTION ${OPTIONS})
         cpm_parse_option("${OPTION}")
