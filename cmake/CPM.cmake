@@ -718,6 +718,10 @@ function(CPMAddPackage)
     endif()
 
     if(EXISTS ${download_directory})
+      if(CPM_SOURCE_CACHE)
+        file(LOCK ${download_directory}/../cmake.lock RELEASE)
+      endif()
+
       cpm_store_fetch_properties(
         ${CPM_ARGS_NAME} "${download_directory}"
         "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-build"
@@ -727,9 +731,6 @@ function(CPMAddPackage)
       if(DEFINED CPM_ARGS_GIT_TAG AND NOT (PATCH_COMMAND IN_LIST CPM_ARGS_UNPARSED_ARGUMENTS))
         # warn if cache has been changed since checkout
         cpm_check_git_working_dir_is_clean(${download_directory} ${CPM_ARGS_GIT_TAG} IS_CLEAN)
-        if(CPM_SOURCE_CACHE)
-          file(LOCK ${download_directory}/../cmake.lock RELEASE)
-        endif()
         if(NOT ${IS_CLEAN})
           message(
             WARNING "${CPM_INDENT} Cache for ${CPM_ARGS_NAME} (${download_directory}) is dirty"
