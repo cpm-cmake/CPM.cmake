@@ -8,13 +8,13 @@ class SystemWarnings < IntegrationTest
       CPMAddPackage(
         NAME Adder
         GITHUB_REPOSITORY cpm-cmake/testpack-adder
-        GIT_TAG 8805960927ef97960dfc7d121760c8201e12d906
+        GIT_TAG cf22d3e48d368ff268a98cfc37d4b3471b4b31c9
         SYSTEM YES
       )
       # all packages using `adder` will error on warnings
       target_compile_options(adder INTERFACE
-        $<$<CXX_COMPILER_ID:MSVC>:/we4033 /we4716 /we4715 /WX>
-        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wreturn-type -Werror>
+        $<$<CXX_COMPILER_ID:MSVC>:/Wall /WX>
+        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Werror>
       )
     PACK
 
@@ -29,13 +29,13 @@ class SystemWarnings < IntegrationTest
       CPMAddPackage(
         NAME Adder
         GITHUB_REPOSITORY cpm-cmake/testpack-adder
-        GIT_TAG 8805960927ef97960dfc7d121760c8201e12d906
+        GIT_TAG cf22d3e48d368ff268a98cfc37d4b3471b4b31c9
         SYSTEM NO
       )
       # all packages using `adder` will error on warnings
       target_compile_options(adder INTERFACE
-        $<$<CXX_COMPILER_ID:MSVC>:/we4033 /we4716 /we4715 /WX>
-        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wreturn-type -Werror>
+        $<$<CXX_COMPILER_ID:MSVC>:/Wall /WX>
+        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Werror>
       )
     PACK
 
