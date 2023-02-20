@@ -68,8 +68,9 @@ On the other hand, if `VERSION` hasn't been explicitly specified, CPM can automa
 
 If an additional optional parameter `EXCLUDE_FROM_ALL` is set to a truthy value, then any targets defined inside the dependency won't be built by default. See the [CMake docs](https://cmake.org/cmake/help/latest/prop_tgt/EXCLUDE_FROM_ALL.html) for details.
 
-If an additional optional parameter `SYSTEM` is set to a truthy value, then any headers included from targets defined inside the dependency will be treated as system headers. See the [CMake docs](https://cmake.org/cmake/help/latest/prop_dir/SYSTEM.html#prop_dir:SYSTEM) for details.
-
+If an additional optional parameter `SYSTEM` is set to a truthy value, the SYSTEM directory property of the subdirectory added will be set to true.
+See the [add_subdirectory ](https://cmake.org/cmake/help/latest/command/add_subdirectory.html?highlight=add_subdirectory)
+and [SYSTEM](https://cmake.org/cmake/help/latest/prop_tgt/SYSTEM.html#prop_tgt:SYSTEM) target property for details.
 
 A single-argument compact syntax is also supported:
 
