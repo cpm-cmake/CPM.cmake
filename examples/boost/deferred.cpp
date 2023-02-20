@@ -9,10 +9,9 @@
 //
 
 #include <boost/asio.hpp>
-#include <boost/asio/experimental/deferred.hpp>
 #include <iostream>
 
-using boost::asio::experimental::deferred;
+using boost::asio::deferred;
 
 int main() {
   boost::asio::io_context ctx;
@@ -23,10 +22,7 @@ int main() {
   auto deferred_op = timer.async_wait(deferred);
 
   std::move(deferred_op)([](boost::system::error_code ec) {
-    if (ec)
-      std::cout << "timer wait finished with error: " << ec.message() << "\n";
-    else
-      std::cout << "timer wait finished.\n";
+    std::cout << "timer wait finished: " << ec.message() << "\n";
   });
 
   ctx.run();
