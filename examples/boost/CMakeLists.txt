@@ -10,6 +10,9 @@ target_compile_features(CPMExampleAsio PRIVATE cxx_std_17)
 add_executable(CPMExampleRegex regex.cpp)
 target_compile_features(CPMExampleRegex PRIVATE cxx_std_17)
 
+add_executable(CPMExampleTest const_string_test.cpp)
+target_compile_features(CPMExampleTest PRIVATE cxx_std_17)
+
 # ---- Dependencies ----
 
 include(../../cmake/CPM.cmake)
@@ -19,6 +22,7 @@ CPMAddPackage("gh:ClausKlein/boost-cmake@1.80.0")
 
 target_link_libraries(CPMExampleAsio PRIVATE Boost::asio)
 target_link_libraries(CPMExampleRegex PRIVATE Boost::regex)
+target_link_libraries(CPMExampleTest PRIVATE Boost::unit_test_framework)
 
 # ---- Testing ----
 
@@ -26,3 +30,4 @@ enable_testing()
 
 add_test(NAME CPMExampleAsio COMMAND CPMExampleAsio)
 add_test(NAME CPMExampleRegex COMMAND CPMExampleAsio)
+add_test(NAME CPMExampleTest COMMAND CPMExampleTest)
