@@ -535,7 +535,6 @@ function(CPMAddPackage)
       GIT_SHALLOW
       EXCLUDE_FROM_ALL
       SOURCE_SUBDIR
-      SYSTEM
   )
 
   set(multiValueArgs URL OPTIONS)
