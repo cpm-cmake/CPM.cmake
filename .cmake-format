@@ -36,7 +36,6 @@ parse:
         EXCLUDE_FROM_ALL: 1
         SYSTEM: 1
         SOURCE_SUBDIR: 1
-        SYSTEM: 1
         OPTIONS: +
     cpmfindpackage:
       pargs:
