@@ -12,7 +12,7 @@ jobs:
   gcc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: build all
         env:
           CC: gcc
@@ -22,7 +22,7 @@ jobs:
   clang:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: build all
         env:
           CC: clang

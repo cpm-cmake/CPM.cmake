@@ -514,7 +514,7 @@ function(CPMAddPackage)
     cpm_parse_add_package_single_arg("${ARGN}" ARGN)
 
     # The shorthand syntax implies EXCLUDE_FROM_ALL and SYSTEM
-    set(ARGN "${ARGN};EXCLUDE_FROM_ALL;YES;SYSTEM;YES")
+    set(ARGN "${ARGN};EXCLUDE_FROM_ALL;YES;SYSTEM;YES;")
   endif()
 
   set(oneValueArgs
@@ -531,6 +531,7 @@ function(CPMAddPackage)
       DOWNLOAD_COMMAND
       FIND_PACKAGE_ARGUMENTS
       NO_CACHE
+      SYSTEM
       GIT_SHALLOW
       EXCLUDE_FROM_ALL
       SOURCE_SUBDIR
@@ -955,12 +956,14 @@ function(
   SYSTEM
   OPTIONS
 )
+
   if(NOT DOWNLOAD_ONLY AND EXISTS ${SOURCE_DIR}/CMakeLists.txt)
     set(addSubdirectoryExtraArgs "")
     if(EXCLUDE)
       list(APPEND addSubdirectoryExtraArgs EXCLUDE_FROM_ALL)
     endif()
-    if(SYSTEM)
+    if("${SYSTEM}" AND "${CMAKE_VERSION}" VERSION_GREATER_EQUAL "3.25")
+      # https://cmake.org/cmake/help/latest/prop_dir/SYSTEM.html#prop_dir:SYSTEM
       list(APPEND addSubdirectoryExtraArgs SYSTEM)
     endif()
     if(OPTIONS)
@@ -1092,6 +1095,7 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
       DOWNLOAD_COMMAND
       FIND_PACKAGE_ARGUMENTS
       NO_CACHE
+      SYSTEM
       GIT_SHALLOW
   )
   set(multiValueArgs OPTIONS)

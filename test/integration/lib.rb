@@ -157,6 +157,11 @@ class IntegrationTest < Test::Unit::TestCase
     assert_block(msg) { res.status.success? }
   end
 
+  def assert_failure(res)
+    msg = build_message(nil, "command status was expected to be a failure, but succeeded")
+    assert_block(msg) { !res.status.success? }
+  end
+
   def assert_same_path(a, b)
     msg = build_message(nil, "<?> expected but was\n<?>", a, b)
     assert_block(msg) { File.identical? a, b }
