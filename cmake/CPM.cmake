@@ -713,6 +713,10 @@ function(CPMAddPackage)
     get_filename_component(download_directory ${download_directory} ABSOLUTE)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${download_directory})
 
+    if(CPM_SOURCE_CACHE)
+      file(LOCK ${download_directory}/../cmake.lock)
+    endif()
+
     if(EXISTS ${download_directory})
       cpm_store_fetch_properties(
         ${CPM_ARGS_NAME} "${download_directory}"
@@ -722,12 +726,9 @@ function(CPMAddPackage)
 
       if(DEFINED CPM_ARGS_GIT_TAG AND NOT (PATCH_COMMAND IN_LIST CPM_ARGS_UNPARSED_ARGUMENTS))
         # warn if cache has been changed since checkout
+        cpm_check_git_working_dir_is_clean(${download_directory} ${CPM_ARGS_GIT_TAG} IS_CLEAN)
         if(CPM_SOURCE_CACHE)
-          file(LOCK ${download_directory}/../cmake.lock)
-          cpm_check_git_working_dir_is_clean(${download_directory} ${CPM_ARGS_GIT_TAG} IS_CLEAN)
           file(LOCK ${download_directory}/../cmake.lock RELEASE)
-        else()
-          cpm_check_git_working_dir_is_clean(${download_directory} ${CPM_ARGS_GIT_TAG} IS_CLEAN)
         endif()
         if(NOT ${IS_CLEAN})
           message(
@@ -786,12 +787,9 @@ function(CPMAddPackage)
     cpm_declare_fetch(
       "${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
     )
-    if(CPM_SOURCE_CACHE AND download_directory)
-      file(LOCK ${download_directory}/../cmake.lock)
-      cpm_fetch_package("${CPM_ARGS_NAME}" populated)
+    cpm_fetch_package("${CPM_ARGS_NAME}" populated)
+    if(CPM_CACHE_SOURCE AND download_directory)
       file(LOCK ${download_directory}/../cmake.lock RELEASE)
-    else()
-      cpm_fetch_package("${CPM_ARGS_NAME}" populated)
     endif()
     if(${populated})
       cpm_add_subdirectory(
