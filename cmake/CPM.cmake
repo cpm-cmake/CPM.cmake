@@ -627,6 +627,7 @@ function(CPMAddPackage)
       NAME "${CPM_ARGS_NAME}"
       SOURCE_DIR "${PACKAGE_SOURCE}"
       EXCLUDE_FROM_ALL "${CPM_ARGS_EXCLUDE_FROM_ALL}"
+      SYSTEM "${CPM_ARGS_SYSTEM}"
       OPTIONS "${CPM_ARGS_OPTIONS}"
       SOURCE_SUBDIR "${CPM_ARGS_SOURCE_SUBDIR}"
       DOWNLOAD_ONLY "${DOWNLOAD_ONLY}"
@@ -956,14 +957,13 @@ function(
 )
 
   if(NOT DOWNLOAD_ONLY AND EXISTS ${SOURCE_DIR}/CMakeLists.txt)
+    set(addSubdirectoryExtraArgs "")
     if(EXCLUDE)
-      set(addSubdirectoryExtraArgs EXCLUDE_FROM_ALL)
-    else()
-      set(addSubdirectoryExtraArgs "")
+      list(APPEND addSubdirectoryExtraArgs EXCLUDE_FROM_ALL)
     endif()
     if("${SYSTEM}" AND "${CMAKE_VERSION}" VERSION_GREATER_EQUAL "3.25")
       # https://cmake.org/cmake/help/latest/prop_dir/SYSTEM.html#prop_dir:SYSTEM
-      set(addSubdirectoryExtraArgs ${addSubdirectoryExtraArgs} SYSTEM)
+      list(APPEND addSubdirectoryExtraArgs SYSTEM)
     endif()
     if(OPTIONS)
       foreach(OPTION ${OPTIONS})
