@@ -713,8 +713,6 @@ function(CPMAddPackage)
     get_filename_component(download_directory ${download_directory} ABSOLUTE)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${download_directory})
 
-    file(LOCK ${download_directory}/../cmake.lock)
-
     if(EXISTS ${download_directory})
       cpm_store_fetch_properties(
         ${CPM_ARGS_NAME} "${download_directory}"
@@ -803,10 +801,6 @@ function(CPMAddPackage)
       )
     endif()
     cpm_get_fetch_properties("${CPM_ARGS_NAME}")
-  endif()
-
-  if(EXISTS ${download_directory}/../cmake.lock)
-    file(LOCK ${download_directory}/../cmake.lock RELEASE)
   endif()
 
   set(${CPM_ARGS_NAME}_ADDED YES)
