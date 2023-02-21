@@ -34,6 +34,7 @@ parse:
         HTTP_USERNAME: 1
         HTTP_PASSWORD: 1
         EXCLUDE_FROM_ALL: 1
+        SYSTEM: 1
         SOURCE_SUBDIR: 1
         OPTIONS: +
     cpmfindpackage:

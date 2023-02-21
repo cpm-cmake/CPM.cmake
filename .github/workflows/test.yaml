@@ -20,7 +20,12 @@ jobs:
 
     steps:
       - name: clone
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v1.13
+        with:
+          cmake-version: '3.25.x'
 
       - name: unit tests
         run: |

@@ -513,8 +513,8 @@ function(CPMAddPackage)
   if(argnLength EQUAL 1)
     cpm_parse_add_package_single_arg("${ARGN}" ARGN)
 
-    # The shorthand syntax implies EXCLUDE_FROM_ALL
-    set(ARGN "${ARGN};EXCLUDE_FROM_ALL;YES")
+    # The shorthand syntax implies EXCLUDE_FROM_ALL and SYSTEM
+    set(ARGN "${ARGN};EXCLUDE_FROM_ALL;YES;SYSTEM;YES;")
   endif()
 
   set(oneValueArgs
@@ -531,6 +531,7 @@ function(CPMAddPackage)
       DOWNLOAD_COMMAND
       FIND_PACKAGE_ARGUMENTS
       NO_CACHE
+      SYSTEM
       GIT_SHALLOW
       EXCLUDE_FROM_ALL
       SOURCE_SUBDIR
@@ -626,6 +627,7 @@ function(CPMAddPackage)
       NAME "${CPM_ARGS_NAME}"
       SOURCE_DIR "${PACKAGE_SOURCE}"
       EXCLUDE_FROM_ALL "${CPM_ARGS_EXCLUDE_FROM_ALL}"
+      SYSTEM "${CPM_ARGS_SYSTEM}"
       OPTIONS "${CPM_ARGS_OPTIONS}"
       SOURCE_SUBDIR "${CPM_ARGS_SOURCE_SUBDIR}"
       DOWNLOAD_ONLY "${DOWNLOAD_ONLY}"
@@ -739,9 +741,13 @@ function(CPMAddPackage)
       endif()
 
       cpm_add_subdirectory(
-        "${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}"
-        "${${CPM_ARGS_NAME}_SOURCE_DIR}/${CPM_ARGS_SOURCE_SUBDIR}" "${${CPM_ARGS_NAME}_BINARY_DIR}"
-        "${CPM_ARGS_EXCLUDE_FROM_ALL}" "${CPM_ARGS_OPTIONS}"
+        "${CPM_ARGS_NAME}"
+        "${DOWNLOAD_ONLY}"
+        "${${CPM_ARGS_NAME}_SOURCE_DIR}/${CPM_ARGS_SOURCE_SUBDIR}"
+        "${${CPM_ARGS_NAME}_BINARY_DIR}"
+        "${CPM_ARGS_EXCLUDE_FROM_ALL}"
+        "${CPM_ARGS_SYSTEM}"
+        "${CPM_ARGS_OPTIONS}"
       )
       set(PACKAGE_INFO "${PACKAGE_INFO} at ${download_directory}")
 
@@ -794,9 +800,13 @@ function(CPMAddPackage)
     endif()
     if(${populated})
       cpm_add_subdirectory(
-        "${CPM_ARGS_NAME}" "${DOWNLOAD_ONLY}"
-        "${${CPM_ARGS_NAME}_SOURCE_DIR}/${CPM_ARGS_SOURCE_SUBDIR}" "${${CPM_ARGS_NAME}_BINARY_DIR}"
-        "${CPM_ARGS_EXCLUDE_FROM_ALL}" "${CPM_ARGS_OPTIONS}"
+        "${CPM_ARGS_NAME}"
+        "${DOWNLOAD_ONLY}"
+        "${${CPM_ARGS_NAME}_SOURCE_DIR}/${CPM_ARGS_SOURCE_SUBDIR}"
+        "${${CPM_ARGS_NAME}_BINARY_DIR}"
+        "${CPM_ARGS_EXCLUDE_FROM_ALL}"
+        "${CPM_ARGS_SYSTEM}"
+        "${CPM_ARGS_OPTIONS}"
       )
     endif()
     cpm_get_fetch_properties("${CPM_ARGS_NAME}")
@@ -947,13 +957,18 @@ function(
   SOURCE_DIR
   BINARY_DIR
   EXCLUDE
+  SYSTEM
   OPTIONS
 )
+
   if(NOT DOWNLOAD_ONLY AND EXISTS ${SOURCE_DIR}/CMakeLists.txt)
+    set(addSubdirectoryExtraArgs "")
     if(EXCLUDE)
-      set(addSubdirectoryExtraArgs EXCLUDE_FROM_ALL)
-    else()
-      set(addSubdirectoryExtraArgs "")
+      list(APPEND addSubdirectoryExtraArgs EXCLUDE_FROM_ALL)
+    endif()
+    if("${SYSTEM}" AND "${CMAKE_VERSION}" VERSION_GREATER_EQUAL "3.25")
+      # https://cmake.org/cmake/help/latest/prop_dir/SYSTEM.html#prop_dir:SYSTEM
+      list(APPEND addSubdirectoryExtraArgs SYSTEM)
     endif()
     if(OPTIONS)
       foreach(OPTION ${OPTIONS})
@@ -1084,6 +1099,7 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
       DOWNLOAD_COMMAND
       FIND_PACKAGE_ARGUMENTS
       NO_CACHE
+      SYSTEM
       GIT_SHALLOW
   )
   set(multiValueArgs OPTIONS)
