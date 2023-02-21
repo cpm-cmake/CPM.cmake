@@ -17,6 +17,9 @@ jobs:
         # we need at least ruby 2.7 for the tests
         # instead of dealing with installing a modern version of ruby on 2019, we'll just use windows-2022 here
         os: [ubuntu-latest, windows-2022, macos-latest]
+        # we want to ensure compatibility with a recent CMake version as well as the lowest officially supported
+        # legacy version that we define as the default version of the second-latest Ubuntu LTS release currently available
+        cmake_version: ['3.16.x', '3.25.x']
 
     steps:
       - name: clone
@@ -25,12 +28,14 @@ jobs:
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.13
         with:
-          cmake-version: '3.25.x'
+          cmake-version: ${{ matrix.cmake_version }}
 
       - name: unit tests
         run: |
           cmake -Stest -Bbuild/test
           cmake --build build/test --target test-verbose
+        env:
+          CMAKE_VERSION: ${{ matrix.cmake_version }}
 
       - name: integration tests
         run: ruby test/integration/runner.rb
