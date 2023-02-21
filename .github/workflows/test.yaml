@@ -41,3 +41,4 @@ jobs:
         run: ruby test/integration/runner.rb
         env:
           CPM_INTEGRATION_TEST_DIR: ./build/integration
+          CMAKE_VERSION: ${{ matrix.cmake_version }}
