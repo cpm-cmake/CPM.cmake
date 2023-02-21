@@ -2,6 +2,11 @@ require_relative './lib'
 
 class SystemWarnings < IntegrationTest
   
+  def setup
+    # system is only supported for CMake >= 3.25 
+    @system_supported = (!ENV['CMAKE_VERSION']) || (Gem::Version.new(ENV['CMAKE_VERSION']) >= Gem::Version.new('3.25'))
+  end
+
   def test_dependency_added_using_system
     for use_system in [true, false] do
       prj = make_project name: use_system ? "system" : "no_system", from_template: 'using-adder'
@@ -21,7 +26,7 @@ class SystemWarnings < IntegrationTest
       PACK
 
       assert_success prj.configure
-      if use_system
+      if use_system and @system_supported
         assert_success prj.build
       else
         assert_failure prj.build
@@ -42,7 +47,11 @@ class SystemWarnings < IntegrationTest
     PACK
 
     assert_success prj.configure
-    assert_success prj.build
+    if @system_supported
+      assert_success prj.build
+    else
+      assert_failure prj.build
+    end
   end
 
 end
