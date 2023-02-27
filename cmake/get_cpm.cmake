@@ -27,6 +27,7 @@ else()
   if("${check}" STREQUAL "")
     download_cpm()
   endif()
+  unset(check)
 endif()
 
 include(${CPM_DOWNLOAD_LOCATION})
