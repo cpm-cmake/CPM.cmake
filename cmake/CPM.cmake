@@ -648,7 +648,7 @@ function(CPMAddPackage)
     return()
   endif()
 
-  if(NOT DEFINED CPM_ARGS_SOURCE_DIR)
+  if(NOT CPM_ARGS_FORCE)
     if(CPM_USE_LOCAL_PACKAGES OR CPM_LOCAL_PACKAGES_ONLY)
       cpm_find_package(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" ${CPM_ARGS_FIND_PACKAGE_ARGUMENTS})
 
