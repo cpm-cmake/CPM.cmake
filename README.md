@@ -200,12 +200,12 @@ This can be controlled on a per package basis with the `CPM_DOWNLOAD_<dependency
 
 CPM can be configured to use `find_package` to search for locally installed dependencies first by setting the CMake option `CPM_USE_LOCAL_PACKAGES`.
 
-If a packages should always be added the defined way you should set the additional parameter FORCE YES to disable the use of `find_package`
-
 If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will emit an error if the dependency is not found locally.
 These options can also be set as environmental variables.
 
 In the case that `find_package` requires additional arguments, the parameter `FIND_PACKAGE_ARGUMENTS` may be specified in the `CPMAddPackage` call. The value of this parameter will be forwarded to `find_package`.
+
+Note that this does not apply to dependencies that have been defined with a truthy `FORCE` parameter. These will be added as defined.
 
 ### CPM_USE_NAMED_CACHE_DIRECTORIES
 
