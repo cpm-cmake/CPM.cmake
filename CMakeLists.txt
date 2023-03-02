@@ -1,19 +1,19 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 project(
-  CPM
+  CPM.cmake
   VERSION 0.37.0
   LANGUAGES NONE
 )
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPMConfig.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/CPMConfig.cmake"
-  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/CPM"
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmakeConfig.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/CPM.cmakeConfig.cmake"
+  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/CPM.cmake"
 )
 write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/CPMConfigVersion.cmake" COMPATIBILITY SameMajorVersion
+  "${CMAKE_CURRENT_BINARY_DIR}/CPM.cmakeConfigVersion.cmake" COMPATIBILITY SameMinorVersion
                                                                      ARCH_INDEPENDENT
 )
 
@@ -38,13 +38,14 @@ if(NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
   else()
     set(CPM_RELEASE TRUE)
   endif()
-  # Trick to use the find_package
-  configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake" "${CMAKE_CURRENT_BINARY_DIR}/CPM.cmake" COPYONLY
-  )
-  set(CPM_DIR "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
-  include(cmake/CPM.cmake)
 endif()
+
+# Trick to use the find_package
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake" "${CMAKE_CURRENT_BINARY_DIR}/CPM.cmake" COPYONLY)
+# Unset in case CPM has been used to install itself
+unset(CPM.cmake_FOUND)
+set(CPM.cmake_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+find_package(CPM.cmake ${PROJECT_VERSION} REQUIRED CONFIG)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   # Without it : Unable to determine default CMAKE_INSTALL_LIBDIR directory because no target
@@ -52,9 +53,9 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   enable_language(C)
   include(GNUInstallDirs)
   install(
-    FILES "${CMAKE_CURRENT_BINARY_DIR}/CPMConfig.cmake"
-          "${CMAKE_CURRENT_BINARY_DIR}/CPMConfigVersion.cmake"
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/CPM.cmakeConfig.cmake"
+          "${CMAKE_CURRENT_BINARY_DIR}/CPM.cmakeConfigVersion.cmake"
           "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/CPM"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/CPM.cmake"
   )
 endif()

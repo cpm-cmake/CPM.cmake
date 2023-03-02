@@ -112,8 +112,24 @@ The command below will perform this automatically.
 mkdir -p cmake
 wget -O cmake/CPM.cmake https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/get_cpm.cmake
 ```
-
 You can also download CPM.cmake directly from your project's `CMakeLists.txt`. See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Downloading-CPM.cmake-in-CMake) for more details.
+
+### Preliminary :
+You can use `FetchContent` to obtain CPM for the official repository :
+```cmake
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+project(MyProject)
+
+include(FetchContent)
+FetchContent_Declare(
+        CPM.cmake
+        GIT_REPOSITORY https://github.com/cpm-cmake/CPM.cmake.git
+        GIT_TAG        v0.38.0
+)
+FetchContent_MakeAvailable(CPM.cmake)
+
+CPMAddPackage("gh:fmtlib/fmt#7.1.3")
+```
 
 ## Updating CPM
 
