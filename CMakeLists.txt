@@ -44,7 +44,7 @@ endif()
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake" "${CMAKE_CURRENT_BINARY_DIR}/CPM.cmake" COPYONLY)
 # Unset in case CPM has been used to install itself
 unset(CPM.cmake_FOUND)
-set(CPM.cmake_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+set(CPM.cmake_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE INTERNAL "" FORCE)
 find_package(CPM.cmake ${PROJECT_VERSION} REQUIRED CONFIG)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
