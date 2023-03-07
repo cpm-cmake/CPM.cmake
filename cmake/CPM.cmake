@@ -506,16 +506,37 @@ function(cpm_override_fetchcontent contentName)
 endfunction()
 
 # Download and add a package from source
-function(CPMAddPackage)
-  cpm_set_policies()
-
-  list(LENGTH ARGN argnLength)
-  if(argnLength EQUAL 1)
-    cpm_parse_add_package_single_arg("${ARGN}" ARGN)
-
-    # The shorthand syntax implies EXCLUDE_FROM_ALL and SYSTEM
-    set(ARGN "${ARGN};EXCLUDE_FROM_ALL;YES;SYSTEM;YES;")
+macro(CPMAddPackage)
+  set(__ARGN "${ARGN}")
+  list(LENGTH __ARGN __ARGN_Length)
+  if(__ARGN_Length EQUAL 1)
+    cpm_add_package_single_arg(${ARGN})
+  else()
+    # Forward preserving empty string arguments
+    # (https://gitlab.kitware.com/cmake/cmake/-/merge_requests/4729)
+    set(__ARGN_Quoted)
+    foreach(__ARG IN LISTS __ARGN)
+      string(APPEND __ARGN_Quoted " [==[${__ARG}]==]")
+    endforeach()
+    cmake_language(EVAL CODE "cpm_add_package_multi_arg( ${__ARGN_Quoted} )")
   endif()
+endmacro()
+
+macro(cpm_add_package_single_arg arg)
+  cpm_set_policies()
+  cpm_parse_add_package_single_arg("${arg}" __ARGN_multi)
+
+  # The shorthand syntax implies EXCLUDE_FROM_ALL
+  list(APPEND __ARGN_multi
+    EXCLUDE_FROM_ALL YES
+    SYSTEM YES
+  )
+
+  cpm_add_package_multi_arg(${__ARGN_multi}) # Forward function arguments to CPMAddPackage()
+endmacro()
+
+function(cpm_add_package_multi_arg)
+  cpm_set_policies()
 
   set(oneValueArgs
       NAME
@@ -539,7 +560,7 @@ function(CPMAddPackage)
 
   set(multiValueArgs URL OPTIONS)
 
-  cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
+  cmake_parse_arguments(PARSE_ARGV 0 CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}")
 
   # Set default values for arguments
 
@@ -917,7 +938,13 @@ function(cpm_declare_fetch PACKAGE VERSION INFO)
     return()
   endif()
 
-  FetchContent_Declare(${PACKAGE} ${ARGN})
+  # Forward preserving empty string arguments
+  # (https://gitlab.kitware.com/cmake/cmake/-/merge_requests/4729)
+  set(__argsQuoted)
+  foreach(__item IN LISTS ARGN)
+    string(APPEND __argsQuoted " [==[${__item}]==]")
+  endforeach()
+  cmake_language(EVAL CODE "FetchContent_Declare(${PACKAGE} ${__argsQuoted} )")
 endfunction()
 
 # returns properties for a package previously defined by cpm_declare_fetch
@@ -1105,7 +1132,7 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
       GIT_SHALLOW
   )
   set(multiValueArgs OPTIONS)
-  cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(PARSE_ARGV 2 CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}")
 
   foreach(oneArgName ${oneValueArgs})
     if(DEFINED CPM_ARGS_${oneArgName})
