@@ -2,8 +2,8 @@ require_relative './lib'
 
 class RemoveSourceDir < IntegrationTest
   def test_remove_source_dir
-    prj = make_project 'using-adder'
-    
+    prj = make_project from_template: 'using-adder'
+
     prj.create_lists_from_default_template package: <<~PACK
       CPMAddPackage(
         NAME testpack-adder

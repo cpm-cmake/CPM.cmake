@@ -21,6 +21,42 @@ For everything else, the targets can be created manually after the dependency ha
 - [CPM: An Awesome Dependency Manager for C++ with CMake](https://medium.com/swlh/cpm-an-awesome-dependency-manager-for-c-with-cmake-3c53f4376766)
 - [CMake and the Future of C++ Package Management](https://ibob.github.io/blog/2020/01/13/cmake-package-management/)
 
+## Full CMakeLists Example
+
+```cmake
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+
+# create project
+project(MyProject)
+
+# add executable
+add_executable(main main.cpp)
+
+# add dependencies
+include(cmake/CPM.cmake)
+
+CPMAddPackage("gh:fmtlib/fmt#7.1.3")
+CPMAddPackage("gh:nlohmann/json@3.10.5")
+CPMAddPackage("gh:catchorg/Catch2@3.2.1")
+
+# link dependencies
+target_link_libraries(main fmt::fmt nlohmann_json::nlohmann_json Catch2::Catch2WithMain)
+```
+
+See the [examples directory](https://github.com/cpm-cmake/CPM.cmake/tree/master/examples) for complete examples with source code and check [below](#snippets) or in the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets) for example snippets.
+
+## Adding CPM
+
+To add CPM to your current project, simply add the [latest release](https://github.com/cpm-cmake/CPM.cmake/releases/latest) of `CPM.cmake` or `get_cpm.cmake` to your project's `cmake` directory.
+The command below will perform this automatically.
+
+```bash
+mkdir -p cmake
+wget -O cmake/CPM.cmake https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/get_cpm.cmake
+```
+
+You can also download CPM.cmake directly from your project's `CMakeLists.txt`. See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Downloading-CPM.cmake-in-CMake) for more details.
+
 ## Usage
 
 After `CPM.cmake` has been [added](#adding-cpm) to your project, the function `CPMAddPackage` can be used to fetch and configure a dependency.
@@ -44,6 +80,10 @@ On the other hand, if `VERSION` hasn't been explicitly specified, CPM can automa
 
 If an additional optional parameter `EXCLUDE_FROM_ALL` is set to a truthy value, then any targets defined inside the dependency won't be built by default. See the [CMake docs](https://cmake.org/cmake/help/latest/prop_tgt/EXCLUDE_FROM_ALL.html) for details.
 
+If an additional optional parameter `SYSTEM` is set to a truthy value, the SYSTEM directory property of the subdirectory added will be set to true.
+See the [add_subdirectory ](https://cmake.org/cmake/help/latest/command/add_subdirectory.html?highlight=add_subdirectory)
+and [SYSTEM](https://cmake.org/cmake/help/latest/prop_tgt/SYSTEM.html#prop_tgt:SYSTEM) target property for details.
+
 A single-argument compact syntax is also supported:
 
 ```cmake
@@ -55,7 +95,7 @@ CPMAddPackage("uri#tag")
 CPMAddPackage("uri@version#tag")
 ```
 
-In the shorthand syntax if the URI is of the form `gh:user/name`, it is interpreted as GitHub URI and converted to `https://github.com/user/name.git`. If the URI is of the form `gl:user/name`, it is interpreted as a [GitLab](https://gitlab.com/explore/) URI and converted to `https://gitlab.com/user/name.git`. If the URI is of the form `bb:user/name`, it is interpreted as a [Bitbucket](https://bitbucket.org/) URI and converted to `https://bitbucket.org/user/name.git`. Otherwise the URI used verbatim as a git URL. All packages added using the shorthand syntax will be added using the [EXCLUDE_FROM_ALL](https://cmake.org/cmake/help/latest/prop_tgt/EXCLUDE_FROM_ALL.html) flag.
+In the shorthand syntax if the URI is of the form `gh:user/name`, it is interpreted as GitHub URI and converted to `https://github.com/user/name.git`. If the URI is of the form `gl:user/name`, it is interpreted as a [GitLab](https://gitlab.com/explore/) URI and converted to `https://gitlab.com/user/name.git`. If the URI is of the form `bb:user/name`, it is interpreted as a [Bitbucket](https://bitbucket.org/) URI and converted to `https://bitbucket.org/user/name.git`. Otherwise the URI used verbatim as a git URL. All packages added using the shorthand syntax will be added using the [EXCLUDE_FROM_ALL](https://cmake.org/cmake/help/latest/prop_tgt/EXCLUDE_FROM_ALL.html) and [SYSTEM](https://cmake.org/cmake/help/latest/prop_tgt/SYSTEM.html#prop_tgt:SYSTEM) flag.
 
 The single-argument syntax also works for URLs:
 
@@ -73,47 +113,15 @@ After calling `CPMAddPackage`, the following variables are defined in the local 
 - `<dependency>_SOURCE_DIR` is the path to the source of the dependency.
 - `<dependency>_BINARY_DIR` is the path to the build directory of the dependency.
 - `<dependency>_ADDED` is set to `YES` if the dependency has not been added before, otherwise it is set to `NO`.
+- `CPM_LAST_PACKAGE_NAME` is set to the determined name of the last added dependency (equivalent to `<dependency>`).
 
 For using CPM.cmake projects with external package managers, such as conan or vcpkg, setting the variable [`CPM_USE_LOCAL_PACKAGES`](#options) will make CPM.cmake try to add a package through `find_package` first, and add it from source if it doesn't succeed.
 
 In rare cases, this behaviour may be desirable by default. The function `CPMFindPackage` will try to find a local dependency via CMake's `find_package` and fallback to `CPMAddPackage`, if the dependency is not found.
 
-## Full CMakeLists Example
-
-```cmake
-cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
-
-# create project
-project(MyProject)
-
-# add executable
-add_executable(tests tests.cpp)
-
-# add dependencies
-include(cmake/CPM.cmake)
-CPMAddPackage("gh:catchorg/Catch2@2.5.0")
-
-# link dependencies
-target_link_libraries(tests Catch2)
-```
-
-See the [examples directory](https://github.com/cpm-cmake/CPM.cmake/tree/master/examples) for complete examples with source code and check [below](#snippets) or in the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets) for example snippets.
-
-## Adding CPM
-
-To add CPM to your current project, simply add the [latest release](https://github.com/cpm-cmake/CPM.cmake/releases/latest) of `CPM.cmake` or `get_cpm.cmake` to your project's `cmake` directory.
-The command below will perform this automatically.
-
-```bash
-mkdir -p cmake
-wget -O cmake/CPM.cmake https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/get_cpm.cmake
-```
-
-You can also download CPM.cmake directly from your project's `CMakeLists.txt`. See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Downloading-CPM.cmake-in-CMake) for more details.
-
 ## Updating CPM
 
-To update CPM to the newest version, update the script in the project's root directory, for example by running the command above.
+To update CPM to the newest version, update the script in the project's root directory, for example by running the same command as for [adding CPM](#adding-cpm).
 Dependencies using CPM will automatically use the updated script of the outermost project.
 
 ## Advantages
@@ -191,10 +199,13 @@ This can be controlled on a per package basis with the `CPM_DOWNLOAD_<dependency
 ### CPM_USE_LOCAL_PACKAGES
 
 CPM can be configured to use `find_package` to search for locally installed dependencies first by setting the CMake option `CPM_USE_LOCAL_PACKAGES`.
+
 If the option `CPM_LOCAL_PACKAGES_ONLY` is set, CPM will emit an error if the dependency is not found locally.
 These options can also be set as environmental variables.
 
 In the case that `find_package` requires additional arguments, the parameter `FIND_PACKAGE_ARGUMENTS` may be specified in the `CPMAddPackage` call. The value of this parameter will be forwarded to `find_package`.
+
+Note that this does not apply to dependencies that have been defined with a truthy `FORCE` parameter. These will be added as defined.
 
 ### CPM_USE_NAMED_CACHE_DIRECTORIES
 
@@ -304,6 +315,18 @@ If you know others, feel free to add them here through a PR.
       </a>
     </td>
   </tr>
+  <tr>
+    <td>
+      <a href="https://github.com/jhasse/jngl">
+        <p align="center">
+          <img src="https://github.com/jhasse/jngl/raw/master/doc/jngl-logo.svg" alt="JNGL" width="100pt" />
+        </p>
+        <p align="center"><b>JNGL - easy to use cross-platform 2D game library</b></p>
+      </a>
+    </td>
+    <td/>
+    <td/>
+  </tr>
 </table>
 
 ## Snippets
@@ -349,9 +372,9 @@ CPMAddPackage(
 # using `CPM_SOURCE_CACHE` is strongly recommended
 CPMAddPackage(
   NAME Boost
-  VERSION 1.77.0
+  VERSION 1.81.0
   GITHUB_REPOSITORY "boostorg/boost"
-  GIT_TAG "boost-1.77.0"
+  GIT_TAG "boost-1.81.0"
 )
 ```
 

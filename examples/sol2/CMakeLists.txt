@@ -15,29 +15,16 @@ CPMAddPackage(
 
 if(lua_ADDED)
   # lua has no CMakeLists, so we create our own target
-
   file(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
   list(REMOVE_ITEM lua_sources "${lua_SOURCE_DIR}/lua.c" "${lua_SOURCE_DIR}/luac.c")
   add_library(lua STATIC ${lua_sources})
-
   target_include_directories(lua SYSTEM PUBLIC $<BUILD_INTERFACE:${lua_SOURCE_DIR}>)
 endif()
 
-CPMAddPackage(
-  NAME sol2
-  URL https://github.com/ThePhD/sol2/archive/v3.0.2.zip
-  VERSION 3.0.2
-  DOWNLOAD_ONLY YES
-)
-
-if(sol2_ADDED)
-  add_library(sol2 INTERFACE IMPORTED)
-  target_include_directories(sol2 SYSTEM INTERFACE ${sol2_SOURCE_DIR}/include)
-  target_link_libraries(sol2 INTERFACE lua)
-endif()
+CPMAddPackage("gh:ThePhD/sol2@3.3.0")
 
 # ---- Executable ----
 
 add_executable(CPMSol2Example main.cpp)
 target_compile_features(CPMSol2Example PRIVATE cxx_std_17)
-target_link_libraries(CPMSol2Example sol2)
+target_link_libraries(CPMSol2Example sol2 lua)

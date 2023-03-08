@@ -1,4 +1,4 @@
-# Integration Test Framework Refernce
+# Integration Test Framework Reference
 
 ## `TestLib`
 
@@ -60,6 +60,7 @@ The class which must be a parent of all integration test case classes. It itself
 ### Utils
 
 * `cur_test_dir` - the directory of the current test case. A subdirectory of `TestLib::TMP_DIR`
-* `make_project(template_dir = nil)` - create a project from a test method. Will create a the project's source and binary directories as subdirectories of `cur_test_dir`.
-    * Optionally work with a template directory, in which case it will copy the contents of the template directory (one from `templates`) in the project's source directory.
+* `make_project(name: nil, from_template: nil)` - create a project from a test method. Will create the project's source and binary directories as subdirectories of `cur_test_dir`.
+    * Optionally provide a name which will be concatenated to the project directory. This allows creating multiple projects in a test
+    * Optionally work with a template, in which case it will copy the contents of the template directory (one from `templates`) in the project's source directory.
 

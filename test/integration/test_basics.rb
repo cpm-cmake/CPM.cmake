@@ -5,7 +5,7 @@ require_relative './lib'
 class Basics < IntegrationTest
   # Test cpm caches with no cpm-related env vars
   def test_cpm_default
-    prj = make_project 'no-deps'
+    prj = make_project from_template: 'no-deps'
     prj.create_lists_from_default_template
     assert_success prj.configure
 
@@ -38,7 +38,7 @@ class Basics < IntegrationTest
   def test_env_cpm_source_cache
     ENV['CPM_SOURCE_CACHE'] = cur_test_dir
 
-    prj = make_project 'no-deps'
+    prj = make_project from_template: 'no-deps'
     prj.create_lists_from_default_template
     assert_success prj.configure
 

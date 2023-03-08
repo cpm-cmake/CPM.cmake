@@ -4,7 +4,7 @@ class Simple < IntegrationTest
   ADDER_PACKAGE_NAME = 'testpack-adder'
 
   def test_update_single_package
-    prj = make_project 'using-adder'
+    prj = make_project from_template: 'using-adder'
     adder_cache0 = nil
     adder_ver_file = nil
 
