@@ -12,7 +12,7 @@ To run all tests from the repo root execute:
 $ ruby test/integration/runner.rb
 ```
 
-The runner will run all tests and generate a report of the exeuction.
+The runner will run all tests and generate a report of the execution.
 
 The current working directory doesn't matter. If you are in `<repo-root>/test/integration`, you can run simply `$ ruby runner.rb`.
 
