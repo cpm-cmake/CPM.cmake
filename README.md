@@ -324,7 +324,14 @@ If you know others, feel free to add them here through a PR.
         <p align="center"><b>JNGL - easy to use cross-platform 2D game library</b></p>
       </a>
     </td>
-    <td/>
+    <td>
+      <a href="https://github.com/sillydan1/aaltitoad">
+        <p align="center">
+          <img src="https://github.com/sillydan1/aaltitoad/raw/v1.1.0/.github/resources/logo/toad_only.svg" alt="aaltitoad" width="100pt" />
+        </p>
+        <p align="center"><b>AALTITOAD - verifier and simulator for Tick Tock Automata</b></p>
+      </a>
+    </td>
     <td/>
   </tr>
 </table>
