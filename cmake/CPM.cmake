@@ -537,10 +537,12 @@ macro(cpm_add_package_single_arg arg)
   cpm_parse_add_package_single_arg("${arg}" __ARGN_multi)
 
   # The shorthand syntax implies EXCLUDE_FROM_ALL
+  # cmake-format: off
   list(APPEND __ARGN_multi
     EXCLUDE_FROM_ALL YES
     SYSTEM YES
   )
+  # cmake-format: on
 
   cpm_add_package_multi_arg(${__ARGN_multi}) # Forward function arguments to CPMAddPackage()
 endmacro()
