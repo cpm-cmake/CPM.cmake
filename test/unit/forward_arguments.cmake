@@ -50,6 +50,20 @@ assert_equal(
   "fibonacci;EMPTY_OPTION;;COMMAND_WITH_EMPTY_ARG;foo;;bar;GIT_REPOSITORY;https://github.com/cpm-cmake/testpack-fibonacci.git;GIT_TAG;v1.2.3"
 )
 
+# Intercept underlying `cpm_add_package_multi_arg`
+function(CPMAddPackage)
+  set_property(GLOBAL PROPERTY last_cpmaddpackage_argn "${ARGN}")
+endfunction()
+
+# TEST: CPM Module file shall store all arguments including empty strings
+include(${CPM_MODULE_PATH}/Findfibonacci.cmake)
+
+get_property(last_cpmaddpackage_argn GLOBAL PROPERTY last_cpmaddpackage_argn)
+assert_equal(
+  "${last_cpmaddpackage_argn}"
+  "NAME;fibonacci;GIT_REPOSITORY;https://github.com/cpm-cmake/testpack-fibonacci.git;VERSION;1.2.3;EMPTY_OPTION;;COMMAND_WITH_EMPTY_ARG;foo;;bar"
+)
+
 # remove generated files
 file(REMOVE_RECURSE ${CPM_MODULE_PATH})
 file(REMOVE ${CPM_PACKAGE_LOCK_FILE})
