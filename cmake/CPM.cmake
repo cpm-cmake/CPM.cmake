@@ -505,50 +505,70 @@ function(cpm_override_fetchcontent contentName)
   set_property(GLOBAL PROPERTY ${propertyName} TRUE)
 endfunction()
 
-macro(cpm_cmake_eval)
-  set(__ARGN "${ARGN}")
-  if(COMMAND cmake_language)
-    cmake_language(EVAL CODE "${__ARGN}")
+# replaces empty arguments with a placeholder to compensate CMake issues with handling empty
+# arguments
+function(cpm_encode_empty_arguments args outVar)
+  set(out "")
+  # note: we don't use string replacement for ';;' -> ';__CPM_EMPTY_ARG;' here, as it would
+  # interfere with nested arguments
+  foreach(ARG IN LISTS args)
+    if(NOT out STREQUAL "")
+      string(APPEND out ";")
+    endif()
+    if(ARG STREQUAL "")
+      string(APPEND out "__CPM_EMPTY_ARG")
+    else()
+      # prevent escaped characters from getting resolved early
+      string(REPLACE "\\" "\\\\\\" ARG "${ARG}")
+      string(APPEND out "${ARG}")
+    endif()
+  endforeach()
+  set("${outVar}"
+      "${out}"
+      PARENT_SCOPE
+  )
+endfunction()
+
+function(cpm_decode_empty_argument arg outVar)
+  if("${arg}" STREQUAL "__CPM_EMPTY_ARG")
+    set("${outVar}"
+        ""
+        PARENT_SCOPE
+    )
   else()
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/eval.cmake "${__ARGN}")
-    include(${CMAKE_CURRENT_BINARY_DIR}/eval.cmake)
+    set("${outVar}"
+        "${arg}"
+        PARENT_SCOPE
+    )
   endif()
-endmacro()
+endfunction()
+
+# replaces placeholder arguments from `cpm_encode_empty_arguments` with empty arguments
+function(cpm_decode_empty_arguments args outVar)
+  set(out "")
+  foreach(ARG IN LISTS args)
+    if(NOT out STREQUAL "")
+      string(APPEND out ";")
+    endif()
+    cpm_decode_empty_argument("${ARG}" ARG)
+    string(APPEND out "${ARG}")
+  endforeach()
+  set("${outVar}"
+      "${out}"
+      PARENT_SCOPE
+  )
+endfunction()
 
 # Download and add a package from source
-macro(CPMAddPackage)
-  set(__ARGN "${ARGN}")
-  list(LENGTH __ARGN __ARGN_Length)
-  if(__ARGN_Length EQUAL 1)
-    cpm_add_package_single_arg(${ARGN})
-  else()
-    # Forward preserving empty string arguments
-    # (https://gitlab.kitware.com/cmake/cmake/-/merge_requests/4729)
-    set(__ARGN_Quoted)
-    foreach(__ARG IN LISTS __ARGN)
-      string(APPEND __ARGN_Quoted " [==[${__ARG}]==]")
-    endforeach()
-    cpm_cmake_eval("cpm_add_package_multi_arg( ${__ARGN_Quoted} )")
+function(CPMAddPackage)
+  cpm_set_policies()
+
+  list(LENGTH ARGN argnLength)
+  if(argnLength EQUAL 1)
+    cpm_parse_add_package_single_arg("${ARGN}" ARGN)
+    # The shorthand syntax implies EXCLUDE_FROM_ALL and SYSTEM
+    set(ARGN "${ARGN};EXCLUDE_FROM_ALL;YES;SYSTEM;YES;")
   endif()
-endmacro()
-
-macro(cpm_add_package_single_arg arg)
-  cpm_set_policies()
-  cpm_parse_add_package_single_arg("${arg}" __ARGN_multi)
-
-  # The shorthand syntax implies EXCLUDE_FROM_ALL
-  # cmake-format: off
-  list(APPEND __ARGN_multi
-    EXCLUDE_FROM_ALL YES
-    SYSTEM YES
-  )
-  # cmake-format: on
-
-  cpm_add_package_multi_arg(${__ARGN_multi}) # Forward function arguments to CPMAddPackage()
-endmacro()
-
-function(cpm_add_package_multi_arg)
-  cpm_set_policies()
 
   set(oneValueArgs
       NAME
@@ -572,10 +592,26 @@ function(cpm_add_package_multi_arg)
 
   set(multiValueArgs URL OPTIONS)
 
-  cmake_parse_arguments(PARSE_ARGV 0 CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}")
+  # Encode arguments for `cmake_parse_arguments`
+  cpm_encode_empty_arguments("${ARGN}" "PARSE_ARGS")
+
+  # Parse arguments
+  cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${PARSE_ARGS}")
+
+  # Decode arguments
+  foreach(ARG IN LISTS oneValueArgs)
+    if(DEFINED CPM_ARGS_${ARG})
+      cpm_decode_empty_argument("${CPM_ARGS_${ARG}}" CPM_ARGS_${ARG})
+    endif()
+  endforeach()
+  foreach(ARG IN LISTS multiValueArgs)
+    if(DEFINED CPM_ARGS_${ARG})
+      cpm_decode_empty_arguments("${CPM_ARGS_${ARG}}" CPM_ARGS_${ARG})
+    endif()
+  endforeach()
+  cpm_decode_empty_arguments("${CPM_ARGS_UNPARSED_ARGUMENTS}" CPM_ARGS_UNPARSED_ARGUMENTS)
 
   # Set default values for arguments
-
   if(NOT DEFINED CPM_ARGS_VERSION)
     if(DEFINED CPM_ARGS_GIT_TAG)
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
@@ -949,14 +985,7 @@ function(cpm_declare_fetch PACKAGE VERSION INFO)
     cpm_message(STATUS "${CPM_INDENT} Package not declared (dry run)")
     return()
   endif()
-
-  # Forward preserving empty string arguments
-  # (https://gitlab.kitware.com/cmake/cmake/-/merge_requests/4729)
-  set(__argsQuoted)
-  foreach(__item IN LISTS ARGN)
-    string(APPEND __argsQuoted " [==[${__item}]==]")
-  endforeach()
-  cpm_cmake_eval("FetchContent_Declare(${PACKAGE} ${__argsQuoted} )")
+  FetchContent_Declare(${PACKAGE} "${ARGN}")
 endfunction()
 
 # returns properties for a package previously defined by cpm_declare_fetch
