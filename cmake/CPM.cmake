@@ -797,7 +797,7 @@ function(CPMAddPackage)
       "${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
     )
     cpm_fetch_package("${CPM_ARGS_NAME}" populated)
-    if(CPM_CACHE_SOURCE AND download_directory)
+    if(CPM_SOURCE_CACHE AND download_directory)
       file(LOCK ${download_directory}/../cmake.lock RELEASE)
     endif()
     if(${populated})
