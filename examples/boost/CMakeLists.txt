@@ -1,21 +1,33 @@
-cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.14...3.26)
 
 project(CPMExampleBoost)
 
 # ---- Create binary ----
 
-add_executable(CPMExampleBoost main.cpp)
-target_compile_features(CPMExampleBoost PRIVATE cxx_std_17)
+add_executable(CPMExampleAsio deferred.cpp)
+target_compile_features(CPMExampleAsio PRIVATE cxx_std_17)
+
+add_executable(CPMExampleRegex regex.cpp)
+target_compile_features(CPMExampleRegex PRIVATE cxx_std_17)
+
+add_executable(CPMExampleTest const_string_test.cpp)
+target_compile_features(CPMExampleTest PRIVATE cxx_std_17)
 
 # ---- Dependencies ----
 
 include(../../cmake/CPM.cmake)
 
-CPMAddPackage(
-  NAME Boost
-  VERSION 1.81.0
-  GITHUB_REPOSITORY "boostorg/boost"
-  GIT_TAG "boost-1.81.0"
-)
+# using unofficial fork as boost's lacking good CMake support for user
+CPMAddPackage("gh:ClausKlein/boost-cmake@1.80.0")
 
-target_link_libraries(CPMExampleBoost PRIVATE Boost::asio)
+target_link_libraries(CPMExampleAsio PRIVATE Boost::asio)
+target_link_libraries(CPMExampleRegex PRIVATE Boost::regex)
+target_link_libraries(CPMExampleTest PRIVATE Boost::unit_test_framework)
+
+# ---- Testing ----
+
+enable_testing()
+
+add_test(NAME CPMExampleAsio COMMAND CPMExampleAsio)
+add_test(NAME CPMExampleRegex COMMAND CPMExampleAsio)
+add_test(NAME CPMExampleTest COMMAND CPMExampleTest)
