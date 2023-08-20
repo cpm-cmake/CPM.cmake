@@ -12,7 +12,7 @@ It's built as a thin wrapper around CMake's [FetchContent](https://cmake.org/cma
 
 ## Manage everything
 
-Any downloadable project or resource can be added as a version-controlled dependency though CPM, it is not necessary to modify or package anything.
+Any downloadable project or resource can be added as a version-controlled dependency through CPM, it is not necessary to modify or package anything.
 Projects using modern CMake are automatically configured and their targets can be used immediately.
 For everything else, the targets can be created manually after the dependency has been downloaded (see the [snippets](#snippets) below for examples).
 
