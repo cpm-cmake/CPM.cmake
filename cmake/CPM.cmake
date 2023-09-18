@@ -528,7 +528,6 @@ function(CPMAddPackage)
       BITBUCKET_REPOSITORY
       GIT_REPOSITORY
       SOURCE_DIR
-      DOWNLOAD_COMMAND
       FIND_PACKAGE_ARGUMENTS
       NO_CACHE
       SYSTEM
@@ -537,7 +536,7 @@ function(CPMAddPackage)
       SOURCE_SUBDIR
   )
 
-  set(multiValueArgs URL OPTIONS)
+  set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND)
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
@@ -1098,13 +1097,12 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
       GITLAB_REPOSITORY
       GIT_REPOSITORY
       SOURCE_DIR
-      DOWNLOAD_COMMAND
       FIND_PACKAGE_ARGUMENTS
       NO_CACHE
       SYSTEM
       GIT_SHALLOW
   )
-  set(multiValueArgs OPTIONS)
+  set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND)
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   foreach(oneArgName ${oneValueArgs})
