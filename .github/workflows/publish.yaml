@@ -15,9 +15,9 @@ jobs:
       - name: Set CPM version by tag
         run: |
           mkdir dist
-          sed -e "s/1.0.0-development-version/${GITHUB_REF/refs\/tags\//v}/g" cmake/CPM.cmake > dist/CPM.cmake
-          sed -e "s/1.0.0-development-version/${GITHUB_REF/refs\/tags\//v}/g" \
-              -e "s/EMPTY_HASH_SUM/$(sha256sum cmake/CPM.cmake | cut -d' ' -f1)/" cmake/get_cpm.cmake > dist/get_cpm.cmake
+          sed -e "s/1.0.0-development-version/${GITHUB_REF/refs\/tags\/v}/g" cmake/CPM.cmake > dist/CPM.cmake
+          sed -e "s/1.0.0-development-version/${GITHUB_REF/refs\/tags\/v}/g" \
+              -e "s/CPM_HASH_SUM_PLACEHOLDER/$(sha256sum dist/CPM.cmake | cut -d' ' -f1)/" cmake/get_cpm.cmake > dist/get_cpm.cmake
 
       - name: Upload CPM.cmake to release
         uses: svenstaro/upload-release-action@v1-release
