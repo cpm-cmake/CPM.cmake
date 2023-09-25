@@ -353,6 +353,9 @@ function(cpm_parse_add_package_single_arg arg outArgs)
     elseif(scheme STREQUAL "bb")
       set(out "BITBUCKET_REPOSITORY;${uri}")
       set(packageType "git")
+    elseif(scheme STREQUAL "cb")
+      set(out "CODEBERG_REPOSITORY;${uri}")
+      set(packageType "git")      
       # A CPM-specific scheme was not found. Looks like this is a generic URL so try to determine
       # type
     elseif(arg MATCHES ".git/?(@|#|$)")
@@ -526,6 +529,7 @@ function(CPMAddPackage)
       GITHUB_REPOSITORY
       GITLAB_REPOSITORY
       BITBUCKET_REPOSITORY
+      CODEBERG_REPOSITORY
       GIT_REPOSITORY
       SOURCE_DIR
       FIND_PACKAGE_ARGUMENTS
@@ -560,6 +564,8 @@ function(CPMAddPackage)
     set(CPM_ARGS_GIT_REPOSITORY "https://gitlab.com/${CPM_ARGS_GITLAB_REPOSITORY}.git")
   elseif(DEFINED CPM_ARGS_BITBUCKET_REPOSITORY)
     set(CPM_ARGS_GIT_REPOSITORY "https://bitbucket.org/${CPM_ARGS_BITBUCKET_REPOSITORY}.git")
+  elseif(DEFINED CPM_ARGS_BITBUCKET_REPOSITORY)
+    set(CPM_ARGS_GIT_REPOSITORY "https://codeberg.org/${CPM_ARGS_CODEBERG_REPOSITORY}.git")    
   endif()
 
   if(DEFINED CPM_ARGS_GIT_REPOSITORY)
@@ -1095,6 +1101,7 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
       DOWNLOAD_ONLY
       GITHUB_REPOSITORY
       GITLAB_REPOSITORY
+      CODEBERG_REPOSITORY
       GIT_REPOSITORY
       SOURCE_DIR
       FIND_PACKAGE_ARGUMENTS
