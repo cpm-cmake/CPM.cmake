@@ -5,7 +5,7 @@
 # MIT License
 # -----------
 #[[
-  Copyright (c) 2019-2022 Lars Melchior and contributors
+  Copyright (c) 2019-2023 Lars Melchior and contributors
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -561,7 +561,6 @@ function(cpm_add_package_multi_arg)
       BITBUCKET_REPOSITORY
       GIT_REPOSITORY
       SOURCE_DIR
-      DOWNLOAD_COMMAND
       FIND_PACKAGE_ARGUMENTS
       NO_CACHE
       SYSTEM
@@ -570,7 +569,7 @@ function(cpm_add_package_multi_arg)
       SOURCE_SUBDIR
   )
 
-  set(multiValueArgs URL OPTIONS)
+  set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND)
 
   cmake_parse_arguments(PARSE_ARGV 0 CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}")
 
@@ -1137,13 +1136,13 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
       GITLAB_REPOSITORY
       GIT_REPOSITORY
       SOURCE_DIR
-      DOWNLOAD_COMMAND
       FIND_PACKAGE_ARGUMENTS
       NO_CACHE
       SYSTEM
       GIT_SHALLOW
   )
-  set(multiValueArgs OPTIONS)
+  
+  set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND)
   cmake_parse_arguments(PARSE_ARGV 2 CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}")
 
   foreach(oneArgName ${oneValueArgs})

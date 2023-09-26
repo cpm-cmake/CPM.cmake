@@ -12,7 +12,7 @@ It's built as a thin wrapper around CMake's [FetchContent](https://cmake.org/cma
 
 ## Manage everything
 
-Any downloadable project or resource can be added as a version-controlled dependency though CPM, it is not necessary to modify or package anything.
+Any downloadable project or resource can be added as a version-controlled dependency through CPM, it is not necessary to modify or package anything.
 Projects using modern CMake are automatically configured and their targets can be used immediately.
 For everything else, the targets can be created manually after the dependency has been downloaded (see the [snippets](#snippets) below for examples).
 
@@ -332,7 +332,14 @@ If you know others, feel free to add them here through a PR.
         <p align="center"><b>AALTITOAD - verifier and simulator for Tick Tock Automata</b></p>
       </a>
     </td>
-    <td/>
+    <td>
+      <a href="https://github.com/ZIMO-Elektronik">
+        <p align="center">
+          <img src="https://avatars.githubusercontent.com/u/117935012?s=400&u=9a871a46dd13437f0adcae166e9efbe518ff0b99&v=4" alt="ZIMO-Elektronik" width="100pt" />
+        </p>
+        <p align="center"><b>ZIMO-Elektronik</b></p>
+      </a>
+    </td>
   </tr>
 </table>
 
