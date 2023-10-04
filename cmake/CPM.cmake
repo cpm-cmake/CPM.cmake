@@ -1095,12 +1095,15 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
       DOWNLOAD_ONLY
       GITHUB_REPOSITORY
       GITLAB_REPOSITORY
+      BITBUCKET_REPOSITORY
       GIT_REPOSITORY
       SOURCE_DIR
       FIND_PACKAGE_ARGUMENTS
       NO_CACHE
       SYSTEM
       GIT_SHALLOW
+      EXCLUDE_FROM_ALL
+      SOURCE_SUBDIR
   )
   set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND)
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
