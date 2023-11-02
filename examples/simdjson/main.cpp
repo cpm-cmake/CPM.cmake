@@ -1,5 +1,6 @@
-#include "simdjson.h"
 #include <iostream>
+
+#include "simdjson.h"
 using namespace simdjson;
 
 int main() {
@@ -13,7 +14,8 @@ int main() {
   // Iterating through an array of objects
   for (ondemand::object car : parser.iterate(cars_json)) {
     // Accessing a field by name
-    std::cout << "Make/Model: " << std::string_view(car["make"]) << "/" << std::string_view(car["model"]) << std::endl;
+    std::cout << "Make/Model: " << std::string_view(car["make"]) << "/"
+              << std::string_view(car["model"]) << std::endl;
 
     // Casting a JSON element to an integer
     uint64_t year = car["year"];
@@ -26,5 +28,4 @@ int main() {
     }
     std::cout << "- Average tire pressure: " << (total_tire_pressure / 4) << std::endl;
   }
-
 }
