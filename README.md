@@ -379,12 +379,6 @@ CPMAddPackage(
 )
 ```
 
-### [simdjson](https://github.com/simdjson/simdjson)
-
-```
-CPMAddPackage("gh:simdjson/simdjson@3.5.0")
-```
-
 ### [Boost ](https://github.com/boostorg/boost)
 
 ```CMake
