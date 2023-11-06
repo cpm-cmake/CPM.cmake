@@ -341,6 +341,32 @@ If you know others, feel free to add them here through a PR.
       </a>
     </td>
   </tr>
+  <tr>
+    <td>
+      <a href="https://github.com/ada-url/ada">
+        <p align="center">
+          <img src="https://avatars.githubusercontent.com/u/120840559?s=200&v=4" alt="ada" width="100pt" />
+        </p>
+        <p align="center"><b>ada - WHATWG-compliant and fast URL parser written in modern C++</b></p>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/exaloop/codon">
+        <p align="center">
+          <img src="https://github.com/exaloop/codon/blob/develop/docs/img/logo.png?raw=true" alt="codon" width="100pt" />
+        </p>
+        <p align="center"><b>codon - A high-performance, zero-overhead, extensible Python compiler using LLVM</b></p>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/RoaringBitmap/CRoaring">
+        <p align="center">
+          <img src="https://avatars.githubusercontent.com/u/16548876?s=200&v=4" alt="CRoaring" width="100pt" />
+        </p>
+        <p align="center"><b>CRoaring - Roaring bitmaps in C (and C++), with SIMD (AVX2, AVX-512 and NEON) optimizations: used by Apache Doris, ClickHouse, and StarRocks</b></p>
+      </a>
+    </td>
+  </tr>
 </table>
 
 ## Snippets
