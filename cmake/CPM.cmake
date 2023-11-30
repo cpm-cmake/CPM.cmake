@@ -99,6 +99,12 @@ macro(cpm_set_policies)
     cmake_policy(SET CMP0135 NEW)
     set(CMAKE_POLICY_DEFAULT_CMP0135 NEW)
   endif()
+
+  # treat relative git repository paths as being relative to the parent project's remote
+  if(POLICY CMP0150)
+    cmake_policy(SET CMP0150 NEW)
+    set(CMAKE_POLICY_DEFAULT_CMP0150 NEW)
+  endif()
 endmacro()
 cpm_set_policies()
 

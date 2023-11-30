@@ -142,6 +142,7 @@ Dependencies using CPM will automatically use the updated script of the outermos
 - **Some CMake policies set to `NEW`** Including CPM.cmake will lead to several CMake policies being set to `NEW`. Users which need the old behavior will need to manually modify their CMake code to ensure they're set to `OLD` at the appropriate places. The policies are:
     - [CMP0077](https://cmake.org/cmake/help/latest/policy/CMP0077.html) and [CMP0126](https://cmake.org/cmake/help/latest/policy/CMP0126.html). They make setting package options from `CMPAddPackage` possible.
     - [CMP0135](https://cmake.org/cmake/help/latest/policy/CMP0135.html) It allows for proper package rebuilds of packages which are archives, source cache is not used, and the package URL is changed to an older version.
+    - [CMP0150](https://cmake.org/cmake/help/latest/policy/CMP0150.html) Relative paths provided to `GIT_REPOSITORY` are treated as relative to the parent project's remote.
 
 For projects with more complex needs and where an extra setup step doesn't matter, it may be worth to check out an external C++ package manager such as [vcpkg](https://github.com/microsoft/vcpkg), [conan](https://conan.io) or [hunter](https://github.com/ruslo/hunter).
 Dependencies added with `CPMFindPackage` should work with external package managers.
