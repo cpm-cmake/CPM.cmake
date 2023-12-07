@@ -12,7 +12,7 @@ To run all tests from the repo root execute:
 $ ruby test/integration/runner.rb
 ```
 
-The runner will run all tests and generate a report of the exeuction.
+The runner will run all tests and generate a report of the execution.
 
 The current working directory doesn't matter. If you are in `<repo-root>/test/integration`, you can run simply `$ ruby runner.rb`.
 
@@ -34,7 +34,7 @@ Writing tests makes use of the custom integration test framework in `lib.rb`. It
 * There should be no dependency between the test scripts. Each should be executable individually and the order in which multiple ones are executed mustn't matter.
 * The class should contain methods, also prefixed with `test_` which will be executed by the framework. In most cases there would be a single test method per class.
 * In case there are multiple test methods, they will be executed in the order in which they are defined.
-* The test methods should contain assertions which check for the expected state of things at varous points of the test's execution.
+* The test methods should contain assertions which check for the expected state of things at various points of the test's execution.
 
 ### More
 
