@@ -13,7 +13,7 @@ configure_package_config_file(
 
 execute_process(
   COMMAND ${CMAKE_COMMAND} "-S${CMAKE_CURRENT_LIST_DIR}/local_dependency" "-B${TEST_BUILD_DIR}"
-  RESULT_VARIABLE ret
+          "-DCPM_SOURCE_CACHE=OFF" RESULT_VARIABLE ret
 )
 
 assert_equal(${ret} "0")

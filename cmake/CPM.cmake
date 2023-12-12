@@ -188,7 +188,7 @@ include(FetchContent)
 
 # Try to infer package name from git repository uri (path or url)
 function(cpm_package_name_from_git_uri URI RESULT)
-  if("${URI}" MATCHES "([^/:]+)/?.git/?$")
+  if(URI MATCHES "([^/:]+)/?.git/?$")
     set(${RESULT}
         ${CMAKE_MATCH_1}
         PARENT_SCOPE
@@ -280,11 +280,15 @@ endfunction()
 function(CPMFindPackage)
   set(oneValueArgs NAME VERSION GIT_TAG FIND_PACKAGE_ARGUMENTS)
 
-  cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "" ${ARGN})
+  cmake_parse_arguments(PARSE_ARGV 0 CPM_ARGS "" "${oneValueArgs}" "")
+  if(CPM_ARGS_KEYWORDS_MISSING_VALUES)
+    message(ERROR "No values for ${CPM_ARGS_KEYWORDS_MISSING_VALUES} given!")
+  endif()
 
   if(NOT DEFINED CPM_ARGS_VERSION)
     if(DEFINED CPM_ARGS_GIT_TAG)
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
+      message(TRACE "${CPM_ARGS_VERSION} set")
     endif()
   endif()
 
@@ -312,7 +316,6 @@ function(CPMFindPackage)
     CPMAddPackage(${ARGN})
     cpm_export_variables(${CPM_ARGS_NAME})
   endif()
-
 endfunction()
 
 # checks if a package has been added before
@@ -345,18 +348,20 @@ endfunction()
 # to: GITHUB_REPOSITORY;foo/bar;VERSION;1.2.3
 function(cpm_parse_add_package_single_arg arg outArgs)
   # Look for a scheme
-  if("${arg}" MATCHES "^([a-zA-Z]+):(.+)$")
+  message(DEBUG "cpm_parse_add_package_single_arg(${arg}) called")
+  if(arg MATCHES "^([a-zA-Z]+):(.+)$")
     string(TOLOWER "${CMAKE_MATCH_1}" scheme)
     set(uri "${CMAKE_MATCH_2}")
+    message(DEBUG "${scheme} ${uri} found")
 
     # Check for CPM-specific schemes
-    if(scheme STREQUAL "gh")
+    if(scheme STREQUAL gh)
       set(out "GITHUB_REPOSITORY;${uri}")
-      set(packageType "git")
-    elseif(scheme STREQUAL "gl")
+      set(packageType git)
+    elseif(scheme STREQUAL gl)
       set(out "GITLAB_REPOSITORY;${uri}")
-      set(packageType "git")
-    elseif(scheme STREQUAL "bb")
+      set(packageType git)
+    elseif(scheme STREQUAL bb)
       set(out "BITBUCKET_REPOSITORY;${uri}")
       set(packageType "git")
       # A CPM-specific scheme was not found. Looks like this is a generic URL so try to determine
@@ -368,6 +373,7 @@ function(cpm_parse_add_package_single_arg arg outArgs)
       # Fall back to a URL
       set(out "URL;${arg}")
       set(packageType "archive")
+      message(WARNING "${out} Fall back to a URL!")
 
       # We could also check for SVN since FetchContent supports it, but SVN is so rare these days.
       # We just won't bother with the additional complexity it will induce in this function. SVN is
@@ -386,14 +392,17 @@ function(cpm_parse_add_package_single_arg arg outArgs)
   # For all packages we interpret @... as version. Only replace the last occurrence. Thus URIs
   # containing '@' can be used
   string(REGEX REPLACE "@([^@]+)$" ";VERSION;\\1" out "${out}")
+  message(DEBUG "${out} set")
 
   # Parse the rest according to package type
-  if(packageType STREQUAL "git")
+  if(packageType STREQUAL git)
     # For git repos we interpret #... as a tag or branch or commit hash
     string(REGEX REPLACE "#([^#]+)$" ";GIT_TAG;\\1" out "${out}")
-  elseif(packageType STREQUAL "archive")
+    message(DEBUG "${out} set")
+  elseif(packageType STREQUAL archive)
     # For archives we interpret #... as a URL hash.
     string(REGEX REPLACE "#([^#]+)$" ";URL_HASH;\\1" out "${out}")
+    message(DEBUG "${out} set")
     # We don't try to parse the version if it's not provided explicitly. cpm_get_version_from_url
     # should do this at a later point
   else()
@@ -467,7 +476,6 @@ function(cpm_check_git_working_dir_is_clean repoPath gitTag isClean)
         PARENT_SCOPE
     )
   endif()
-
 endfunction()
 
 # method to overwrite internal FetchContent properties, to allow using CPM.cmake to overload
@@ -515,12 +523,22 @@ endfunction()
 function(CPMAddPackage)
   cpm_set_policies()
 
-  list(LENGTH ARGN argnLength)
-  if(argnLength EQUAL 1)
-    cpm_parse_add_package_single_arg("${ARGN}" ARGN)
+  if(ARGC EQUAL 1)
+    cpm_parse_add_package_single_arg("${ARGV}" PARSED_ARGS)
 
     # The shorthand syntax implies EXCLUDE_FROM_ALL and SYSTEM
-    set(ARGN "${ARGN};EXCLUDE_FROM_ALL;YES;SYSTEM;YES;")
+    unset(ARGV)
+    set(ARGV "${PARSED_ARGS};EXCLUDE_FROM_ALL;YES;SYSTEM;YES")
+    list(LENGTH ARGV ARGC)
+
+    message(DEBUG "parsed ARGC: ${ARGC}")
+    set(n "0")
+    foreach(arg IN LISTS ARGV)
+      set(ARGV${n} ${arg})
+      message(DEBUG "ARGV${n}: ${arg}")
+      math(EXPR n "${n}+1")
+    endforeach()
+    message(DEBUG "parsed ARGV: ${ARGV}")
   endif()
 
   set(oneValueArgs
@@ -544,17 +562,25 @@ function(CPMAddPackage)
 
   set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND)
 
-  cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
+  cmake_parse_arguments(PARSE_ARGV 0 CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}")
+  if(CPM_ARGS_KEYWORDS_MISSING_VALUES)
+    message(ERROR "No values for ${CPM_ARGS_KEYWORDS_MISSING_VALUES} given!")
+  endif()
 
   # Set default values for arguments
+  if(CPM_ARGS_UNPARSED_ARGUMENTS)
+    message(TRACE "unparsed arguments: ${CPM_ARGS_UNPARSED_ARGUMENTS}")
+  endif()
 
   if(NOT DEFINED CPM_ARGS_VERSION)
     if(DEFINED CPM_ARGS_GIT_TAG)
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
+      message(TRACE "${CPM_ARGS_VERSION} set")
     endif()
   endif()
 
   if(CPM_ARGS_DOWNLOAD_ONLY)
+    message(TRACE "${CPM_ARGS_DOWNLOAD_ONLY} defined")
     set(DOWNLOAD_ONLY ${CPM_ARGS_DOWNLOAD_ONLY})
   else()
     set(DOWNLOAD_ONLY NO)
@@ -569,9 +595,11 @@ function(CPMAddPackage)
   endif()
 
   if(DEFINED CPM_ARGS_GIT_REPOSITORY)
+    message(TRACE "${CPM_ARGS_GIT_REPOSITORY} defined")
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_REPOSITORY ${CPM_ARGS_GIT_REPOSITORY})
     if(NOT DEFINED CPM_ARGS_GIT_TAG)
       set(CPM_ARGS_GIT_TAG v${CPM_ARGS_VERSION})
+      message(TRACE "${CPM_ARGS_GIT_TAG} set")
     endif()
 
     # If a name wasn't provided, try to infer it from the git repo
@@ -586,11 +614,13 @@ function(CPMAddPackage)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_TAG ${CPM_ARGS_GIT_TAG})
     # If GIT_SHALLOW is explicitly specified, honor the value.
     if(DEFINED CPM_ARGS_GIT_SHALLOW)
+      message(TRACE "${CPM_ARGS_GIT_SHALLOW} defined")
       list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_SHALLOW ${CPM_ARGS_GIT_SHALLOW})
     endif()
   endif()
 
   if(DEFINED CPM_ARGS_URL)
+    message(TRACE "${CPM_ARGS_URL} defined")
     # If a name or version aren't provided, try to infer them from the URL
     list(GET CPM_ARGS_URL 0 firstUrl)
     cpm_package_name_and_ver_from_url(${firstUrl} nameFromUrl verFromUrl)
@@ -600,9 +630,11 @@ function(CPMAddPackage)
     # If the caller provided their own name and version, they trump the inferred ones.
     if(NOT DEFINED CPM_ARGS_NAME)
       set(CPM_ARGS_NAME ${nameFromUrl})
+      message(TRACE "${CPM_ARGS_NAME} set")
     endif()
     if(NOT DEFINED CPM_ARGS_VERSION)
       set(CPM_ARGS_VERSION ${verFromUrl})
+      message(TRACE "${CPM_ARGS_VERSION} set")
     endif()
 
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS URL "${CPM_ARGS_URL}")
@@ -613,7 +645,7 @@ function(CPMAddPackage)
   if(NOT DEFINED CPM_ARGS_NAME)
     message(
       FATAL_ERROR
-        "${CPM_INDENT} 'NAME' was not provided and couldn't be automatically inferred for package added with arguments: '${ARGN}'"
+        "${CPM_INDENT} 'NAME' was not provided and couldn't be automatically inferred for package added with arguments: '${ARGV}'"
     )
   endif()
 
@@ -781,15 +813,15 @@ function(CPMAddPackage)
     endif()
   endif()
 
-  cpm_create_module_file(${CPM_ARGS_NAME} "CPMAddPackage(\"${ARGN}\")")
+  cpm_create_module_file(${CPM_ARGS_NAME} "CPMAddPackage(\"${ARGV}\")")
 
   if(CPM_PACKAGE_LOCK_ENABLED)
     if((CPM_ARGS_VERSION AND NOT CPM_ARGS_SOURCE_DIR) OR CPM_INCLUDE_ALL_IN_PACKAGE_LOCK)
-      cpm_add_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
+      cpm_add_to_package_lock(${CPM_ARGS_NAME} "${ARGV}")
     elseif(CPM_ARGS_SOURCE_DIR)
       cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "local directory")
     else()
-      cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
+      cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "${ARGV}")
     endif()
   endif()
 
@@ -981,6 +1013,7 @@ function(
       foreach(OPTION ${OPTIONS})
         cpm_parse_option("${OPTION}")
         set(${OPTION_KEY} "${OPTION_VALUE}")
+        message(WARNING "${OPTION_KEY} '${OPTION_VALUE}'")
       endforeach()
     endif()
     set(CPM_OLD_INDENT "${CPM_INDENT}")
@@ -1028,8 +1061,15 @@ function(cpm_fetch_package PACKAGE populated)
   )
 endfunction()
 
+function(cpm_print_args)
+  message(DEBUG "ARGC = ${ARGC}")
+  message(DEBUG "ARGV = ${ARGV}")
+endfunction()
+
 # splits a package option
 function(cpm_parse_option OPTION)
+  cpm_print_args(OPTION)
+
   string(REGEX MATCH "^[^ ]+" OPTION_KEY "${OPTION}")
   string(LENGTH "${OPTION}" OPTION_LENGTH)
   string(LENGTH "${OPTION_KEY}" OPTION_KEY_LENGTH)
@@ -1078,7 +1118,7 @@ function(cpm_is_git_tag_commit_hash GIT_TAG RESULT)
         PARENT_SCOPE
     )
   else()
-    if(${GIT_TAG} MATCHES "^[a-fA-F0-9]+$")
+    if(GIT_TAG MATCHES "^[a-fA-F0-9]+$")
       set(${RESULT}
           1
           PARENT_SCOPE
@@ -1112,7 +1152,13 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
       SOURCE_SUBDIR
   )
   set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND)
-  cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  cpm_print_args(${ARGV})
+
+  cmake_parse_arguments(PARSE_ARGV 2 CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}")
+  if(CPM_ARGS_KEYWORDS_MISSING_VALUES)
+    message(ERROR "No values for ${CPM_ARGS_KEYWORDS_MISSING_VALUES} given!")
+  endif()
 
   foreach(oneArgName ${oneValueArgs})
     if(DEFINED CPM_ARGS_${oneArgName})
@@ -1157,5 +1203,4 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
       ${PRETTY_OUT_VAR}
       PARENT_SCOPE
   )
-
 endfunction()

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5...3.14 FATAL_ERROR)
 
 option(DEFINE_ALTERNATIVE_FUNCTION "define the alternative function" OFF)
 option(LEAKED_OPTION "this option will be leaked to the outer scope" OFF)
@@ -10,8 +10,12 @@ if(NOT DEFINE_ALTERNATIVE_FUNCTION)
 else()
 
   # check if list was passed correctly
-  if(NOT "${LIST_ARGUMENT}" STREQUAL "a;b;c")
-    message(FATAL_ERROR "list argument not properly passed to dependency: '${LIST_ARGUMENT}'")
+  set(EXPECTED_LIST "a;b;c")
+  if(NOT LIST_ARGUMENT STREQUAL EXPECTED_LIST)
+    message(
+      FATAL_ERROR
+        "list argument not properly passed to dependency: '${LIST_ARGUMENT}' != '${EXPECTED_LIST}'"
+    )
   endif()
 
   function(alternative_dependency_function)
