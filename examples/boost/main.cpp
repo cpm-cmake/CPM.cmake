@@ -21,17 +21,20 @@ void printPathInfo() {
 }
 
 void print(const boost::system::error_code& /*e*/) {
-  std::cout << "Hello, world!\n";
   printPathInfo();
 }
 
 int main() {
+  std::cout << "Hello, world! ...\n";
+
   boost::asio::io_service io;
 
   boost::asio::deadline_timer t(io, boost::posix_time::seconds(1));
   t.async_wait(&print);
 
   io.run();
+
+  std::cout << "... Good by!\n";
 
   return 0;
 }
