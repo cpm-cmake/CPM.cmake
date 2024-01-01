@@ -17,12 +17,10 @@ namespace fs = boost::filesystem;
 void printPathInfo() {
   std::cout << "Current path is " << fs::current_path() << '\n';
   fs::current_path(fs::temp_directory_path());
-  std::cout << "Current path is " << fs::current_path() << '\n';
+  std::cout << "The TMP path is " << fs::current_path() << '\n';
 }
 
-void print(const boost::system::error_code& /*e*/) {
-  printPathInfo();
-}
+void print(const boost::system::error_code& /*e*/) { printPathInfo(); }
 
 int main() {
   std::cout << "Hello, world! ...\n";

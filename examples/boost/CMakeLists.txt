@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16...3.28)
+cmake_minimum_required(VERSION 3.21...3.28)
 
 project(
   CPMExampleBoost
@@ -8,6 +8,7 @@ project(
 
 set(stageDir ${CMAKE_CURRENT_BINARY_DIR}/stage)
 include(GNUInstallDirs)
+
 if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${stageDir}/${CMAKE_INSTALL_BINDIR})
 endif()
@@ -18,7 +19,7 @@ if(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${stageDir}/${CMAKE_INSTALL_LIBDIR})
 endif()
 
-set(CMAKE_INSTALL_MESSAGE LAZY)
+option(CPM_USE_LOCAL_PACKAGES "yes/no" YES)
 option(BUILD_SHARED_LIBS "yes/no" YES)
 if(BUILD_SHARED_LIBS)
   if(APPLE)
@@ -31,10 +32,9 @@ if(BUILD_SHARED_LIBS)
        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}
   )
   set(CMAKE_INSTALL_RPATH ${base} ${base}/${relDir})
-
-  # FIXME: install(DIRECTORY "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/" DESTINATION
-  # ${CMAKE_INSTALL_LIBDIR})
 endif()
+
+set(CMAKE_INSTALL_MESSAGE LAZY)
 
 # ---- Create binary ----
 
@@ -45,56 +45,76 @@ target_compile_features(CPMExampleBoost PRIVATE cxx_std_17)
 
 include(../../cmake/CPM.cmake)
 
-# XXX list(APPEND BOOST_INCLUDE_LIBRARIES headers asio date_time filesystem thread)
 CPMAddPackage(
   NAME Boost
+  VERSION 1.74
   URL https://github.com/boostorg/boost/releases/download/boost-1.84.0/boost-1.84.0.tar.xz
   URL_MD5 893b5203b862eb9bbd08553e24ff146a
+  FIND_PACKAGE_ARGUMENTS "COMPONENTS thread\;date_time\;filesystem"
   EXCLUDE_FROM_ALL ON
   SYSTEM ON
 )
+
+target_link_libraries(CPMExampleBoost PUBLIC Boost::headers Boost::date_time Boost::filesystem)
+
+if(PROJECT_IS_TOP_LEVEL)
+  enable_testing()
+  add_test(NAME CPMExampleBoost COMMAND CPMExampleBoost)
+endif()
 
 # ---- Create a library ----
 
 add_library(scoped_lock scoped_lock.cpp scoped_lock.hpp)
 target_compile_features(scoped_lock PUBLIC cxx_std_17)
-
-install(FILES scoped_lock.hpp TYPE INCLUDE)
-
-# ---- Install the library ----
-
 target_link_libraries(scoped_lock PUBLIC Boost::thread)
-install(
-  TARGETS scoped_lock
-          boost_thread # XXX ...
-          boost_atomic
-          boost_chrono
-          boost_container
-          RUNTIME_DEPENDENCY_SET
-          libDeps
-)
-install(RUNTIME_DEPENDENCY_SET libDeps POST_INCLUDE_REGEXES
-        [[${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libboost_.*]]
+target_include_directories(
+  scoped_lock PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>
 )
 
-# ---- Install the binary and its runtime dependency set ----
+if(NOT CMAKE_SKIP_INSTALL_RULES)
 
-target_link_libraries(CPMExampleBoost PUBLIC Boost::asio Boost::date_time Boost::filesystem)
+  # ---- Install the binary and its runtime dependency set ----
+  install(
+    TARGETS CPMExampleBoost
+            # boost_headers boost_date_time boost_filesystem # XXX ... boost_context boost_coroutine
+            RUNTIME_DEPENDENCY_SET appDeps EXPORT scoped_lockTargets
+  )
+  if(BUILD_SHARED_LIBS)
+    install(RUNTIME_DEPENDENCY_SET appDeps POST_INCLUDE_REGEXES
+            [[${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libboost_.*]] EXPORT scoped_lockTargets
+    )
+  endif()
 
-install(
-  TARGETS CPMExampleBoost
-          boost_asio
-          boost_date_time
-          boost_filesystem # XXX ...
-          boost_context
-          boost_coroutine
-          RUNTIME_DEPENDENCY_SET
-          appDeps
-)
-install(RUNTIME_DEPENDENCY_SET appDeps POST_INCLUDE_REGEXES
-        [[${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libboost_.*]]
-)
+  # ---- Install the library ----
+  install(FILES scoped_lock.hpp DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
+  if(NOT CPM_USE_LOCAL_PACKAGES)
+    install(TARGETS boost_headers EXPORT scoped_lockTargets)
+  elseif(BOOST_SRC_DIR)
+    install(TARGETS boost_thread EXPORT scoped_lockTargets)
+  endif()
+  install(TARGETS scoped_lock RUNTIME_DEPENDENCY_SET libDeps)
 
-set(CPACK_PACKAGE_INSTALL_DIRECTORY /)
-set(CPACK_GENERATOR TBZ2)
-include(CPack)
+  # PackageProject.cmake will be used to export our cmake config packages
+  CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.11.0")
+
+  packageProject(
+    NAME scoped_lock
+    VERSION ${PROJECT_VERSION}
+    NAMESPACE ${PROJECT_NAME}
+    BINARY_DIR ${PROJECT_BINARY_DIR}
+    COMPATIBILITY AnyNewerVersion
+    DISABLE_VERSION_SUFFIX YES
+    DEPENDENCIES "Boost 1.74"
+  )
+
+  if(BUILD_SHARED_LIBS)
+    install(RUNTIME_DEPENDENCY_SET libDeps POST_INCLUDE_REGEXES
+            [[${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libboost_.*]] EXPORT scoped_lockTargets
+    )
+  endif()
+
+  set(CPACK_PACKAGE_INSTALL_DIRECTORY /)
+  set(CPACK_GENERATOR TBZ2)
+  include(CPack)
+endif()
