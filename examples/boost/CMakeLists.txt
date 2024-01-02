@@ -83,7 +83,7 @@ include(../../cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME Boost
-  VERSION 1.84
+  VERSION 1.74
   URL https://github.com/boostorg/boost/releases/download/boost-1.84.0/boost-1.84.0.tar.xz
   URL_MD5 893b5203b862eb9bbd08553e24ff146a
   FIND_PACKAGE_ARGUMENTS "COMPONENTS thread\;date_time\;filesystem"
@@ -92,9 +92,6 @@ CPMAddPackage(
 )
 
 target_link_libraries(CPMExampleBoost PUBLIC Boost::headers Boost::date_time Boost::filesystem)
-target_find_dependencies(
-  CPMExampleBoost PUBLIC_CONFIG "boost_headers;boost_date_time;boost_filesystem"
-)
 
 if(PROJECT_IS_TOP_LEVEL)
   enable_testing()
@@ -106,7 +103,6 @@ endif()
 add_library(scoped_lock scoped_lock.cpp scoped_lock.hpp)
 target_compile_features(scoped_lock PUBLIC cxx_std_17)
 target_link_libraries(scoped_lock PUBLIC Boost::thread)
-target_find_dependencies(scoped_lock PUBLIC_CONFIG boost_thread)
 
 target_include_directories(
   scoped_lock PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -116,6 +112,10 @@ target_include_directories(
 if(NOT CMAKE_SKIP_INSTALL_RULES)
   if(BOOST_SRC_DIR)
     target_link_libraries(CPMExampleBoost PUBLIC Boost::asio)
+    target_find_dependencies(
+      CPMExampleBoost PUBLIC_CONFIG "boost_headers;boost_date_time;boost_filesystem"
+    )
+    target_find_dependencies(scoped_lock PUBLIC_CONFIG boost_thread)
     install(FILES scoped_lock.hpp DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
     install(
       TARGETS boost_headers
