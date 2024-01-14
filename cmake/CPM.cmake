@@ -756,7 +756,10 @@ function(CPMAddPackage)
         "${CPM_ARGS_SYSTEM}"
         "${CPM_ARGS_OPTIONS}"
       )
-      set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} PARENT_SCOPE)
+      set(CMAKE_MODULE_PATH
+          ${CMAKE_MODULE_PATH}
+          PARENT_SCOPE
+      )
       set(PACKAGE_INFO "${PACKAGE_INFO} at ${download_directory}")
 
       # As the source dir is already cached/populated, we override the call to FetchContent.
@@ -816,7 +819,10 @@ function(CPMAddPackage)
         "${CPM_ARGS_SYSTEM}"
         "${CPM_ARGS_OPTIONS}"
       )
-      set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} PARENT_SCOPE)
+      set(CMAKE_MODULE_PATH
+          ${CMAKE_MODULE_PATH}
+          PARENT_SCOPE
+      )
     endif()
     cpm_get_fetch_properties("${CPM_ARGS_NAME}")
   endif()
@@ -988,7 +994,10 @@ function(
     set(CPM_OLD_INDENT "${CPM_INDENT}")
     set(CPM_INDENT "${CPM_INDENT} ${PACKAGE}:")
     add_subdirectory(${SOURCE_DIR} ${BINARY_DIR} ${addSubdirectoryExtraArgs})
-    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} PARENT_SCOPE)
+    set(CMAKE_MODULE_PATH
+        ${CMAKE_MODULE_PATH}
+        PARENT_SCOPE
+    )
     set(CPM_INDENT "${CPM_OLD_INDENT}")
   endif()
 endfunction()
