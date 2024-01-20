@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - master
+      - develop
 
 jobs:
   tests:
@@ -19,11 +20,11 @@ jobs:
         os: [ubuntu-latest, windows-2022, macos-latest]
         # we want to ensure compatibility with a recent CMake version as well as the lowest officially supported
         # legacy version that we define as the default version of the second-latest Ubuntu LTS release currently available
-        cmake_version: ['3.16.3', '3.27.5']
+        cmake_version: ['3.16.9', '3.27.9']
         exclude:
-          # there seems to be an issue with CMake 3.16 not finding a C++ compiler on windows-2022 
+          # there seems to be an issue with CMake 3.16 not finding a C++ compiler on windows-2022
           - os: windows-2022
-            cmake_version: '3.16.3'
+            cmake_version: '3.16.9'
 
     steps:
       - name: clone

@@ -10,12 +10,22 @@ option(ENABLE_TEST_COVERAGE "Enable test coverage" OFF)
 
 include(@CPM_PATH@/CPM.cmake)
 
+function(print)
+  message(STATUS "ARGC = ${ARGC}")
+  message(STATUS "ARGV = ${ARGV}")
+endfunction()
+
+set(LIST_VALUES "a;b;c")
+set(ARGUMENT "LIST_ARGUMENT ${LIST_VALUES}")
+print("${ARGUMENT}")
+
 CPMAddPackage(
   NAME Dependency
   SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/dependency
   OPTIONS
     "DEFINE_ALTERNATIVE_FUNCTION YES"
-    "LIST_ARGUMENT a\\\\;b\\\\;c"
+    # FIXME: "LIST_ARGUMENT a\\\\;b\\\\;c"
+    "LIST_ARGUMENT ${LIST_VALUES}"
   EXCLUDE_FROM_ALL YES
 )
 

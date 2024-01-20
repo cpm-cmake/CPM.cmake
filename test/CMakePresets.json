@@ -1,0 +1,88 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "test",
+      "displayName": "Default test Config",
+      "description": "Default build using Ninja generator",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "installDir": "${sourceDir}/stagedir",
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": {
+          "type": "path",
+          "value": "${sourceDir}/stagedir"
+        },
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_EXTENSIONS": false,
+        "CMAKE_CXX_STANDARD": "17",
+        "CMAKE_CXX_STANDARD_REQUIRED": true
+      },
+      "environment": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
+        "CPM_USE_LOCAL_PACKAGES": "NO",
+        "CPM_SOURCE_CACHE": "NO"
+      },
+      "warnings": {
+        "deprecated": true,
+        "uninitialized": true
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "test",
+      "configurePreset": "test",
+      "targets": [
+        "check-format"
+      ]
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "test",
+      "configurePreset": "test",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": false,
+        "rerun-failed": true
+      }
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "test",
+      "configurePreset": "test",
+      "generators": [
+        "TGZ"
+      ]
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "test",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "test"
+        },
+        {
+          "type": "build",
+          "name": "test"
+        },
+        {
+          "type": "test",
+          "name": "test"
+        }
+      ]
+    }
+  ]
+}

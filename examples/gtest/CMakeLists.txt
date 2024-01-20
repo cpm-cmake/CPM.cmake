@@ -11,15 +11,15 @@ CPMAddPackage("gh:cpm-cmake/testpack-fibonacci@2.0")
 CPMAddPackage(
   NAME googletest
   GITHUB_REPOSITORY google/googletest
-  GIT_TAG release-1.12.1
-  VERSION 1.12.1
+  # GIT_TAG v1.14.0
+  VERSION 1.14.0
   OPTIONS "INSTALL_GTEST OFF" "gtest_force_shared_crt"
 )
 
 # ---- Create binary ----
 
 add_executable(CPMExampleGtest main.cpp)
-target_link_libraries(CPMExampleGtest fibonacci gtest gtest_main gmock)
+target_link_libraries(CPMExampleGtest fibonacci GTest::gtest_main GTest::gmock)
 target_compile_features(CPMExampleGtest PRIVATE cxx_std_17)
 
 # ---- Enable testing ----
