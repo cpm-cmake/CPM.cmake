@@ -553,7 +553,7 @@ Exactly like the release.
 
 If a specific commit contains the code you need, it's defined as follows:
 
-`https://github.com/<user>/<name>/arcive/<commit-hash>.<archive-type>`
+`https://github.com/<user>/<name>/archive/<commit-hash>.<archive-type>`
 
 Example:
 `https://github.com/gabime/spdlog/archive/c1569a3d293a6b511ecb9c18b2298826c9578d9f.tar.gz`
