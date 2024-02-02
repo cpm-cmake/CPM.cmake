@@ -406,18 +406,26 @@ CPMAddPackage(
 )
 ```
 
-### [Boost ](https://github.com/boostorg/boost)
+### [Boost](https://github.com/boostorg/boost)
+
+Boost is a large project and will take a while to download. Using
+`CPM_SOURCE_CACHE` is strongly recomended. Cloning moves much more
+data than a source archive, so this sample will use a compressed
+source archive (tar.xz) release from Boost's github page.
 
 ```CMake
-# boost is a huge project and will take a while to download
-# using `CPM_SOURCE_CACHE` is strongly recommended
+# boost is a huge project and directly downloading the 'alternate release'
+# from github is much faster than recursively cloning the repo.
 CPMAddPackage(
   NAME Boost
-  VERSION 1.81.0
-  GITHUB_REPOSITORY "boostorg/boost"
-  GIT_TAG "boost-1.81.0"
+  VERSION 1.84.0
+  URL https://github.com/boostorg/boost/releases/download/boost-1.84.0/boost-1.84.0.tar.xz
+  URL_HASH SHA256=2e64e5d79a738d0fa6fb546c6e5c2bd28f88d268a2a080546f74e5ff98f29d0e
+  OPTIONS "BOOST_ENABLE_CMAKE ON"
 )
 ```
+
+For a working example of using CPM to download and configure the Boost C++ Libraries see [here](examples/boost).
 
 ### [cxxopts](https://github.com/jarro2783/cxxopts)
 
@@ -475,3 +483,85 @@ For a full example on using CPM to download and configure lua with sol2 see [her
 ### Full Examples
 
 See the [examples directory](https://github.com/cpm-cmake/CPM.cmake/tree/master/examples) for full examples with source code and check out the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets) for many more example snippets.
+
+## Source Archives from GitHub
+
+Using a compressed source archive is usually much faster than a shallow
+clone. Optionally, you can verify the integrity using
+[SHA256](https://en.wikipedia.org/wiki/SHA-2) or similar. Setting the hash is useful to ensure a
+specific source is imported, especially since tags, branches, and
+archives can change.
+
+Let's look at adding [spdlog](https://github.com/gabime/spdlog) to a project:
+
+```cmake
+CPMAddPackage(
+  NAME     spdlog
+  URL      https://github.com/gabime/spdlog/archive/refs/tags/v1.12.0.zip
+  URL_HASH SHA256=6174bf8885287422a6c6a0312eb8a30e8d22bcfcee7c48a6d02d1835d7769232
+)
+```
+
+URL_HASH is optional, but it's a good idea for releases.
+
+
+### Identifying the URL
+
+Information for determining the URL is found
+[here](https://docs.github.com/en/repositories/working-with-files/using-files/downloading-source-code-archives#source-code-archive-urls).
+
+
+#### Release
+
+Not every software package provides releases, but for those that do,
+they can be found on the release page of the project. In a browser,
+the URL of the specific release is determined in a browser is
+determined by right clicking and selecting `Copy link address` (or
+similar) for the desired release. This is the value you will use in
+the URL section.
+
+This is the URL for spdlog release 1.13.0 in zip format:
+`https://github.com/gabime/spdlog/archive/refs/tags/v1.13.0.zip`
+
+
+#### Branch
+
+The URL for branches is non-obvious from a browser. But it's still fairly easy to figure it out. The format is as follows:
+
+`https://github.com/<user>/<name>/archive/refs/heads/<branch-name>.<archive-type>`
+
+Archive type can be one of `tar.gz` or `zip`.
+
+The URL for branch `v2.x` of spdlog is:
+`https://github.com/gabime/spdlog/archive/refs/heads/v2.x.tar.gz`
+
+
+#### Tag
+
+Tags are simiar, but with this format:
+
+`https://github.com/<user>/<name>/archive/refs/tags/<tag-name>.<archive-type>`
+
+Tag `v1.8.5` of spdlog is this:
+
+`https://github.com/gabime/spdlog/archive/refs/tags/v1.8.5.tar.gz`
+
+Exactly like the release.
+
+
+#### Commit
+
+If a specific commit contains the code you need, it's defined as follows:
+
+`https://github.com/<user>/<name>/arcive/<commit-hash>.<archive-type>`
+
+Example:
+`https://github.com/gabime/spdlog/archive/c1569a3d293a6b511ecb9c18b2298826c9578d9f.tar.gz`
+
+
+### Determining the Hash
+
+The following snipet illustrates determining the SHA256 hash on a linux machine using `wget` and `sha256sum`:
+```bash
+wget https://github.com/gabime/spdlog/archive/refs/tags/v1.13.0.zip -O - | sha256sum
+```
