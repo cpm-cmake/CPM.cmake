@@ -36,6 +36,15 @@ assert_equal("BITBUCKET_REPOSITORY;foo/bar" "${args}")
 cpm_parse_add_package_single_arg("bb:foo/Bar" args)
 assert_equal("BITBUCKET_REPOSITORY;foo/Bar" "${args}")
 
+set(CPM_CUSTOM_PREFIXES c1:https://c1.example.com c2:https://c2.example.com/mirror)
+cpm_parse_add_package_single_arg("c1:foo/bar@13" args)
+assert_equal("GIT_REPOSITORY;foo/bar;VERSION;13;CUSTOM_REPOSITORY;https://c1.example.com" "${args}")
+
+cpm_parse_add_package_single_arg("c2:foo/Bar#bla" args)
+assert_equal(
+  "GIT_REPOSITORY;foo/Bar;GIT_TAG;bla;CUSTOM_REPOSITORY;https://c2.example.com/mirror" "${args}"
+)
+
 cpm_parse_add_package_single_arg("https://github.com/cpm-cmake/CPM.cmake.git@0.30.5" args)
 assert_equal("GIT_REPOSITORY;https://github.com/cpm-cmake/CPM.cmake.git;VERSION;0.30.5" "${args}")
 
