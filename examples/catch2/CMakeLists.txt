@@ -17,5 +17,7 @@ target_compile_features(CPMExampleCatch2 PRIVATE cxx_std_17)
 
 # ---- Enable testing ----
 
+include(Catch)
+
 enable_testing()
-add_test(CPMExampleCatch2 CPMExampleCatch2)
+catch_discover_tests(CPMExampleCatch2)
