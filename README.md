@@ -411,12 +411,8 @@ CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.6.3@0.6.3")
 ### [nlohmann/json](https://github.com/nlohmann/json)
 
 ```cmake
-CPMAddPackage(
-  NAME nlohmann_json
-  VERSION 3.9.1
-  GITHUB_REPOSITORY nlohmann/json
-  OPTIONS
-    "JSON_BuildTests OFF"
+CPMAddPackage("gh:nlohmann/json@3.9.1"
+  OPTIONS "JSON_BuildTests OFF"
 )
 ```
 
@@ -446,8 +442,7 @@ For a working example of using CPM to download and configure the Boost C++ Libra
 ```cmake
 # the install option has to be explicitly set to allow installation
 CPMAddPackage(
-  GITHUB_REPOSITORY jarro2783/cxxopts
-  VERSION 2.2.1
+  URI "gh:jarro2783/cxxopts@2.2.1"
   OPTIONS "CXXOPTS_BUILD_EXAMPLES NO" "CXXOPTS_BUILD_TESTS NO" "CXXOPTS_ENABLE_INSTALL YES"
 )
 ```
@@ -456,9 +451,7 @@ CPMAddPackage(
 
 ```cmake
 CPMAddPackage(
-  NAME benchmark
-  GITHUB_REPOSITORY google/benchmark
-  VERSION 1.5.2
+  URI "gh:google/benchmark@1.5.2"
   OPTIONS "BENCHMARK_ENABLE_TESTING Off"
 )
 
