@@ -70,7 +70,7 @@ class Simple < IntegrationTest
 
       exes = Dir[exe_dir + '/**/*'].filter {
         # on multi-configuration generators (like Visual Studio) the executables will be in bin/<Config>
-        # also filter-out other articacts like .pdb or .dsym
+        # also filter-out other artifacts like .pdb or .dsym
         !File.directory?(_1) && File.stat(_1).executable?
       }.map {
         # remove .exe extension if any (there will be one on Windows)
