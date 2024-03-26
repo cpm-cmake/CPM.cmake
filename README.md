@@ -87,7 +87,7 @@ If an additional optional parameter `SYSTEM` is set to a truthy value, the SYSTE
 See the [add_subdirectory ](https://cmake.org/cmake/help/latest/command/add_subdirectory.html?highlight=add_subdirectory)
 and [SYSTEM](https://cmake.org/cmake/help/latest/prop_tgt/SYSTEM.html#prop_tgt:SYSTEM) target property for details.
 
-A single-argument compact syntax is also supported:
+A shorthand syntax is also supported:
 
 ```cmake
 # A git package from a given uri with a version
@@ -109,6 +109,13 @@ CPMAddPackage("https://example.com/my-package-1.2.3.zip")
 CPMAddPackage("https://example.com/my-package-1.2.3.zip#MD5=68e20f674a48be38d60e129f600faf7d")
 # An archive package from a given url. The version is explicitly given
 CPMAddPackage("https://example.com/my-package.zip@1.2.3")
+```
+
+Additionally, the shorthand syntax can be combined with the other options from above:
+```cmake
+CPMAddPackage("gh:nlohmann/json@3.9.1"
+  OPTIONS "JSON_BuildTests OFF"
+)
 ```
 
 After calling `CPMAddPackage`, the following variables are defined in the local scope, where `<dependency>` is the name of the dependency.
