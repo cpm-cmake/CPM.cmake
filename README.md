@@ -411,7 +411,8 @@ CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.6.3@0.6.3")
 ### [nlohmann/json](https://github.com/nlohmann/json)
 
 ```cmake
-CPMAddPackage("gh:nlohmann/json@3.9.1"
+CPMAddPackage(
+  URI "gh:nlohmann/json@3.9.1"
   OPTIONS "JSON_BuildTests OFF"
 )
 ```
