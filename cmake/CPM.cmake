@@ -515,14 +515,6 @@ endfunction()
 function(CPMAddPackage)
   cpm_set_policies()
 
-  list(LENGTH ARGN argnLength)
-  if(argnLength EQUAL 1)
-    cpm_parse_add_package_single_arg("${ARGN}" ARGN)
-
-    # The shorthand syntax implies EXCLUDE_FROM_ALL and SYSTEM
-    set(ARGN "${ARGN};EXCLUDE_FROM_ALL;YES;SYSTEM;YES;")
-  endif()
-
   set(oneValueArgs
       NAME
       FORCE
@@ -543,6 +535,24 @@ function(CPMAddPackage)
   )
 
   set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND)
+
+  list(LENGTH ARGN argnLength)
+
+  # Parse single shorthand argument
+  if(argnLength EQUAL 1)
+    cpm_parse_add_package_single_arg("${ARGN}" ARGN)
+
+    # The shorthand syntax implies EXCLUDE_FROM_ALL and SYSTEM
+    set(ARGN "${ARGN};EXCLUDE_FROM_ALL;YES;SYSTEM;YES;")
+
+  # Parse shorthand argument as first argument but with following arguments
+  elseif(argnLength GREATER 1 AND NOT "${ARGV0}" IN_LIST oneValueArgs AND NOT "${ARGV0}" IN_LIST multiValueArgs)
+    list(POP_FRONT ARGN)
+    cpm_parse_add_package_single_arg("${ARGV0}" ARGV0)
+
+    # The shorthand syntax implies EXCLUDE_FROM_ALL and SYSTEM
+    set(ARGN "${ARGV0};${ARGN};EXCLUDE_FROM_ALL;YES;SYSTEM;YES;")
+  endif()
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
