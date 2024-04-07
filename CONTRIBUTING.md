@@ -104,7 +104,7 @@ Please try to keep your individual changes as minimal and focussed on the issue 
 If you discover that the scope of your contribution is growing larger than expected you might want to split the changes into multiple separate contributions to allow a more focussed discussion and review.
 
 It is usually a great idea and often required to add tests for your changes.
-This allows us to quickly validate that the changes are working as intended and also guarantees that they wont be broken by other future updates.
+This allows us to quickly validate that the changes are working as intended and also guarantees that they won't be broken by other future updates.
 For small and targeted functional changes, e.g. supporting a new URL schema, a [unit test](#unit-tests) may be enough.
 For contributions that change large-scale behaviour, such as dependency caching features, an [integration test](#integration-tests) is more suited.
 Depending on the changes, a combination of both test types may also be appropriate.

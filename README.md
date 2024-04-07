@@ -409,7 +409,7 @@ CPMAddPackage(
 ### [Boost](https://github.com/boostorg/boost)
 
 Boost is a large project and will take a while to download. Using
-`CPM_SOURCE_CACHE` is strongly recomended. Cloning moves much more
+`CPM_SOURCE_CACHE` is strongly recommended. Cloning moves much more
 data than a source archive, so this sample will use a compressed
 source archive (tar.xz) release from Boost's github page.
 
@@ -538,7 +538,7 @@ The URL for branch `v2.x` of spdlog is:
 
 #### Tag
 
-Tags are simiar, but with this format:
+Tags are similar, but with this format:
 
 `https://github.com/<user>/<name>/archive/refs/tags/<tag-name>.<archive-type>`
 
@@ -561,7 +561,7 @@ Example:
 
 ### Determining the Hash
 
-The following snipet illustrates determining the SHA256 hash on a linux machine using `wget` and `sha256sum`:
+The following snippet illustrates determining the SHA256 hash on a linux machine using `wget` and `sha256sum`:
 ```bash
 wget https://github.com/gabime/spdlog/archive/refs/tags/v1.13.0.zip -O - | sha256sum
 ```
