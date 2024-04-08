@@ -7,12 +7,10 @@ project(CPMxxHashExample)
 include(../../cmake/CPM.cmake)
 
 CPMAddPackage(
-    GITHUB_REPOSITORY Cyan4973/xxHash
-    GIT_TAG v0.8.2
-    OPTIONS 
-        "XXHASH_BUILD_ENABLE_INLINE_API OFF"
-        "XXHASH_BUILD_XXHSUM OFF"
-    SOURCE_SUBDIR cmake_unofficial
+  GITHUB_REPOSITORY Cyan4973/xxHash
+  GIT_TAG v0.8.2
+  OPTIONS "XXHASH_BUILD_ENABLE_INLINE_API OFF" "XXHASH_BUILD_XXHSUM OFF"
+  SOURCE_SUBDIR cmake_unofficial
 )
 
 # ---- Executable ----
