@@ -540,7 +540,7 @@ function(CPMAddPackage)
       GIT_SHALLOW
       EXCLUDE_FROM_ALL
       SOURCE_SUBDIR
-      CUSTOM_CACHE_DIR
+      CUSTOM_CACHE_KEY
   )
 
   set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND)
@@ -711,9 +711,9 @@ function(CPMAddPackage)
     string(TOLOWER ${CPM_ARGS_NAME} lower_case_name)
     set(origin_parameters ${CPM_ARGS_UNPARSED_ARGUMENTS})
     list(SORT origin_parameters)
-    if(CPM_ARGS_CUSTOM_CACHE_DIR)
+    if(CPM_ARGS_CUSTOM_CACHE_KEY)
       # Application set a custom unique directory name
-      set(download_directory ${CPM_SOURCE_CACHE}/${lower_case_name}/${CPM_ARGS_CUSTOM_CACHE_DIR})
+      set(download_directory ${CPM_SOURCE_CACHE}/${lower_case_name}/${CPM_ARGS_CUSTOM_CACHE_KEY})
     elseif(CPM_USE_NAMED_CACHE_DIRECTORIES)
       string(SHA1 origin_hash "${origin_parameters};NEW_CACHE_STRUCTURE_TAG")
       set(download_directory ${CPM_SOURCE_CACHE}/${lower_case_name}/${origin_hash}/${CPM_ARGS_NAME})

@@ -140,7 +140,7 @@ assert_not_exists("${CPM_SOURCE_CACHE_DIR}/fibonacci")
 
 # Use custom cache directory
 
-set(FIBONACCI_PACKAGE_ARGS "CUSTOM_CACHE_DIR my_custom_unique_dir GIT_TAG e9ebf168ca0fffaa4ef8c6fefc6346aaa22f6ed5")
+set(FIBONACCI_PACKAGE_ARGS "CUSTOM_CACHE_KEY my_custom_unique_dir GIT_TAG e9ebf168ca0fffaa4ef8c6fefc6346aaa22f6ed5")
 set(FIBONACCI_VERSION 1.1)
 update_cmake_lists()
 
