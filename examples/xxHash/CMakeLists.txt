@@ -19,4 +19,4 @@ CPMAddPackage(
 
 add_executable(CPMxxHashExample main.cpp)
 target_compile_features(CPMxxHashExample PRIVATE cxx_std_17)
-target_link_libraries(CPMxxHashExample xxHash::xxHash)
+target_link_libraries(CPMxxHashExample xxHash::xxhash)
