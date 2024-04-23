@@ -473,14 +473,17 @@ function(cpm_add_patches)
 
   # Provide a small warning.
   if(CMAKE_VERSION VERSION_LESS "3.20")
-    message(AUTHOR_WARNING "Versions of CMake less than 3.20 may need to supply patch files as absolute paths.")
+    message(
+      AUTHOR_WARNING
+        "Versions of CMake less than 3.20 may need to supply patch files as absolute paths."
+    )
   endif()
 
   # Find the patch program.
   find_program(PATCH_EXECUTABLE patch)
   if(WIN32 AND NOT PATCH_EXECUTABLE)
-    # The Windows git executable is distributed with patch.exe.
-    # Find the path to the executable, if it exists, then search `../../usr/bin` for patch.exe.
+    # The Windows git executable is distributed with patch.exe. Find the path to the executable, if
+    # it exists, then search `../../usr/bin` for patch.exe.
     find_package(Git QUIET)
     if(GIT_EXECUTABLE)
       if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.20")
@@ -528,7 +531,10 @@ function(cpm_add_patches)
   endforeach()
 
   # Move temp out into parent scope.
-  set(CPM_ARGS_UNPARSED_ARGUMENTS ${temp_list} PARENT_SCOPE)
+  set(CPM_ARGS_UNPARSED_ARGUMENTS
+      ${temp_list}
+      PARENT_SCOPE
+  )
 
 endfunction()
 
