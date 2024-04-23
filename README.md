@@ -67,6 +67,7 @@ Afterwards, any targets defined in the dependency can be used directly.
 CPMAddPackage(
   NAME          # The unique name of the dependency (should be the exported target's name)
   VERSION       # The minimum version of the dependency (optional, defaults to 0)
+  PATCHES       # Patch files to be applied sequentially using patch and PATCH_OPTIONS (optional)
   OPTIONS       # Configuration options passed to the dependency (optional)
   DOWNLOAD_ONLY # If set, the project is downloaded, but not configured (optional)
   [...]         # Origin parameters forwarded to FetchContent_Declare, see below

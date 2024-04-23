@@ -464,6 +464,74 @@ function(cpm_check_git_working_dir_is_clean repoPath gitTag isClean)
 
 endfunction()
 
+# method to add PATCH_COMMAND to CPM_ARGS_UNPARSED_ARGUMENTS for PATCHES files.
+function(cpm_add_patches)
+  # Return if no patch files are supplied.
+  if(NOT ARGN)
+    return()
+  endif()
+
+  # Provide a small warning.
+  if(CMAKE_VERSION VERSION_LESS "3.20")
+    message(AUTHOR_WARNING "Versions of CMake less than 3.20 may need to supply patch files as absolute paths.")
+  endif()
+
+  # Find the patch program.
+  find_program(PATCH_EXECUTABLE patch)
+  if(WIN32 AND NOT PATCH_EXECUTABLE)
+    # The Windows git executable is distributed with patch.exe.
+    # Find the path to the executable, if it exists, then search `../../usr/bin` for patch.exe.
+    find_package(Git QUIET)
+    if(GIT_EXECUTABLE)
+      if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.20")
+        cmake_path(GET GIT_EXECUTABLE PARENT_PATH extra_search_path)
+        cmake_path(GET extra_search_path PARENT_PATH extra_search_path)
+      else()
+        get_filename_component(extra_search_path ${GIT_EXECUTABLE} DIRECTORY)
+        get_filename_component(extra_search_path ${extra_search_path} DIRECTORY)
+        get_filename_component(extra_search_path ${extra_search_path} DIRECTORY)
+      endif()
+      find_program(PATCH_EXECUTABLE patch HINTS "${extra_search_path}/usr/bin")
+    endif()
+  endif()
+  if(NOT PATCH_EXECUTABLE)
+    message(FATAL_ERROR "Couldn't find `patch` executable to use with PATCHES keyword.")
+  endif()
+
+  # Create a temporary
+  set(temp_list ${CPM_ARGS_UNPARSED_ARGUMENTS})
+
+  # Ensure each file exists (or error out) and add it to the list.
+  set(first_item True)
+  foreach(PATCH_FILE ${ARGN})
+    if(NOT EXISTS "${PATCH_FILE}")
+      if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/${PATCH_FILE}")
+        message(FATAL_ERROR "Couldn't find patch file: '${PATCH_FILE}'")
+      endif()
+      set(PATCH_FILE "${CMAKE_CURRENT_LIST_DIR}/${PATCH_FILE}")
+    endif()
+    # Convert to absolute path for CMake 3.20 (available since March 3rd, 2021) and later, this may
+    # cause users with older versions of CMake to strictly call out an absolute path.
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.20")
+      cmake_path(ABSOLUTE_PATH PATCH_FILE)
+    endif()
+    # The first patch entry must be preceded by "PATCH_COMMAND" while the following items are
+    # preceded by "&&".
+    if(first_item)
+      set(first_item False)
+      list(APPEND temp_list "PATCH_COMMAND")
+    else()
+      list(APPEND temp_list "&&")
+    endif()
+    # Add the patch command to the list
+    list(APPEND temp_list "${PATCH_EXECUTABLE}" "-p1" "<" "${PATCH_FILE}")
+  endforeach()
+
+  # Move temp out into parent scope.
+  set(CPM_ARGS_UNPARSED_ARGUMENTS ${temp_list} PARENT_SCOPE)
+
+endfunction()
+
 # method to overwrite internal FetchContent properties, to allow using CPM.cmake to overload
 # FetchContent calls. As these are internal cmake properties, this method should be used carefully
 # and may need modification in future CMake versions. Source:
@@ -537,7 +605,7 @@ function(CPMAddPackage)
       CUSTOM_CACHE_KEY
   )
 
-  set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND)
+  set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND PATCHES)
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
@@ -628,6 +696,7 @@ function(CPMAddPackage)
       SOURCE_DIR "${PACKAGE_SOURCE}"
       EXCLUDE_FROM_ALL "${CPM_ARGS_EXCLUDE_FROM_ALL}"
       SYSTEM "${CPM_ARGS_SYSTEM}"
+      PATCHES "${CPM_ARGS_PATCHES}"
       OPTIONS "${CPM_ARGS_OPTIONS}"
       SOURCE_SUBDIR "${CPM_ARGS_SOURCE_SUBDIR}"
       DOWNLOAD_ONLY "${DOWNLOAD_ONLY}"
@@ -723,6 +792,8 @@ function(CPMAddPackage)
     if(CPM_SOURCE_CACHE)
       file(LOCK ${download_directory}/../cmake.lock)
     endif()
+
+    cpm_add_patches(${CPM_ARGS_PATCHES})
 
     if(EXISTS ${download_directory})
       if(CPM_SOURCE_CACHE)
