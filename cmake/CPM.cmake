@@ -758,6 +758,8 @@ function(CPMAddPackage)
     set(CPM_FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/_deps)
   endif()
 
+  cpm_add_patches(${CPM_ARGS_PATCHES})
+
   if(DEFINED CPM_ARGS_DOWNLOAD_COMMAND)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS DOWNLOAD_COMMAND ${CPM_ARGS_DOWNLOAD_COMMAND})
   elseif(DEFINED CPM_ARGS_SOURCE_DIR)
@@ -798,8 +800,6 @@ function(CPMAddPackage)
     if(CPM_SOURCE_CACHE)
       file(LOCK ${download_directory}/../cmake.lock)
     endif()
-
-    cpm_add_patches(${CPM_ARGS_PATCHES})
 
     if(EXISTS ${download_directory})
       if(CPM_SOURCE_CACHE)
