@@ -353,6 +353,9 @@ function(cpm_parse_add_package_single_arg arg outArgs)
     elseif(scheme STREQUAL "bb")
       set(out "BITBUCKET_REPOSITORY;${uri}")
       set(packageType "git")
+    elseif(scheme STREQUAL "rel")
+      set(out "RELATIVE_REPOSITORY;${uri}")
+      set(packageType "git")
       # A CPM-specific scheme was not found. Looks like this is a generic URL so try to determine
       # type
     elseif(arg MATCHES ".git/?(@|#|$)")
@@ -404,7 +407,6 @@ endfunction()
 
 # Check that the working directory for a git repo is clean
 function(cpm_check_git_working_dir_is_clean repoPath gitTag isClean)
-
   find_package(Git REQUIRED)
 
   if(NOT GIT_EXECUTABLE)
@@ -462,6 +464,139 @@ function(cpm_check_git_working_dir_is_clean repoPath gitTag isClean)
     )
   endif()
 
+endfunction()
+
+# Set a specific URL to be used as a base for all relative URIs, e.g. "https://github.com/myorg"
+function(CPMSetRelativeUriBaseUrl baseUrl)
+  set(CPM_RELATIVE_URI_BASE_URL
+      "${baseUrl}"
+      PARENT_SCOPE
+  )
+endfunction()
+
+# Specify that the base URL for relative URIs should be inferred from the current directory (default
+# behavior)
+function(CPMSetRelativeUriBaseAuto)
+  unset(CPM_RELATIVE_URI_BASE_URL PARENT_SCOPE)
+endfunction()
+
+# Normalize the URI, mainly for "cd up" (..) directives, as those are not supported by SSH
+function(cpm_normalize_uri input output)
+  # Extract the scheme and the authority (if present) from the path can either be
+  # http(s)://authority/ or git@authority:
+  string(REGEX MATCH "^(https?:\\/\\/[^\\/]+\\/)(.*)$" match "${input}")
+
+  if(match)
+    set(schemeAndAuthority "${CMAKE_MATCH_1}")
+    set(path "${CMAKE_MATCH_2}")
+  else()
+    string(REGEX MATCH "^(git@[^:]+:)(.*)$" match "${input}")
+
+    if(match)
+      set(schemeAndAuthority "${CMAKE_MATCH_1}")
+      set(path "${CMAKE_MATCH_2}")
+    else()
+      set(schemeAndAuthority "")
+      set(path "${input}")
+    endif()
+  endif()
+
+  # Normalize the path, which should get rid of the "cd up" directives
+  cmake_path(NORMAL_PATH path)
+
+  set(${output}
+      "${schemeAndAuthority}${path}"
+      PARENT_SCOPE
+  )
+endfunction()
+
+# Convert a URI relative to that of the URL of the remote of our current Git repository e.g.
+# github.com/user/repo.git + ../other.git = github.com/user/other.git
+function(cpm_git_relative_uri_to_url relativeUri name url)
+  if(${CMAKE_VERSION} VERSION_LESS "3.20.0")
+    message(ERROR "Relative URIs require CMake 3.20+")
+    return()
+  endif()
+
+  if(NOT name)
+    # If no name was provided, get it from the relative uri
+    cpm_package_name_from_git_uri("${relativeUri}.git" name)
+
+    if(NOT name)
+      message(SEND_ERROR "Name of the project couldn't be inferred from the relative URI")
+      return()
+    endif()
+  endif()
+
+  # If it has been cached, do not resolve it
+  if(DEFINED CPM_PACKAGE_${name}_RESOLVED_URL AND "${CPM_PACKAGE_${name}_RELATIVE_URI}" STREQUAL
+                                                  "${relativeUri}"
+  )
+    set(${url}
+        "${CPM_PACKAGE_${name}_RESOLVED_URL}"
+        PARENT_SCOPE
+    )
+    return()
+  endif()
+
+  # Save the relative URI that was passed inside of the cache
+  set("CPM_PACKAGE_${name}_RELATIVE_URI"
+      "${relativeUri}"
+      CACHE INTERNAL ""
+  )
+
+  # If a base URL is specified, use that
+  if(CPM_RELATIVE_URI_BASE_URL)
+    set(remoteUrl "${CPM_RELATIVE_URI_BASE_URL}")
+  else()
+    find_package(Git REQUIRED)
+
+    if(NOT Git_FOUND)
+      message(SEND_ERROR "Git not found, cannot convert relative URI to absolute Git URL")
+      return()
+    endif()
+
+    # Get the list of remotes available
+    execute_process(
+      COMMAND ${GIT_EXECUTABLE} remote -v
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+      OUTPUT_VARIABLE remotesInfos
+      OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET
+    )
+
+    string(REPLACE "\n" ";" remotesInfosList "${remotesInfos}")
+
+    # Since this was a verbose output, the output is in the format <remote_name> <remote_url>
+    # (fetch/push) Get the first remote fetch URL
+    foreach(remoteInfo ${remotesInfosList})
+      string(REGEX MATCH "^[^ \t]+[ \t]+([^ \t]+) \\(fetch\\)$" match "${remoteInfo}")
+
+      if(match)
+        set(remoteUrl "${CMAKE_MATCH_1}")
+        break()
+      endif()
+    endforeach()
+
+    if(NOT DEFINED remoteUrl)
+      message(SEND_ERROR "No remote with fetch ability was detected in this repository")
+      return()
+    endif()
+  endif()
+
+  string(CONCAT absoluteUrl "${remoteUrl}" "/" "${relativeUri}")
+
+  cpm_normalize_uri("${absoluteUrl}" absoluteUrlNormalized)
+
+  # Save it within the cache
+  set("CPM_PACKAGE_${name}_RESOLVED_URL"
+      "${absoluteUrlNormalized}"
+      CACHE INTERNAL ""
+  )
+
+  set(${url}
+      "${absoluteUrlNormalized}"
+      PARENT_SCOPE
+  )
 endfunction()
 
 # method to overwrite internal FetchContent properties, to allow using CPM.cmake to overload
@@ -526,6 +661,7 @@ function(CPMAddPackage)
       GITHUB_REPOSITORY
       GITLAB_REPOSITORY
       BITBUCKET_REPOSITORY
+      RELATIVE_REPOSITORY
       GIT_REPOSITORY
       SOURCE_DIR
       FIND_PACKAGE_ARGUMENTS
@@ -561,6 +697,9 @@ function(CPMAddPackage)
     set(CPM_ARGS_GIT_REPOSITORY "https://gitlab.com/${CPM_ARGS_GITLAB_REPOSITORY}.git")
   elseif(DEFINED CPM_ARGS_BITBUCKET_REPOSITORY)
     set(CPM_ARGS_GIT_REPOSITORY "https://bitbucket.org/${CPM_ARGS_BITBUCKET_REPOSITORY}.git")
+  elseif(DEFINED CPM_ARGS_RELATIVE_REPOSITORY)
+    cpm_git_relative_uri_to_url("${CPM_ARGS_RELATIVE_REPOSITORY}" "${CPM_ARGS_NAME}" absoluteGitUrl)
+    set(CPM_ARGS_GIT_REPOSITORY "${absoluteGitUrl}.git")
   endif()
 
   if(DEFINED CPM_ARGS_GIT_REPOSITORY)
