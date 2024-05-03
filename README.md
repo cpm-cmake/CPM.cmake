@@ -196,6 +196,12 @@ You can use `CPM_SOURCE_CACHE` on GitHub Actions workflows [cache](https://githu
 The directory where the version for a project is stored is by default the hash of the arguments to `CPMAddPackage()`.
 If for instance the patch command uses external files, the directory name can be set with the argument `CUSTOM_CACHE_KEY`.
 
+It is possible to check the integrity of the downloaded content with a checksum by adding a [checksum command](test/unit/checksum_directory.sh) to `CPMAddPackage()`.
+Checksum validation can be done in two ways:
+
+- Setting the option `CPM_CHECK_CACHE_CHECKSUM` to validate to the checksum calculated when downloading the project.
+- Providing the checksum in the call to `CPMAddPackage()`.
+
 ### CPM_DOWNLOAD_ALL
 
 If set, CPM will forward all calls to `CPMFindPackage` as `CPMAddPackage`.
@@ -218,6 +224,14 @@ Note that this does not apply to dependencies that have been defined with a trut
 
 If set, CPM use additional directory level in cache to improve readability of packages names in IDEs like CLion. It changes cache structure, so all dependencies are downloaded again. There is no problem to mix both structures in one cache directory but then there may be 2 copies of some dependencies.
 This can also be set as an environmental variable.
+
+### CPM_CHECK_CACHE_CHECKSUM
+
+Enable validation of the checksum for a cache directory if a command to checksum the directory is provided. The validation is performed to a supplied checksum if provided, otherwise the checksum detected when downloading the dependency.
+
+If `GIT_TAG` is set, `git-status` will check the status, checksum command is not required.
+
+If the check fails, an existing directory will be deleted and downloaded again.
 
 ## Local package override
 
