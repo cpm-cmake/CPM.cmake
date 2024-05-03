@@ -129,6 +129,10 @@ option(CPM_USE_NAMED_CACHE_DIRECTORIES
        "Use additional directory of package name in cache on the most nested level."
        $ENV{CPM_USE_NAMED_CACHE_DIRECTORIES}
 )
+option(CPM_CHECK_CACHE_CHECKSUM
+       "If a package is stored in cache and there is a command to provide checksum, check the checksum when the cache dir exists."
+       $ENV{CPM_CHECK_CACHE_CHECKSUM}
+)
 
 set(CPM_VERSION
     ${CURRENT_CPM_VERSION}
@@ -535,9 +539,10 @@ function(CPMAddPackage)
       EXCLUDE_FROM_ALL
       SOURCE_SUBDIR
       CUSTOM_CACHE_KEY
+      CUSTOM_CACHE_CHECKSUM_VALUE
   )
 
-  set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND)
+  set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND CUSTOM_CACHE_CHECKSUM_COMMAND)
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
@@ -720,30 +725,72 @@ function(CPMAddPackage)
     get_filename_component(download_directory ${download_directory} ABSOLUTE)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${download_directory})
 
-    if(CPM_SOURCE_CACHE)
-      file(LOCK ${download_directory}/../cmake.lock)
+    file(LOCK ${download_directory}/../cmake.lock)
+
+    if(EXISTS ${download_directory} AND NOT EXISTS ${download_directory}.download)
+      message(WARNING "Cache for ${CPM_ARGS_NAME} is missing .download, downloading. (${download_directory}.download)")
+      file(REMOVE_RECURSE ${download_directory})
+    endif()
+
+    if(EXISTS ${download_directory}
+      AND CPM_ARGS_CUSTOM_CACHE_CHECKSUM_COMMAND
+      AND (CPM_CHECK_CACHE_CHECKSUM
+        OR DEFINED CPM_ARGS_CUSTOM_CACHE_CHECKSUM_VALUE))
+      if (CPM_ARGS_CUSTOM_CACHE_CHECKSUM_VALUE)
+        # Explicit checksum provided, ignore value in .downloaded
+        set(expected_checksum ${CPM_ARGS_CUSTOM_CACHE_CHECKSUM_VALUE})
+      else()
+        file(READ ${download_directory}.download expected_checksum)
+        string(STRIP "${expected_checksum}" expected_checksum)
+      endif()
+
+      if(expected_checksum)
+        execute_process(
+          COMMAND ${CPM_ARGS_CUSTOM_CACHE_CHECKSUM_COMMAND}
+          WORKING_DIRECTORY ${download_directory}
+          OUTPUT_VARIABLE checksum
+          OUTPUT_STRIP_TRAILING_WHITESPACE
+          COMMAND_ERROR_IS_FATAL ANY
+        )
+        if(NOT expected_checksum STREQUAL checksum)
+          message(
+            WARNING
+              "Checksum mismatch for ${CPM_ARGS_NAME}, removing (${expected_checksum} != ${checksum})"
+          )
+          file(REMOVE_RECURSE ${download_directory})
+        endif()
+      else()
+        message(
+          WARNING
+            "Checksum cannot be verified for ${CPM_ARGS_NAME}, no existing value (${expected_checksum})"
+        )
+      endif()
+    endif()
+
+    if(EXISTS ${download_directory}
+      AND DEFINED CPM_ARGS_GIT_TAG
+       AND NOT (PATCH_COMMAND IN_LIST CPM_ARGS_UNPARSED_ARGUMENTS))
+      # warn if cache has been changed since checkout
+      cpm_check_git_working_dir_is_clean(${download_directory} ${CPM_ARGS_GIT_TAG} IS_CLEAN)
+      if(NOT ${IS_CLEAN})
+        message(
+          WARNING "${CPM_INDENT} Cache for ${CPM_ARGS_NAME} (${download_directory}) is dirty"
+        )
+        if(CPM_CHECK_CACHE_CHECKSUM OR DEFINED CPM_ARGS_CUSTOM_CACHE_CHECKSUM_VALUE)
+          file(REMOVE_RECURSE ${download_directory})
+        endif()
+      endif()
     endif()
 
     if(EXISTS ${download_directory})
-      if(CPM_SOURCE_CACHE)
-        file(LOCK ${download_directory}/../cmake.lock RELEASE)
-      endif()
+      # Directory content is considered OK
+      file(LOCK ${download_directory}/../cmake.lock RELEASE)
 
       cpm_store_fetch_properties(
         ${CPM_ARGS_NAME} "${download_directory}"
         "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-build"
       )
       cpm_get_fetch_properties("${CPM_ARGS_NAME}")
-
-      if(DEFINED CPM_ARGS_GIT_TAG AND NOT (PATCH_COMMAND IN_LIST CPM_ARGS_UNPARSED_ARGUMENTS))
-        # warn if cache has been changed since checkout
-        cpm_check_git_working_dir_is_clean(${download_directory} ${CPM_ARGS_GIT_TAG} IS_CLEAN)
-        if(NOT ${IS_CLEAN})
-          message(
-            WARNING "${CPM_INDENT} Cache for ${CPM_ARGS_NAME} (${download_directory}) is dirty"
-          )
-        endif()
-      endif()
 
       cpm_add_subdirectory(
         "${CPM_ARGS_NAME}"
@@ -801,8 +848,30 @@ function(CPMAddPackage)
     )
     cpm_fetch_package("${CPM_ARGS_NAME}" populated)
     if(CPM_SOURCE_CACHE AND download_directory)
+      if(${populated})
+        if(CPM_ARGS_CUSTOM_CACHE_CHECKSUM_COMMAND)
+          execute_process(
+            COMMAND ${CPM_ARGS_CUSTOM_CACHE_CHECKSUM_COMMAND}
+            WORKING_DIRECTORY ${download_directory}
+            OUTPUT_VARIABLE checksum
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            COMMAND_ERROR_IS_FATAL ANY
+          )
+          if(CPM_ARGS_CUSTOM_CACHE_CHECKSUM_VALUE AND NOT CPM_ARGS_CUSTOM_CACHE_CHECKSUM_VALUE STREQUAL checksum)
+            message(
+              FATAL_ERROR
+                "Checksum mismatch for ${CPM_ARGS_NAME} (${CPM_ARGS_CUSTOM_CACHE_CHECKSUM_VALUE} != ${checksum})"
+            )
+          endif()
+        else()
+          set(checksum "")
+        endif()
+        file(WRITE ${download_directory}.download ${checksum})
+      endif()
+
       file(LOCK ${download_directory}/../cmake.lock RELEASE)
     endif()
+
     if(${populated})
       cpm_add_subdirectory(
         "${CPM_ARGS_NAME}"
