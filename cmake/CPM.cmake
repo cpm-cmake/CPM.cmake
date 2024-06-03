@@ -471,14 +471,6 @@ function(cpm_add_patches)
     return()
   endif()
 
-  # Provide a small warning.
-  if(CMAKE_VERSION VERSION_LESS "3.20")
-    message(
-      AUTHOR_WARNING
-        "Versions of CMake less than 3.20 may need to supply patch files as absolute paths."
-    )
-  endif()
-
   # Find the patch program.
   find_program(PATCH_EXECUTABLE patch)
   if(WIN32 AND NOT PATCH_EXECUTABLE)
@@ -486,14 +478,9 @@ function(cpm_add_patches)
     # it exists, then search `../../usr/bin` for patch.exe.
     find_package(Git QUIET)
     if(GIT_EXECUTABLE)
-      if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.20")
-        cmake_path(GET GIT_EXECUTABLE PARENT_PATH extra_search_path)
-        cmake_path(GET extra_search_path PARENT_PATH extra_search_path)
-      else()
-        get_filename_component(extra_search_path ${GIT_EXECUTABLE} DIRECTORY)
-        get_filename_component(extra_search_path ${extra_search_path} DIRECTORY)
-        get_filename_component(extra_search_path ${extra_search_path} DIRECTORY)
-      endif()
+      get_filename_component(extra_search_path ${GIT_EXECUTABLE} DIRECTORY)
+      get_filename_component(extra_search_path ${extra_search_path} DIRECTORY)
+      get_filename_component(extra_search_path ${extra_search_path} DIRECTORY)
       find_program(PATCH_EXECUTABLE patch HINTS "${extra_search_path}/usr/bin")
     endif()
   endif()
@@ -507,17 +494,17 @@ function(cpm_add_patches)
   # Ensure each file exists (or error out) and add it to the list.
   set(first_item True)
   foreach(PATCH_FILE ${ARGN})
+    # Make sure the patch file exists, if we can't find it, try again in the current directory.
     if(NOT EXISTS "${PATCH_FILE}")
       if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/${PATCH_FILE}")
         message(FATAL_ERROR "Couldn't find patch file: '${PATCH_FILE}'")
       endif()
       set(PATCH_FILE "${CMAKE_CURRENT_LIST_DIR}/${PATCH_FILE}")
     endif()
-    # Convert to absolute path for CMake 3.20 (available since March 3rd, 2021) and later, this may
-    # cause users with older versions of CMake to strictly call out an absolute path.
-    if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.20")
-      cmake_path(ABSOLUTE_PATH PATCH_FILE)
-    endif()
+
+    # Convert to absolute path for use with patch file command.
+    get_filename_component(PATCH_FILE "${PATCH_FILE}" ABSOLUTE)
+
     # The first patch entry must be preceded by "PATCH_COMMAND" while the following items are
     # preceded by "&&".
     if(first_item)
