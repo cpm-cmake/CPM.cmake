@@ -464,7 +464,9 @@ function(cpm_check_git_working_dir_is_clean repoPath gitTag isClean)
 
 endfunction()
 
-# method to add PATCH_COMMAND to CPM_ARGS_UNPARSED_ARGUMENTS for PATCHES files.
+# Add PATCH_COMMAND to CPM_ARGS_UNPARSED_ARGUMENTS. This method consumes a list of files in ARGN
+# then generates a `PATCH_COMMAND` appropriate for `ExternalProject_Add()`. This command is appended
+# to the parent scope's `CPM_ARGS_UNPARSED_ARGUMENTS`.
 function(cpm_add_patches)
   # Return if no patch files are supplied.
   if(NOT ARGN)
