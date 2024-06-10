@@ -8,10 +8,10 @@ include(../../cmake/CPM.cmake)
 
 CPMAddPackage("gh:wxWidgets/wxWidgets@3.2.5")
 
-# ---- Executable (with gui) ----
+# ---- Executable (with gui, need GTK header, cannot be build in CI) ----
 
-add_executable(wxWidgetsExample main.cpp)
-target_link_libraries(wxWidgetsExample wx::core)
+# add_executable(wxWidgetsExample main.cpp)
+# target_link_libraries(wxWidgetsExample wx::core)
 
 
 # ---- Executable (only console) ----
