@@ -151,24 +151,30 @@ set(CPM_DRY_RUN
     CACHE INTERNAL "Don't download or configure dependencies (for testing)"
 )
 set(CPM_URI_SCHEMES
-    "gh!GITHUB_REPOSITORY!GIT_REPOSITORY!https://github.com!.git"
-    "gl!GITLAB_REPOSITORY!GIT_REPOSITORY!https://gitlab.com!.git"
-    "bb!BITBUCKET_REPOSITORY!GIT_REPOSITORY!https://bitbucket.org!.git"
+    "gh|GITHUB_REPOSITORY|GIT_REPOSITORY|https://github.com|.git"
+    "gl|GITLAB_REPOSITORY|GIT_REPOSITORY|https://gitlab.com|.git"
+    "bb|BITBUCKET_REPOSITORY|GIT_REPOSITORY|https://bitbucket.org|.git"
+    CACHE INTERNAL ""
+)
+set(CPM_URI_SCHEME_PATTERN
+    "^([a-z][a-z0-9]*)\\|([A-Z_][A-Z0-9_]*)\\|(GIT_REPOSITORY|URL)\\|(.+)\\|(.*)$"
     CACHE INTERNAL ""
 )
 
 function(
   cpm_uri_scheme_from_string
+
+  # INPUTS
   schemeStr
+
+  # OUTPUTS
   alias
   longName
   uriType
   uriRoot
   uriSuffix
 )
-  if("${schemeStr}" MATCHES
-     "^([a-zA-Z][a-zA-Z0-9]*)!([a-zA-Z_][a-zA-Z0-9_]*)!([a-zA-Z_][a-zA-Z0-9_]*)!(.+)!(.*)$"
-  )
+  if("${schemeStr}" MATCHES "${CPM_URI_SCHEME_PATTERN}")
     string(TOLOWER "${CMAKE_MATCH_1}" thisScheme)
     set(${alias}
         "${thisScheme}"
@@ -190,6 +196,8 @@ function(
         "${CMAKE_MATCH_5}"
         PARENT_SCOPE
     )
+  else()
+    message(STATUS "Not a URI scheme: ${schemeStr}")
   endif()
 endfunction()
 
@@ -376,17 +384,31 @@ function(cpm_check_if_package_already_added CPM_ARGS_NAME CPM_ARGS_VERSION)
   endif()
 endfunction()
 
-function(cpm_infer_packageType uri packageType)
-  if("${uri}" MATCHES ".git([@#$]?)")
+function(cpm_infer_package_type uri uriType uriSuffix packageType)
+  if("${uriType}" STREQUAL "GIT_REPOSITORY")
     set(${packageType}
-        "git"
-        PARENT_SCOPE
+            "git"
+            PARENT_SCOPE
     )
   else()
-    set(${packageType}
-        "archive"
-        PARENT_SCOPE
-    )
+    if("${uri}" MATCHES ".git([@#$]?)")
+      set(${packageType}
+          "git"
+          PARENT_SCOPE
+      )
+    else()
+      if("${uriSuffix}" MATCHES ".git([@#$]?)")
+        set(${packageType}
+                "git"
+                PARENT_SCOPE
+        )
+      else()
+        set(${packageType}
+            "archive"
+            PARENT_SCOPE
+        )
+      endif()
+    endif()
   endif()
 endfunction()
 
@@ -397,7 +419,6 @@ function(
   cpm_expand_via_scheme
   scheme
   uriFragment
-  applySuffix
   expanded
   repoType
   pkgType
@@ -409,51 +430,40 @@ function(
   )
 
   foreach(mapping ${CPM_URI_SCHEMES})
-    if("${mapping}" MATCHES
-       "^([a-zA-Z][a-zA-Z0-9]*)!([a-zA-Z_][a-zA-Z0-9_]*)!([a-zA-Z_][a-zA-Z0-9_]*)!(.+)!(.*)$"
-    )
-      string(TOLOWER "${CMAKE_MATCH_1}" thisScheme)
-      if(scheme STREQUAL ${thisScheme})
-        set(longName "${CMAKE_MATCH_2}")
-        set(uriRoot "${CMAKE_MATCH_4}")
-        set(suffix "${CMAKE_MATCH_5}")
-        if(applySuffix)
-          string(REGEX REPLACE "^([^#@]+)" "\\1${suffix}" uriFragment "${uriFragment}")
-        endif()
+    cpm_uri_scheme_from_string(${mapping} alias longName uriType uriRoot uriSuffix)
+    if(scheme STREQUAL ${alias})
+      set(expandedValue "${longName};${uriFragment}")
+      set(${expanded}
+          ${expandedValue}
+          PARENT_SCOPE
+      )
 
-        set(expandedValue "${longName};${uriRoot}/${uriFragment}")
-        set(${expanded}
-            ${expandedValue}
-            PARENT_SCOPE
-        )
-
-        set(${repoType}
-            ${CMAKE_MATCH_3}
-            PARENT_SCOPE
-        )
-        cpm_infer_packagetype(${uriFragment} inferredPackageType)
-        set(${pkgType}
-            ${inferredPackageType}
-            PARENT_SCOPE
-        )
-        set(${success}
-            "TRUE"
-            PARENT_SCOPE
-        )
-        break()
-      endif()
+      set(${repoType}
+          ${CMAKE_MATCH_3}
+          PARENT_SCOPE
+      )
+      cpm_infer_package_type("${uriFragment}" "${uriType}" "${uriSuffix}" inferredPackageType)
+      set(${pkgType}
+          ${inferredPackageType}
+          PARENT_SCOPE
+      )
+      set(${success}
+          "TRUE"
+          PARENT_SCOPE
+      )
+      break()
     endif()
   endforeach()
 endfunction()
 
 function(cpm_is_valid_scheme scheme result)
-  set(${success}
+  set(${result}
       FALSE
       PARENT_SCOPE
   )
 
   foreach(mapping ${CPM_URI_SCHEMES})
-    if("${mapping}" MATCHES "^([a-zA-Z][a-zA-Z0-9]*)!(.+)!(.*)$")
+    if("${mapping}" MATCHES "${CPM_URI_SCHEME_PATTERN}")
       string(TOLOWER "${CMAKE_MATCH_1}" testScheme)
       if(scheme STREQUAL ${testScheme})
         set(${result}
@@ -462,6 +472,8 @@ function(cpm_is_valid_scheme scheme result)
         )
         break()
       endif()
+    else()
+      cpm_message(STATUS "${CPM_INDENT} ${mapping} is not a valid mapping")
     endif()
   endforeach()
 endfunction()
@@ -505,7 +517,6 @@ function(cpm_parse_add_package_single_arg arg outArgs)
     cpm_expand_via_scheme(
       ${scheme}
       ${uriFragment}
-      TRUE
       outputVar
       repoType
       packageType
@@ -517,7 +528,7 @@ function(cpm_parse_add_package_single_arg arg outArgs)
       message(FATAL_ERROR "${CPM_INDENT} Failed to expand scheme from '${arg}'")
     endif()
   else()
-    cpm_infer_packagetype(${arg} packageType)
+    cpm_infer_package_type("${arg}" "" "" packageType)
     if("${packageType}" STREQUAL "git")
       set(out "GIT_REPOSITORY;${arg}")
     else()
@@ -746,7 +757,7 @@ function(CPMAddPackage)
   )
 
   foreach(scheme ${CPM_URI_SCHEMES})
-    cpm_uri_scheme_from_string(${scheme} alias longName uriType uriRoot uriSuffix)
+    cpm_uri_scheme_from_string(${scheme} alias longName uriType uriRoot uriSuffix isScheme)
     list(APPEND oneValueArgs ${longName})
   endforeach()
 
@@ -775,7 +786,6 @@ function(CPMAddPackage)
       cpm_expand_via_scheme(
         ${alias}
         ${${cpmRepoType}}
-        FALSE
         completeUri
         repoType
         pkgType
@@ -784,9 +794,10 @@ function(CPMAddPackage)
       if(NOT successfulExpansion)
         message(FATAL_ERROR "${CPM_INDENT} Failed to generate repository URL from '${cpmRepoType}'")
       endif()
+
       string(CONCAT uriTypeArg CPM_ARGS_ ${uriType})
       string(REPLACE ${longName} "" completeUri ${completeUri})
-      set(${uriTypeArg} ${completeUri})
+      set(${uriTypeArg} ${uriRoot}/${completeUri}${uriSuffix})
     endif()
   endforeach()
 
@@ -1413,10 +1424,10 @@ function(CPMDefineUriScheme)
   endif()
 
   set(newScheme
-      "${CPM_SCHEME_ALIAS}!${CPM_SCHEME_LONG_NAME}!${CPM_SCHEME_URI_TYPE}!${CPM_SCHEME_URI_ROOT}!${CPM_SCHEME_URI_SUFFIX}"
+      "${CPM_SCHEME_ALIAS}|${CPM_SCHEME_LONG_NAME}|${CPM_SCHEME_URI_TYPE}|${CPM_SCHEME_URI_ROOT}|${CPM_SCHEME_URI_SUFFIX}"
   )
 
-  list(TRANSFORM CPM_URI_SCHEMES REPLACE "^${CPM_SCHEME_ALIAS}!" "${newScheme}")
+  list(TRANSFORM CPM_URI_SCHEMES REPLACE "^${CPM_SCHEME_ALIAS}" "${newScheme}")
   list(FIND CPM_URI_SCHEMES "${newScheme}" index)
   if(index EQUAL -1)
     list(APPEND CPM_URI_SCHEMES "${newScheme}")
