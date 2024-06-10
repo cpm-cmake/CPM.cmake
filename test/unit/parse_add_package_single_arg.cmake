@@ -10,15 +10,10 @@ cpm_parse_add_package_single_arg("gh:cpm-cmake/CPM.cmake@1.2.3" args)
 assert_equal("GITHUB_REPOSITORY;cpm-cmake/CPM.cmake;VERSION;1.2.3" "${args}")
 
 cpm_parse_add_package_single_arg("gh:cpm-cmake/CPM.cmake#master" args)
-assert_equal(
-  "GITHUB_REPOSITORY;cpm-cmake/CPM.cmake;GIT_TAG;master" "${args}"
-)
+assert_equal("GITHUB_REPOSITORY;cpm-cmake/CPM.cmake;GIT_TAG;master" "${args}")
 
 cpm_parse_add_package_single_arg("gh:cpm-cmake/CPM.cmake@0.20.3#asdf" args)
-assert_equal(
-  "GITHUB_REPOSITORY;cpm-cmake/CPM.cmake;VERSION;0.20.3;GIT_TAG;asdf"
-  "${args}"
-)
+assert_equal("GITHUB_REPOSITORY;cpm-cmake/CPM.cmake;VERSION;0.20.3;GIT_TAG;asdf" "${args}")
 
 cpm_parse_add_package_single_arg("gh:a/b#c@d" args)
 assert_equal("GITHUB_REPOSITORY;a/b;GIT_TAG;c;VERSION;d" "${args}")
@@ -86,16 +81,10 @@ cpmdefineurischeme(
 )
 
 cpm_parse_add_package_single_arg("ir:somegroup/somerepo@0.20.3#asdf" args)
-assert_equal(
-  "INTERNAL_REPOS;somegroup/somerepo;VERSION;0.20.3;GIT_TAG;asdf"
-  "${args}"
-)
+assert_equal("INTERNAL_REPOS;somegroup/somerepo;VERSION;0.20.3;GIT_TAG;asdf" "${args}")
 
 cpm_parse_add_package_single_arg("ir2:somegroup/somerepo@0.20.3#asdf" args)
-assert_equal(
-  "INTERNAL_REPOS2;somegroup/somerepo;VERSION;0.20.3;GIT_TAG;asdf"
-  "${args}"
-)
+assert_equal("INTERNAL_REPOS2;somegroup/somerepo;VERSION;0.20.3;GIT_TAG;asdf" "${args}")
 
 cpm_parse_add_package_single_arg("af:somegroup/someitem.zip" args)
 assert_equal("ARTIFACTORY_PKG;somegroup/someitem.zip" "${args}")

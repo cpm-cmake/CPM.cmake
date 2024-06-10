@@ -163,10 +163,8 @@ set(CPM_URI_SCHEME_PATTERN
 
 function(
   cpm_uri_scheme_from_string
-
   # INPUTS
   schemeStr
-
   # OUTPUTS
   alias
   longName
@@ -387,8 +385,8 @@ endfunction()
 function(cpm_infer_package_type uri uriType uriSuffix packageType)
   if("${uriType}" STREQUAL "GIT_REPOSITORY")
     set(${packageType}
-            "git"
-            PARENT_SCOPE
+        "git"
+        PARENT_SCOPE
     )
   else()
     if("${uri}" MATCHES ".git([@#$]?)")
@@ -399,8 +397,8 @@ function(cpm_infer_package_type uri uriType uriSuffix packageType)
     else()
       if("${uriSuffix}" MATCHES ".git([@#$]?)")
         set(${packageType}
-                "git"
-                PARENT_SCOPE
+            "git"
+            PARENT_SCOPE
         )
       else()
         set(${packageType}
@@ -515,12 +513,7 @@ function(cpm_parse_add_package_single_arg arg outArgs)
   cpm_extract_scheme(${arg} scheme uriFragment isScheme)
   if(isScheme)
     cpm_expand_via_scheme(
-      ${scheme}
-      ${uriFragment}
-      outputVar
-      repoType
-      packageType
-      successfulExpansion
+      ${scheme} ${uriFragment} outputVar repoType packageType successfulExpansion
     )
     if(successfulExpansion)
       set(out "${outputVar}")
@@ -757,7 +750,15 @@ function(CPMAddPackage)
   )
 
   foreach(scheme ${CPM_URI_SCHEMES})
-    cpm_uri_scheme_from_string(${scheme} alias longName uriType uriRoot uriSuffix isScheme)
+    cpm_uri_scheme_from_string(
+      ${scheme}
+      alias
+      longName
+      uriType
+      uriRoot
+      uriSuffix
+      isScheme
+    )
     list(APPEND oneValueArgs ${longName})
   endforeach()
 
@@ -784,12 +785,7 @@ function(CPMAddPackage)
     if(DEFINED CPM_ARGS_${longName})
       string(CONCAT cpmRepoType CPM_ARGS_ ${longName})
       cpm_expand_via_scheme(
-        ${alias}
-        ${${cpmRepoType}}
-        completeUri
-        repoType
-        pkgType
-        successfulExpansion
+        ${alias} ${${cpmRepoType}} completeUri repoType pkgType successfulExpansion
       )
       if(NOT successfulExpansion)
         message(FATAL_ERROR "${CPM_INDENT} Failed to generate repository URL from '${cpmRepoType}'")
