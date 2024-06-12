@@ -67,6 +67,7 @@ Afterwards, any targets defined in the dependency can be used directly.
 CPMAddPackage(
   NAME          # The unique name of the dependency (should be the exported target's name)
   VERSION       # The minimum version of the dependency (optional, defaults to 0)
+  PATCHES       # Patch files to be applied sequentially using patch and PATCH_OPTIONS (optional)
   OPTIONS       # Configuration options passed to the dependency (optional)
   DOWNLOAD_ONLY # If set, the project is downloaded, but not configured (optional)
   [...]         # Origin parameters forwarded to FetchContent_Declare, see below
@@ -77,6 +78,8 @@ The origin may be specified by a `GIT_REPOSITORY`, but other sources, such as di
 If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for git projects.
 On the other hand, if `VERSION` hasn't been explicitly specified, CPM can automatically identify the version from the git tag in some common cases.
 `GIT_TAG` can also be set to a specific commit or a branch name such as `master`, however this isn't recommended, as such packages will only be updated when the cache is cleared.
+
+`PATCHES` takes a list of patch files to apply sequentially. For a basic example, see [Highway](examples/highway/CMakeLists.txt).
 
 If an additional optional parameter `EXCLUDE_FROM_ALL` is set to a truthy value, then any targets defined inside the dependency won't be built by default. See the [CMake docs](https://cmake.org/cmake/help/latest/prop_tgt/EXCLUDE_FROM_ALL.html) for details.
 

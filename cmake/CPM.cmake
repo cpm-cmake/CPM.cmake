@@ -464,6 +464,69 @@ function(cpm_check_git_working_dir_is_clean repoPath gitTag isClean)
 
 endfunction()
 
+# Add PATCH_COMMAND to CPM_ARGS_UNPARSED_ARGUMENTS. This method consumes a list of files in ARGN
+# then generates a `PATCH_COMMAND` appropriate for `ExternalProject_Add()`. This command is appended
+# to the parent scope's `CPM_ARGS_UNPARSED_ARGUMENTS`.
+function(cpm_add_patches)
+  # Return if no patch files are supplied.
+  if(NOT ARGN)
+    return()
+  endif()
+
+  # Find the patch program.
+  find_program(PATCH_EXECUTABLE patch)
+  if(WIN32 AND NOT PATCH_EXECUTABLE)
+    # The Windows git executable is distributed with patch.exe. Find the path to the executable, if
+    # it exists, then search `../../usr/bin` for patch.exe.
+    find_package(Git QUIET)
+    if(GIT_EXECUTABLE)
+      get_filename_component(extra_search_path ${GIT_EXECUTABLE} DIRECTORY)
+      get_filename_component(extra_search_path ${extra_search_path} DIRECTORY)
+      get_filename_component(extra_search_path ${extra_search_path} DIRECTORY)
+      find_program(PATCH_EXECUTABLE patch HINTS "${extra_search_path}/usr/bin")
+    endif()
+  endif()
+  if(NOT PATCH_EXECUTABLE)
+    message(FATAL_ERROR "Couldn't find `patch` executable to use with PATCHES keyword.")
+  endif()
+
+  # Create a temporary
+  set(temp_list ${CPM_ARGS_UNPARSED_ARGUMENTS})
+
+  # Ensure each file exists (or error out) and add it to the list.
+  set(first_item True)
+  foreach(PATCH_FILE ${ARGN})
+    # Make sure the patch file exists, if we can't find it, try again in the current directory.
+    if(NOT EXISTS "${PATCH_FILE}")
+      if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/${PATCH_FILE}")
+        message(FATAL_ERROR "Couldn't find patch file: '${PATCH_FILE}'")
+      endif()
+      set(PATCH_FILE "${CMAKE_CURRENT_LIST_DIR}/${PATCH_FILE}")
+    endif()
+
+    # Convert to absolute path for use with patch file command.
+    get_filename_component(PATCH_FILE "${PATCH_FILE}" ABSOLUTE)
+
+    # The first patch entry must be preceded by "PATCH_COMMAND" while the following items are
+    # preceded by "&&".
+    if(first_item)
+      set(first_item False)
+      list(APPEND temp_list "PATCH_COMMAND")
+    else()
+      list(APPEND temp_list "&&")
+    endif()
+    # Add the patch command to the list
+    list(APPEND temp_list "${PATCH_EXECUTABLE}" "-p1" "<" "${PATCH_FILE}")
+  endforeach()
+
+  # Move temp out into parent scope.
+  set(CPM_ARGS_UNPARSED_ARGUMENTS
+      ${temp_list}
+      PARENT_SCOPE
+  )
+
+endfunction()
+
 # method to overwrite internal FetchContent properties, to allow using CPM.cmake to overload
 # FetchContent calls. As these are internal cmake properties, this method should be used carefully
 # and may need modification in future CMake versions. Source:
@@ -537,7 +600,7 @@ function(CPMAddPackage)
       CUSTOM_CACHE_KEY
   )
 
-  set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND)
+  set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND PATCHES)
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
@@ -628,6 +691,7 @@ function(CPMAddPackage)
       SOURCE_DIR "${PACKAGE_SOURCE}"
       EXCLUDE_FROM_ALL "${CPM_ARGS_EXCLUDE_FROM_ALL}"
       SYSTEM "${CPM_ARGS_SYSTEM}"
+      PATCHES "${CPM_ARGS_PATCHES}"
       OPTIONS "${CPM_ARGS_OPTIONS}"
       SOURCE_SUBDIR "${CPM_ARGS_SOURCE_SUBDIR}"
       DOWNLOAD_ONLY "${DOWNLOAD_ONLY}"
@@ -682,6 +746,8 @@ function(CPMAddPackage)
   else()
     set(CPM_FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/_deps)
   endif()
+
+  cpm_add_patches(${CPM_ARGS_PATCHES})
 
   if(DEFINED CPM_ARGS_DOWNLOAD_COMMAND)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS DOWNLOAD_COMMAND ${CPM_ARGS_DOWNLOAD_COMMAND})
