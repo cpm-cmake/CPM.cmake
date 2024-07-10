@@ -1071,7 +1071,7 @@ function(cpm_fetch_package PACKAGE populated)
   string(TOLOWER "${PACKAGE}" lower_case_name)
 
   if(NOT ${lower_case_name}_POPULATED)
-    FetchContent_Populate(${PACKAGE})
+    FetchContent_MakeAvailable(${PACKAGE})
     set(${populated}
         TRUE
         PARENT_SCOPE
