@@ -862,14 +862,30 @@ function(CPMAddPackage)
   )
 
   if(NOT CPM_SKIP_FETCH)
-    cpm_declare_fetch(
-      "${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
-    )
+    # CMake 3.28 added EXCLUDE and SYSTEM(3.25) to FetchContent_Declare.
+    # Calling FetchContent_MakeAvailable will than call add_subdirectory internally with the EXCLUDE
+    # and SYSTEM flags. No need for CPM to do this manually anymore.
+    if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.28.0")
+      set(fetchContentDeclareExtraArgs "")
+      if(${CPM_ARGS_EXCLUDE_FROM_ALL})
+        list(APPEND fetchContentDeclareExtraArgs EXCLUDE_FROM_ALL)
+      endif()
+      if(${CPM_ARGS_SYSTEM})
+        list(APPEND fetchContentDeclareExtraArgs SYSTEM)
+      endif()
+      cpm_declare_fetch(
+        "${CPM_ARGS_NAME}"
+        ${fetchContentDeclareExtraArgs}
+        "${CPM_ARGS_UNPARSED_ARGUMENTS}"
+      )
+    else()
+      cpm_declare_fetch("${CPM_ARGS_NAME}" "${CPM_ARGS_UNPARSED_ARGUMENTS}")
+    endif()
     cpm_fetch_package("${CPM_ARGS_NAME}" populated)
     if(CPM_SOURCE_CACHE AND download_directory)
       file(LOCK ${download_directory}/../cmake.lock RELEASE)
     endif()
-    if(${populated})
+    if(${populated} AND ${CMAKE_VERSION} VERSION_LESS "3.28.0")
       cpm_add_subdirectory(
         "${CPM_ARGS_NAME}"
         "${DOWNLOAD_ONLY}"
@@ -980,7 +996,7 @@ function(CPMGetPackageVersion PACKAGE OUTPUT)
 endfunction()
 
 # declares a package in FetchContent_Declare
-function(cpm_declare_fetch PACKAGE VERSION INFO)
+function(cpm_declare_fetch PACKAGE)
   if(${CPM_DRY_RUN})
     cpm_message(STATUS "${CPM_INDENT} Package not declared (dry run)")
     return()
@@ -1071,7 +1087,11 @@ function(cpm_fetch_package PACKAGE populated)
   string(TOLOWER "${PACKAGE}" lower_case_name)
 
   if(NOT ${lower_case_name}_POPULATED)
-    FetchContent_Populate(${PACKAGE})
+    if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.28.0")
+      FetchContent_MakeAvailable(${PACKAGE})
+    else()
+      FetchContent_Populate(${PACKAGE})
+    endif()
     set(${populated}
         TRUE
         PARENT_SCOPE
