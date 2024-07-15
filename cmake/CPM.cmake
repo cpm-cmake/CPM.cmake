@@ -873,6 +873,13 @@ function(CPMAddPackage)
       if(${CPM_ARGS_SYSTEM})
         list(APPEND fetchContentDeclareExtraArgs SYSTEM)
       endif()
+      if(CPM_ARGS_OPTIONS)
+        foreach(OPTION ${CPM_ARGS_OPTIONS})
+          cpm_parse_option("${OPTION}")
+          set(${OPTION_KEY} "${OPTION_VALUE}")
+        endforeach()
+      endif()
+
       cpm_declare_fetch(
         "${CPM_ARGS_NAME}"
         ${fetchContentDeclareExtraArgs}
