@@ -865,29 +865,28 @@ function(CPMAddPackage)
     # CMake 3.28 added EXCLUDE and SYSTEM(3.25) to FetchContent_Declare.
     # Calling FetchContent_MakeAvailable will than call add_subdirectory internally with the EXCLUDE
     # and SYSTEM flags. No need for CPM to do this manually anymore.
+    set(fetchContentDeclareExtraArgs "")
     if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.28.0")
-      set(fetchContentDeclareExtraArgs "")
       if(${CPM_ARGS_EXCLUDE_FROM_ALL})
         list(APPEND fetchContentDeclareExtraArgs EXCLUDE_FROM_ALL)
       endif()
       if(${CPM_ARGS_SYSTEM})
         list(APPEND fetchContentDeclareExtraArgs SYSTEM)
       endif()
+      # For CMake version <3.28 OPTIONS are parsed in cpm_add_subdirectory
       if(CPM_ARGS_OPTIONS)
         foreach(OPTION ${CPM_ARGS_OPTIONS})
           cpm_parse_option("${OPTION}")
           set(${OPTION_KEY} "${OPTION_VALUE}")
         endforeach()
       endif()
-
-      cpm_declare_fetch(
-        "${CPM_ARGS_NAME}"
-        ${fetchContentDeclareExtraArgs}
-        "${CPM_ARGS_UNPARSED_ARGUMENTS}"
-      )
-    else()
-      cpm_declare_fetch("${CPM_ARGS_NAME}" "${CPM_ARGS_UNPARSED_ARGUMENTS}")
     endif()
+    cpm_declare_fetch(
+      "${CPM_ARGS_NAME}"
+      ${fetchContentDeclareExtraArgs}
+      "${CPM_ARGS_UNPARSED_ARGUMENTS}"
+    )
+
     cpm_fetch_package("${CPM_ARGS_NAME}" populated)
     if(CPM_SOURCE_CACHE AND download_directory)
       file(LOCK ${download_directory}/../cmake.lock RELEASE)
