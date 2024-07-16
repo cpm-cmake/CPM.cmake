@@ -516,7 +516,9 @@ function(cpm_add_patches)
       list(APPEND temp_list "&&")
     endif()
     # Add the patch command to the list
-    list(APPEND temp_list "${PATCH_EXECUTABLE}" "-p1" "<" "${PATCH_FILE}")
+    # The --batch flag is used to prevent the patch command from asking for user input
+    # and it does not apply the patch if it is unnecessary.
+    list(APPEND temp_list "${PATCH_EXECUTABLE}" "--batch" "-p1" "<" "${PATCH_FILE}")
   endforeach()
 
   # Move temp out into parent scope.
