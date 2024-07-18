@@ -862,9 +862,10 @@ function(CPMAddPackage)
   )
 
   if(NOT CPM_SKIP_FETCH)
-    # CMake 3.28 added EXCLUDE and SYSTEM(3.25) to FetchContent_Declare.
-    # Calling FetchContent_MakeAvailable will than call add_subdirectory internally with the EXCLUDE
-    # and SYSTEM flags. No need for CPM to do this manually anymore.
+    # CMake 3.28 added EXCLUDE, SYSTEM (3.25), and SOURCE_SUBDIR (3.18) to FetchContent_Declare.
+    # Calling FetchContent_MakeAvailable will then internally forward these options to
+    # add_subdirectory. Up until these changes, we had to call FetchContent_Populate and
+    # add_subdirectory separately, which is no longer necessary and has been deprecated as of 3.30.
     set(fetchContentDeclareExtraArgs "")
     if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.28.0")
       if(${CPM_ARGS_EXCLUDE_FROM_ALL})
@@ -872,6 +873,9 @@ function(CPMAddPackage)
       endif()
       if(${CPM_ARGS_SYSTEM})
         list(APPEND fetchContentDeclareExtraArgs SYSTEM)
+      endif()
+      if(DEFINED CPM_ARGS_SOURCE_SUBDIR)
+        list(APPEND fetchContentDeclareExtraArgs SOURCE_SUBDIR ${CPM_ARGS_SOURCE_SUBDIR})
       endif()
       # For CMake version <3.28 OPTIONS are parsed in cpm_add_subdirectory
       if(CPM_ARGS_OPTIONS)
@@ -882,9 +886,7 @@ function(CPMAddPackage)
       endif()
     endif()
     cpm_declare_fetch(
-      "${CPM_ARGS_NAME}"
-      ${fetchContentDeclareExtraArgs}
-      "${CPM_ARGS_UNPARSED_ARGUMENTS}"
+      "${CPM_ARGS_NAME}" ${fetchContentDeclareExtraArgs} "${CPM_ARGS_UNPARSED_ARGUMENTS}"
     )
 
     cpm_fetch_package("${CPM_ARGS_NAME}" populated)
