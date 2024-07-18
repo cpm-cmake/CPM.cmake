@@ -889,7 +889,7 @@ function(CPMAddPackage)
       "${CPM_ARGS_NAME}" ${fetchContentDeclareExtraArgs} "${CPM_ARGS_UNPARSED_ARGUMENTS}"
     )
 
-    cpm_fetch_package("${CPM_ARGS_NAME}" populated)
+    cpm_fetch_package("${CPM_ARGS_NAME}" ${DOWNLOAD_ONLY} populated ${CPM_ARGS_UNPARSED_ARGUMENTS})
     if(CPM_SOURCE_CACHE AND download_directory)
       file(LOCK ${download_directory}/../cmake.lock RELEASE)
     endif()
@@ -1080,7 +1080,7 @@ endfunction()
 
 # downloads a previously declared package via FetchContent and exports the variables
 # `${PACKAGE}_SOURCE_DIR` and `${PACKAGE}_BINARY_DIR` to the parent scope
-function(cpm_fetch_package PACKAGE populated)
+function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY populated)
   set(${populated}
       FALSE
       PARENT_SCOPE
@@ -1096,7 +1096,20 @@ function(cpm_fetch_package PACKAGE populated)
 
   if(NOT ${lower_case_name}_POPULATED)
     if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.28.0")
-      FetchContent_MakeAvailable(${PACKAGE})
+      if(DOWNLOAD_ONLY)
+        # MakeAvailable will call add_subdirectory internally which is not what we want when
+        # DOWNLOAD_ONLY is set. Populate will only download the dependency without adding it to the
+        # build
+        FetchContent_Populate(
+          ${PACKAGE}
+          SOURCE_DIR "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-src"
+          BINARY_DIR "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-build"
+          SUBBUILD_DIR "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-subbuild"
+          ${ARGN}
+        )
+      else()
+        FetchContent_MakeAvailable(${PACKAGE})
+      endif()
     else()
       FetchContent_Populate(${PACKAGE})
     endif()
