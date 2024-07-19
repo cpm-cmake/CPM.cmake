@@ -516,7 +516,7 @@ function(cpm_add_patches)
       list(APPEND temp_list "&&")
     endif()
     # Add the patch command to the list
-    list(APPEND temp_list "${PATCH_EXECUTABLE}" "-p1 -N" "<" "${PATCH_FILE}")
+    list(APPEND temp_list "${PATCH_EXECUTABLE}" "-p1" "-N" "<" "${PATCH_FILE}")
   endforeach()
 
   # Move temp out into parent scope.
