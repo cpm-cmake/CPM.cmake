@@ -414,24 +414,9 @@ CPMAddPackage(
 
 ### [Boost](https://github.com/boostorg/boost)
 
-Boost is a large project and will take a while to download. Using
-`CPM_SOURCE_CACHE` is strongly recommended. Cloning moves much more
-data than a source archive, so this sample will use a compressed
-source archive (tar.xz) release from Boost's github page.
+Boost has incompatible targets: for boost installed via b2 (or via CMake upto version boost_1.84.0 or via CMake scripts from `boost/tools/boost_install`) there's no targets for header-only Boost's libraries. Starting from boost_1.85.0 there's b2 version **and CMake version** of *install* targets, and Boost CMake version install CMake target even for header-only libraries, which allows installing and using only necessary boost libraries.
 
-```CMake
-# boost is a huge project and directly downloading the 'alternate release'
-# from github is much faster than recursively cloning the repo.
-CPMAddPackage(
-  NAME Boost
-  VERSION 1.84.0
-  URL https://github.com/boostorg/boost/releases/download/boost-1.84.0/boost-1.84.0.tar.xz
-  URL_HASH SHA256=2e64e5d79a738d0fa6fb546c6e5c2bd28f88d268a2a080546f74e5ff98f29d0e
-  OPTIONS "BOOST_ENABLE_CMAKE ON"
-)
-```
-
-For a working example of using CPM to download and configure the Boost C++ Libraries see [here](examples/boost).
+Also, to get install target if you use `add_subdirectory(dir_with_boost_source)`, you need to apply a patch for 1.80.0, and another patch if you want a version of Boost from 1.81.0 upto 1.84.0. To solve such problems, there's a script [AddBoost.CMake](https://github.com/Arniiiii/AddBoost.cmake) example usage of which you can see here: [here](examples/boost) or [here](https://github.com/Arniiiii/ModernCppStarterExampleBoostCmake).
 
 ### [cxxopts](https://github.com/jarro2783/cxxopts)
 
