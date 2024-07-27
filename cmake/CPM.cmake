@@ -1087,11 +1087,13 @@ function(cpm_fetch_package PACKAGE populated fetch_args)
       BINARY_DIR ${${lower_case_name}_BINARY_DIR}
       "${${lower_case_name}_UNPARSED_ARGUMENTS}"
     )
-    # ensure FetchContent knows the project is populated
-    fetchcontent_setpopulated(
-      ${PACKAGE} SOURCE_DIR ${${lower_case_name}_SOURCE_DIR} BINARY_DIR
-      ${${lower_case_name}_BINARY_DIR}
-    )
+    if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24.0")
+      # ensure FetchContent knows the project is populated
+      fetchcontent_setpopulated(
+        ${PACKAGE} SOURCE_DIR ${${lower_case_name}_SOURCE_DIR} BINARY_DIR
+        ${${lower_case_name}_BINARY_DIR}
+      )
+    endif()
     set(${populated}
         TRUE
         PARENT_SCOPE
