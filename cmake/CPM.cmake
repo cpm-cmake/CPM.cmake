@@ -1067,11 +1067,35 @@ function(cpm_fetch_package PACKAGE populated)
   endif()
 
   FetchContent_GetProperties(${PACKAGE})
-
   string(TOLOWER "${PACKAGE}" lower_case_name)
 
+  # with the new `FetchContent_Populate` syntax it seems that SOURCE and BINARY dir variables are no
+  # longer retrieved whne using `FetchContent_GetProperties`, so we need to implement the parsing
+  # and defaults for these ourselves.
+  cmake_parse_arguments(
+    ${lower_case_name} "" "SOURCE_DIR;BINARY_DIR;SUBBUILD_DIR" "" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
+    ${ARGN}
+  )
+
+  if(NOT ${lower_case_name}_SOURCE_DIR)
+    set(${lower_case_name}_SOURCE_DIR "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-src")
+  endif()
+  if(NOT ${lower_case_name}_BINARY_DIR)
+    set(${lower_case_name}_BINARY_DIR "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-build")
+  endif()
+
   if(NOT ${lower_case_name}_POPULATED)
-    FetchContent_Populate(${PACKAGE})
+    FetchContent_Populate(
+      ${PACKAGE}
+      SOURCE_DIR ${${lower_case_name}_SOURCE_DIR}
+      BINARY_DIR ${${lower_case_name}_BINARY_DIR}
+      "${${lower_case_name}_UNPARSED_ARGUMENTS}"
+    )
+    # ensure FetchContent knows the project is populated
+    fetchcontent_setpopulated(
+      ${PACKAGE} SOURCE_DIR ${${lower_case_name}_SOURCE_DIR} BINARY_DIR
+      ${${lower_case_name}_BINARY_DIR}
+    )
     set(${populated}
         TRUE
         PARENT_SCOPE
