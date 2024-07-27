@@ -105,6 +105,11 @@ macro(cpm_set_policies)
     cmake_policy(SET CMP0150 NEW)
     set(CMAKE_POLICY_DEFAULT_CMP0150 NEW)
   endif()
+
+  # don't use subdir directories for cloning
+  if(POLICY CMP0168)
+    cmake_policy(SET CMP0168 NEW)
+  endif()
 endmacro()
 cpm_set_policies()
 
@@ -1081,14 +1086,18 @@ function(cpm_fetch_package PACKAGE populated fetch_args)
   endif()
 
   if(NOT ${lower_case_name}_POPULATED)
-    FetchContent_Populate(
-      ${PACKAGE}
-      SOURCE_DIR ${${lower_case_name}_SOURCE_DIR}
-      BINARY_DIR ${${lower_case_name}_BINARY_DIR}
-      "${${lower_case_name}_UNPARSED_ARGUMENTS}"
-    )
+    # only exectute `FetchContent_Populate` if we specified a way to download the source
+    if(${lower_case_name}_UNPARSED_ARGUMENTS)
+      FetchContent_Populate(
+        ${PACKAGE}
+        SOURCE_DIR ${${lower_case_name}_SOURCE_DIR}
+        BINARY_DIR ${${lower_case_name}_BINARY_DIR}
+        "${${lower_case_name}_UNPARSED_ARGUMENTS}"
+      )
+    endif()
     if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24.0")
-      # ensure FetchContent knows the project is populated
+      # ensure FetchContent knows the project is populated, this doesn't seem to be the case when
+      # just calling `FetchContent_Populate`.
       fetchcontent_setpopulated(
         ${PACKAGE} SOURCE_DIR ${${lower_case_name}_SOURCE_DIR} BINARY_DIR
         ${${lower_case_name}_BINARY_DIR}
