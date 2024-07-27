@@ -1087,13 +1087,15 @@ function(cpm_fetch_package PACKAGE populated fetch_args)
 
   if(NOT ${lower_case_name}_POPULATED)
     # only exectute `FetchContent_Populate` if we specified a way to download the source
-    if(${lower_case_name}_UNPARSED_ARGUMENTS)
+    if(${lower_case_name}_UNPARSED_ARGUMENTS EQUAL "")
       FetchContent_Populate(
         ${PACKAGE}
         SOURCE_DIR ${${lower_case_name}_SOURCE_DIR}
         BINARY_DIR ${${lower_case_name}_BINARY_DIR}
         "${${lower_case_name}_UNPARSED_ARGUMENTS}"
       )
+    else()
+      message("${lower_case_name}_UNPARSED_ARGUMENTS: ${${lower_case_name}_UNPARSED_ARGUMENTS}")
     endif()
     if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24.0")
       # ensure FetchContent knows the project is populated, this doesn't seem to be the case when
