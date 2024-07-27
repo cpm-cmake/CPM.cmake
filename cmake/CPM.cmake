@@ -865,7 +865,7 @@ function(CPMAddPackage)
     cpm_declare_fetch(
       "${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
     )
-    cpm_fetch_package("${CPM_ARGS_NAME}" populated)
+    cpm_fetch_package("${CPM_ARGS_NAME}" populated "${CPM_ARGS_UNPARSED_ARGUMENTS}")
     if(CPM_SOURCE_CACHE AND download_directory)
       file(LOCK ${download_directory}/../cmake.lock RELEASE)
     endif()
@@ -1056,7 +1056,7 @@ endfunction()
 
 # downloads a previously declared package via FetchContent and exports the variables
 # `${PACKAGE}_SOURCE_DIR` and `${PACKAGE}_BINARY_DIR` to the parent scope
-function(cpm_fetch_package PACKAGE populated)
+function(cpm_fetch_package PACKAGE populated fetch_args)
   set(${populated}
       FALSE
       PARENT_SCOPE
@@ -1072,10 +1072,7 @@ function(cpm_fetch_package PACKAGE populated)
   # with the new `FetchContent_Populate` syntax it seems that SOURCE and BINARY dir variables are no
   # longer retrieved whne using `FetchContent_GetProperties`, so we need to implement the parsing
   # and defaults for these ourselves.
-  cmake_parse_arguments(
-    ${lower_case_name} "" "SOURCE_DIR;BINARY_DIR;SUBBUILD_DIR" "" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
-    ${ARGN}
-  )
+  cmake_parse_arguments(${lower_case_name} "" "SOURCE_DIR;BINARY_DIR;SUBBUILD_DIR" "" ${fetch_args})
 
   if(NOT ${lower_case_name}_SOURCE_DIR)
     set(${lower_case_name}_SOURCE_DIR "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-src")
