@@ -1085,9 +1085,9 @@ function(cpm_fetch_package PACKAGE populated fetch_args)
     set(${lower_case_name}_BINARY_DIR "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-build")
   endif()
 
-  if(NOT ${lower_case_name}_POPULATED)
+  if(NOT "${${lower_case_name}_POPULATED}")
     # only exectute `FetchContent_Populate` if we specified a way to download the source
-    if(${lower_case_name}_UNPARSED_ARGUMENTS EQUAL "")
+    if(NOT "${${lower_case_name}_UNPARSED_ARGUMENTS}" STREQUAL "")
       FetchContent_Populate(
         ${PACKAGE}
         SOURCE_DIR ${${lower_case_name}_SOURCE_DIR}
