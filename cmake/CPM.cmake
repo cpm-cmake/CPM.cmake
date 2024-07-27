@@ -1069,9 +1069,8 @@ function(cpm_fetch_package PACKAGE populated fetch_args)
   FetchContent_GetProperties(${PACKAGE})
   string(TOLOWER "${PACKAGE}" lower_case_name)
 
-  # with the new `FetchContent_Populate` syntax it seems that SOURCE and BINARY dir variables are no
-  # longer retrieved whne using `FetchContent_GetProperties`, so we need to implement the parsing
-  # and defaults for these ourselves.
+  # in case `FetchContent_GetProperties` does not retrieve the SOURCE_DIR and BINARY_DIR
+  # we need to parse them and their defaults manually.
   cmake_parse_arguments(${lower_case_name} "" "SOURCE_DIR;BINARY_DIR;SUBBUILD_DIR" "" ${fetch_args})
 
   if(NOT ${lower_case_name}_SOURCE_DIR)
