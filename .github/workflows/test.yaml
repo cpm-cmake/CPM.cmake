@@ -19,7 +19,7 @@ jobs:
         os: [ubuntu-latest, windows-2022, macos-latest]
         # we want to ensure compatibility with a recent CMake version as well as the lowest officially supported
         # legacy version that we define as the default version of the second-latest Ubuntu LTS release currently available
-        cmake_version: ['3.16.3', '3.27.5']
+        cmake_version: ['3.16.3', '3.27.5', '3.30.0']
         exclude:
           # there seems to be an issue with CMake 3.16 not finding a C++ compiler on windows-2022 
           - os: windows-2022
