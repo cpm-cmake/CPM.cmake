@@ -264,6 +264,12 @@ git config --global url."https://${USERNAME}:${TOKEN}@github.com".insteadOf "htt
 git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com".insteadOf "https://gitlab.com"
 ```
 
+## Tips
+
+Use CPM_SOURCE_CACHE option to place downloaded project to specific folder and reuse them.
+
+Consider using as much `URL` option as possible if there's a tarball which is compressed, to make CPM download it, then uncompress, instead of git cloning.
+
 ## Built with CPM.cmake
 
 Some amazing projects that are built using the CPM.cmake package manager.
@@ -416,7 +422,7 @@ CPMAddPackage(
 
 Boost has incompatible targets: for boost installed via b2 (or via CMake upto version boost_1.84.0 or via CMake scripts from `boost/tools/boost_install`) there's no targets for header-only Boost's libraries. Starting from boost_1.85.0 there's b2 version **and CMake version** of *install* targets, and Boost CMake version install CMake target even for header-only libraries, which allows installing and using only necessary boost libraries.
 
-Also, to get install target if you use `add_subdirectory(dir_with_boost_source)`, you need to apply a patch for 1.80.0, and another patch if you want a version of Boost from 1.81.0 upto 1.84.0. To solve such problems, there's a script [AddBoost.CMake](https://github.com/Arniiiii/AddBoost.cmake) example usage of which you can see here: [here](examples/boost) or [here](https://github.com/Arniiiii/ModernCppStarterExampleBoostCmake).
+Also, to get install target if you use anything that techincally does `add_subdirectory(dir_with_boost_source)` (which CPM does), you need to apply a patch for 1.80.0, and slightly different patch if you want a version of Boost from 1.81.0 upto 1.84.0. To solve such problems, there's a script [AddBoost.CMake](https://github.com/Arniiiii/AddBoost.cmake) example usage of which you can see here: [here](examples/boost) or [here](https://github.com/Arniiiii/ModernCppStarterExampleBoostCmake).
 
 ### [cxxopts](https://github.com/jarro2783/cxxopts)
 
