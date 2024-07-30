@@ -520,7 +520,7 @@ function(cpm_add_patches)
       APPEND
       temp_list
       "${PATCH_EXECUTABLE}"
-      "-t"
+      "-N"
       "-p1"
       "<"
       "${PATCH_FILE}"
