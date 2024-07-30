@@ -870,14 +870,38 @@ function(CPMAddPackage)
   )
 
   if(NOT CPM_SKIP_FETCH)
+    # CMake 3.28 added EXCLUDE, SYSTEM (3.25), and SOURCE_SUBDIR (3.18) to FetchContent_Declare.
+    # Calling FetchContent_MakeAvailable will then internally forward these options to
+    # add_subdirectory. Up until these changes, we had to call FetchContent_Populate and
+    # add_subdirectory separately, which is no longer necessary and has been deprecated as of 3.30.
+    set(fetchContentDeclareExtraArgs "")
+    if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.28.0")
+      if(${CPM_ARGS_EXCLUDE_FROM_ALL})
+        list(APPEND fetchContentDeclareExtraArgs EXCLUDE_FROM_ALL)
+      endif()
+      if(${CPM_ARGS_SYSTEM})
+        list(APPEND fetchContentDeclareExtraArgs SYSTEM)
+      endif()
+      if(DEFINED CPM_ARGS_SOURCE_SUBDIR)
+        list(APPEND fetchContentDeclareExtraArgs SOURCE_SUBDIR ${CPM_ARGS_SOURCE_SUBDIR})
+      endif()
+      # For CMake version <3.28 OPTIONS are parsed in cpm_add_subdirectory
+      if(CPM_ARGS_OPTIONS AND NOT DOWNLOAD_ONLY)
+        foreach(OPTION ${CPM_ARGS_OPTIONS})
+          cpm_parse_option("${OPTION}")
+          set(${OPTION_KEY} "${OPTION_VALUE}")
+        endforeach()
+      endif()
+    endif()
     cpm_declare_fetch(
-      "${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
+      "${CPM_ARGS_NAME}" ${fetchContentDeclareExtraArgs} "${CPM_ARGS_UNPARSED_ARGUMENTS}"
     )
-    cpm_fetch_package("${CPM_ARGS_NAME}" populated)
+
+    cpm_fetch_package("${CPM_ARGS_NAME}" ${DOWNLOAD_ONLY} populated ${CPM_ARGS_UNPARSED_ARGUMENTS})
     if(CPM_SOURCE_CACHE AND download_directory)
       file(LOCK ${download_directory}/../cmake.lock RELEASE)
     endif()
-    if(${populated})
+    if(${populated} AND ${CMAKE_VERSION} VERSION_LESS "3.28.0")
       cpm_add_subdirectory(
         "${CPM_ARGS_NAME}"
         "${DOWNLOAD_ONLY}"
@@ -988,7 +1012,7 @@ function(CPMGetPackageVersion PACKAGE OUTPUT)
 endfunction()
 
 # declares a package in FetchContent_Declare
-function(cpm_declare_fetch PACKAGE VERSION INFO)
+function(cpm_declare_fetch PACKAGE)
   if(${CPM_DRY_RUN})
     cpm_message(STATUS "${CPM_INDENT} Package not declared (dry run)")
     return()
@@ -1064,7 +1088,7 @@ endfunction()
 
 # downloads a previously declared package via FetchContent and exports the variables
 # `${PACKAGE}_SOURCE_DIR` and `${PACKAGE}_BINARY_DIR` to the parent scope
-function(cpm_fetch_package PACKAGE populated)
+function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY populated)
   set(${populated}
       FALSE
       PARENT_SCOPE
@@ -1079,7 +1103,24 @@ function(cpm_fetch_package PACKAGE populated)
   string(TOLOWER "${PACKAGE}" lower_case_name)
 
   if(NOT ${lower_case_name}_POPULATED)
-    FetchContent_Populate(${PACKAGE})
+    if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.28.0")
+      if(DOWNLOAD_ONLY)
+        # MakeAvailable will call add_subdirectory internally which is not what we want when
+        # DOWNLOAD_ONLY is set. Populate will only download the dependency without adding it to the
+        # build
+        FetchContent_Populate(
+          ${PACKAGE}
+          SOURCE_DIR "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-src"
+          BINARY_DIR "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-build"
+          SUBBUILD_DIR "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-subbuild"
+          ${ARGN}
+        )
+      else()
+        FetchContent_MakeAvailable(${PACKAGE})
+      endif()
+    else()
+      FetchContent_Populate(${PACKAGE})
+    endif()
     set(${populated}
         TRUE
         PARENT_SCOPE
