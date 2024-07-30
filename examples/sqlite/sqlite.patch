@@ -1,0 +1,11 @@
+diff -uN a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt	1969-12-31 18:00:00.000000000 -0600
++++ b/CMakeLists.txt	2024-07-30 12:22:59.022590360 -0500
+@@ -0,0 +1,7 @@
++cmake_minimum_required(VERSION 3.11)
++project(sqlite)
++
++add_library(sqlite STATIC sqlite3.c  sqlite3.h  sqlite3ext.h)
++target_include_directories(sqlite PUBLIC SYSTEM
++  "${CMAKE_CURRENT_SOURCE_DIR}"
++)
