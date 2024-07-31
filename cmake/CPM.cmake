@@ -477,13 +477,13 @@ function(cpm_add_patches)
   find_program(PATCH_EXECUTABLE patch)
   if(WIN32 AND NOT PATCH_EXECUTABLE)
     # The Windows git executable is distributed with patch.exe. Find the path to the executable, if
-    # it exists, then search `../../usr/bin` for patch.exe.
+    # it exists, then search `../usr/bin` and `../../usr/bin` for patch.exe.
     find_package(Git QUIET)
     if(GIT_EXECUTABLE)
       get_filename_component(extra_search_path ${GIT_EXECUTABLE} DIRECTORY)
-      get_filename_component(extra_search_path ${extra_search_path} DIRECTORY)
-      get_filename_component(extra_search_path ${extra_search_path} DIRECTORY)
-      find_program(PATCH_EXECUTABLE patch HINTS "${extra_search_path}/usr/bin")
+      get_filename_component(extra_search_path_1up ${extra_search_path} DIRECTORY)
+      get_filename_component(extra_search_path_2up ${extra_search_path_1up} DIRECTORY)
+      find_program(PATCH_EXECUTABLE patch HINTS "${extra_search_path_1up}/usr/bin" "${extra_search_path_2up}/usr/bin")
     endif()
   endif()
   if(NOT PATCH_EXECUTABLE)
