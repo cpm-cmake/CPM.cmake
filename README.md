@@ -264,12 +264,6 @@ git config --global url."https://${USERNAME}:${TOKEN}@github.com".insteadOf "htt
 git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com".insteadOf "https://gitlab.com"
 ```
 
-## Tips
-
-Use CPM_SOURCE_CACHE option to place downloaded project to specific folder and reuse them.
-
-Consider using as much `URL` option as possible if there's a tarball which is compressed, to make CPM download it, then uncompress, instead of git cloning.
-
 ## Built with CPM.cmake
 
 Some amazing projects that are built using the CPM.cmake package manager.
@@ -420,9 +414,41 @@ CPMAddPackage(
 
 ### [Boost](https://github.com/boostorg/boost)
 
-Boost has incompatible targets: for boost installed via b2 (or via CMake upto version boost_1.84.0 or via CMake scripts from `boost/tools/boost_install`) there's no targets for header-only Boost's libraries. Starting from boost_1.85.0 there's b2 version **and CMake version** of *install* targets, and Boost CMake version install CMake target even for header-only libraries, which allows installing and using only necessary boost libraries.
+Boost is a large project and will take a while to download. Using
+`CPM_SOURCE_CACHE` is strongly recommended. Cloning moves much more
+data than a source archive, so this sample will use a compressed
+source archive (tar.xz) release from Boost's github page.
 
-Also, to get install target if you use anything that techincally does `add_subdirectory(dir_with_boost_source)` (which CPM does), you need to apply a patch for 1.80.0, and slightly different patch if you want a version of Boost from 1.81.0 upto 1.84.0. To solve such problems, there's a script [AddBoost.CMake](https://github.com/Arniiiii/AddBoost.cmake) example usage of which you can see here: [here](examples/boost) or [here](https://github.com/Arniiiii/ModernCppStarterExampleBoostCmake).
+```CMake
+# check https://github.com/boostorg/cmake if you want to add some libraries. Maybe they need some
+# addtional options, like Boost::Python requires BOOST_ENABLE_PYTHON ON
+set(BOOST_INCLUDE_LIBRARIES "container;asio;thread")
+string(REPLACE ";" "\\\\\;" BOOST_INCLUDE_LIBRARIES "${BOOST_INCLUDE_LIBRARIES}")
+
+# boost is a huge project and directly downloading the 'alternate release' from github is much
+# faster than recursively cloning the repo.
+CPMAddPackage(
+  NAME Boost
+  VERSION 1.85.0
+  URL https://github.com/boostorg/boost/releases/download/boost-1.85.0/boost-1.85.0-cmake.tar.xz
+  URL_HASH SHA256=0a9cc56ceae46986f5f4d43fe0311d90cf6d2fa9028258a95cab49ffdacf92ad
+  SYSTEM TRUE # to add boost's headers like they are system. Totally unnecessary
+  FIND_PACKAGE_ARGUMENTS
+    "COMPONENTS thread" # "COMPONENTS ${BOOST_NOT_HEADER_ONLY_COMPONENTS_THAT_YOU_NEED}"
+    # Check if it's a header only lib here:
+    # https://www.boost.org/doc/libs/1_85_0/more/getting_started/unix-variants.html
+  OPTIONS "BOOST_ENABLE_CMAKE ON"
+          "BOOST_SKIP_INSTALL_RULES OFF" # if you want to make boost be
+          # installed on your system with your package ( Profits: install only what you need ; Cons:
+          # a little headache)
+          "BUILD_SHARED_LIBS OFF" # it should work whether build shared or not(static)
+          "BOOST_INCLUDE_LIBRARIES ${BOOST_INCLUDE_LIBRARIES}"
+)
+```
+
+You should really use version only 1.85.0+ for Boost via CMake. About how add not only 1.85.0+ versions, check [Arniiiii/AddBoost.cmake](https://github.com/Arniiiii/AddBoost.cmake) repository or discussion at a [relevant PR](https://github.com/cpm-cmake/CPM.cmake/pull/575) or [relevant issue](https://github.com/cpm-cmake/CPM.cmake/issues/501).
+
+For a working example of using CPM to download and configure the Boost C++ Libraries see [here](examples/boost).
 
 ### [cxxopts](https://github.com/jarro2783/cxxopts)
 
