@@ -483,7 +483,10 @@ function(cpm_add_patches)
       get_filename_component(extra_search_path ${GIT_EXECUTABLE} DIRECTORY)
       get_filename_component(extra_search_path_1up ${extra_search_path} DIRECTORY)
       get_filename_component(extra_search_path_2up ${extra_search_path_1up} DIRECTORY)
-      find_program(PATCH_EXECUTABLE patch HINTS "${extra_search_path_1up}/usr/bin" "${extra_search_path_2up}/usr/bin")
+      find_program(
+        PATCH_EXECUTABLE patch HINTS "${extra_search_path_1up}/usr/bin"
+                                     "${extra_search_path_2up}/usr/bin"
+      )
     endif()
   endif()
   if(NOT PATCH_EXECUTABLE)
