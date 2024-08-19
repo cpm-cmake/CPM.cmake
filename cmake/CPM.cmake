@@ -719,15 +719,20 @@ function(CPMAddPackage)
     if(CPM_USE_LOCAL_PACKAGES OR CPM_LOCAL_PACKAGES_ONLY)
       cpm_find_package(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" ${CPM_ARGS_FIND_PACKAGE_ARGUMENTS})
 
+      string(REPLACE " " ";" EDITED_CPM_ARGS_FIND_PACKAGE_ARGUMENTS "${CPM_ARGS_FIND_PACKAGE_ARGUMENTS}")
+
       if(CPM_PACKAGE_FOUND)
         cpm_export_variables(${CPM_ARGS_NAME})
         return()
-      endif()
-
-      if(CPM_LOCAL_PACKAGES_ONLY)
+      elseif(CPM_USE_LOCAL_PACKAGES)
         message(
-          SEND_ERROR
-            "${CPM_INDENT} ${CPM_ARGS_NAME} not found via find_package(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION})"
+          WARNING
+            "${CPM_INDENT} ${CPM_ARGS_NAME} not found via find_package(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} ${EDITED_CPM_ARGS_FIND_PACKAGE_ARGUMENTS})"
+        )
+      else()
+        message(
+          FATAL_ERROR
+            "${CPM_INDENT} ${CPM_ARGS_NAME} not found via find_package(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} ${EDITED_CPM_ARGS_FIND_PACKAGE_ARGUMENTS})"
         )
       endif()
     endif()
