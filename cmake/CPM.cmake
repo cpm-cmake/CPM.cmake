@@ -257,8 +257,16 @@ function(cpm_find_package NAME VERSION)
         YES
         PARENT_SCOPE
     )
+    set(${NAME}_LOCAL
+        YES
+        PARENT_SCOPE
+    )
   else()
     set(CPM_PACKAGE_FOUND
+        NO
+        PARENT_SCOPE
+    )
+    set(${NAME}_LOCAL
         NO
         PARENT_SCOPE
     )
@@ -533,7 +541,7 @@ endfunction()
 # method to overwrite internal FetchContent properties, to allow using CPM.cmake to overload
 # FetchContent calls. As these are internal cmake properties, this method should be used carefully
 # and may need modification in future CMake versions. Source:
-# https://github.com/Kitware/CMake/blob/dc3d0b5a0a7d26d43d6cfeb511e224533b5d188f/Modules/FetchContent.cmake#L1152
+# https://github.com/Kitware/CMake/blob/dc3d0b5a0a7d26d43d6cfeb511e224533b5d188f/Modules/FetchContent.cmake #L1152
 function(cpm_override_fetchcontent contentName)
   cmake_parse_arguments(PARSE_ARGV 1 arg "" "SOURCE_DIR;BINARY_DIR" "")
   if(NOT "${arg_UNPARSED_ARGUMENTS}" STREQUAL "")
@@ -731,6 +739,7 @@ function(CPMAddPackage)
         )
       endif()
     endif()
+    set(${CPM_ARGS_NAME}_LOCAL NO)
   endif()
 
   CPMRegisterPackage("${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}")
@@ -937,6 +946,10 @@ macro(cpm_export_variables name)
       "${${name}_ADDED}"
       PARENT_SCOPE
   )
+  set(${name}_LOCAL
+      "${${name}_LOCAL}"
+      PARENT_SCOPE
+  )
   set(CPM_LAST_PACKAGE_NAME
       "${name}"
       PARENT_SCOPE
@@ -1065,7 +1078,7 @@ function(
       list(APPEND addSubdirectoryExtraArgs EXCLUDE_FROM_ALL)
     endif()
     if("${SYSTEM}" AND "${CMAKE_VERSION}" VERSION_GREATER_EQUAL "3.25")
-      # https://cmake.org/cmake/help/latest/prop_dir/SYSTEM.html#prop_dir:SYSTEM
+      # https://cmake.org/cmake/help/latest/prop_dir/SYSTEM.html #prop_dir:SYSTEM
       list(APPEND addSubdirectoryExtraArgs SYSTEM)
     endif()
     if(OPTIONS)
