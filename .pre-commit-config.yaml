@@ -1,0 +1,23 @@
+---
+ci:
+  skip: [clang-tidy]
+
+default_install_hook_types:
+- pre-commit
+- pre-merge-commit
+- pre-push
+- prepare-commit-msg
+- commit-msg
+- post-commit
+- post-checkout
+- post-merge
+- post-rewrite
+
+fail_fast: false
+
+repos:
+- repo: https://github.com/Kr4is/cmake-format-precommit
+  rev: v0.6.14
+  hooks:
+  - id: cmake-format
+    args: [--config=.cmake-format]
