@@ -57,6 +57,9 @@ wget -O cmake/CPM.cmake https://github.com/cpm-cmake/CPM.cmake/releases/latest/d
 
 You can also download CPM.cmake directly from your project's `CMakeLists.txt`. See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Downloading-CPM.cmake-in-CMake) for more details.
 
+### cmake --install workflow
+You can also clone this repo and install the CPM.cmake into your prefix via `cmake -S . -B build && cmake --install build --prefix <your-cmake-install-prefix>`.
+
 ## Usage
 
 After `CPM.cmake` has been [added](#adding-cpm) to your project, the function `CPMAddPackage` can be used to fetch and configure a dependency.
