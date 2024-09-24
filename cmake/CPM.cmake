@@ -162,7 +162,7 @@ set(CPM_SOURCE_CACHE
     CACHE PATH "Directory to download CPM dependencies"
 )
 
-if(NOT CPM_DONT_UPDATE_MODULE_PATH)
+if(NOT CPM_DONT_UPDATE_MODULE_PATH AND NOT DEFINED CMAKE_FIND_PACKAGE_REDIRECTS_DIR)
   set(CPM_MODULE_PATH
       "${CMAKE_BINARY_DIR}/CPM_modules"
       CACHE INTERNAL ""
@@ -269,10 +269,25 @@ endfunction()
 # finding the system library
 function(cpm_create_module_file Name)
   if(NOT CPM_DONT_UPDATE_MODULE_PATH)
-    # erase any previous modules
-    file(WRITE ${CPM_MODULE_PATH}/Find${Name}.cmake
-         "include(\"${CPM_FILE}\")\n${ARGN}\nset(${Name}_FOUND TRUE)"
-    )
+    if(DEFINED CMAKE_FIND_PACKAGE_REDIRECTS_DIR)
+      # Redirect find_package calls to the CPM package. This is what FetchContent does when you set
+      # OVERRIDE_FIND_PACKAGE. The CMAKE_FIND_PACKAGE_REDIRECTS_DIR works for find_package in CONFIG
+      # mode, unlike the Find${Name}.cmake fallback. CMAKE_FIND_PACKAGE_REDIRECTS_DIR is not defined
+      # in script mode, or in CMake < 3.24.
+      # https://cmake.org/cmake/help/latest/module/FetchContent.html#fetchcontent-find-package-integration-examples
+      string(TOLOWER ${Name} NameLower)
+      file(WRITE ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR}/${NameLower}-config.cmake
+           "include(\"${CMAKE_CURRENT_LIST_DIR}/${NameLower}-extra.cmake\" OPTIONAL)\n"
+           "include(\"${CMAKE_CURRENT_LIST_DIR}/${Name}Extra.cmake\" OPTIONAL)\n"
+      )
+      file(WRITE ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR}/${NameLower}-version.cmake
+           "set(PACKAGE_VERSION_COMPATIBLE TRUE)\n" "set(PACKAGE_VERSION_EXACT TRUE)\n"
+      )
+    else()
+      file(WRITE ${CPM_MODULE_PATH}/Find${Name}.cmake
+           "include(\"${CPM_FILE}\")\n${ARGN}\nset(${Name}_FOUND TRUE)"
+      )
+    endif()
   endif()
 endfunction()
 
