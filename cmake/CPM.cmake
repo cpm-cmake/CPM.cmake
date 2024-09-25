@@ -869,8 +869,9 @@ function(CPMAddPackage)
     # Calling FetchContent_MakeAvailable will then internally forward these options to
     # add_subdirectory. Up until these changes, we had to call FetchContent_Populate and
     # add_subdirectory separately, which is no longer necessary and has been deprecated as of 3.30.
+    # A Bug in CMake prevents us to use the non-deprecated functions until 3.30.3.
     set(fetchContentDeclareExtraArgs "")
-    if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.28.0")
+    if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.30.3")
       if(${CPM_ARGS_EXCLUDE_FROM_ALL})
         list(APPEND fetchContentDeclareExtraArgs EXCLUDE_FROM_ALL)
       endif()
@@ -896,7 +897,7 @@ function(CPMAddPackage)
     if(CPM_SOURCE_CACHE AND download_directory)
       file(LOCK ${download_directory}/../cmake.lock RELEASE)
     endif()
-    if(${populated} AND ${CMAKE_VERSION} VERSION_LESS "3.28.0")
+    if(${populated} AND ${CMAKE_VERSION} VERSION_LESS "3.30.3")
       cpm_add_subdirectory(
         "${CPM_ARGS_NAME}"
         "${DOWNLOAD_ONLY}"
@@ -1098,7 +1099,7 @@ function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY populated)
   string(TOLOWER "${PACKAGE}" lower_case_name)
 
   if(NOT ${lower_case_name}_POPULATED)
-    if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.28.0")
+    if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.30.3")
       if(DOWNLOAD_ONLY)
         # MakeAvailable will call add_subdirectory internally which is not what we want when
         # DOWNLOAD_ONLY is set. Populate will only download the dependency without adding it to the
