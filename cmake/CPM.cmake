@@ -1167,12 +1167,12 @@ function(cpm_get_version_from_git_tag GIT_TAG RESULT)
         0
         PARENT_SCOPE
     )
-  else()
-    string(REGEX MATCH "v?([0123456789.]*).*" _ ${GIT_TAG})
-    set(${RESULT}
-        ${CMAKE_MATCH_1}
-        PARENT_SCOPE
-    )
+  elseif(${GIT_TAG} MATCHES "v([0-9][0-9.]*)")
+    set(${RESULT} ${CMAKE_MATCH_1} PARENT_SCOPE)
+
+  elseif(${GIT_TAG} MATCHES "([0-9]+\\.[0-9.]+)")
+    set(${RESULT} ${CMAKE_MATCH_1} PARENT_SCOPE)
+    
   endif()
 endfunction()
 
