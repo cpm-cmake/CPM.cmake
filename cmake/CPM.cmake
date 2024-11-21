@@ -59,7 +59,6 @@ See https://github.com/cpm-cmake/CPM.cmake for more information."
     if(${CMAKE_VERSION} VERSION_LESS "3.17.0")
       include(FetchContent)
     endif()
-    return()
   endif()
 
   get_property(
