@@ -214,6 +214,13 @@ In the case that `find_package` requires additional arguments, the parameter `FI
 
 Note that this does not apply to dependencies that have been defined with a truthy `FORCE` parameter. These will be added as defined.
 
+### CPM_DONT_UPDATE_MODULE_PATH
+
+By default, CPM will override any `find_package` commands to use the CPM downloaded version.
+This is equivalent to the `OVERRIDE_FIND_PACKAGE` FetchContent option, which has no effect in CPM.
+To disable this behaviour set the `CPM_DONT_UPDATE_MODULE_PATH` option.
+This will not work for `find_package(CONFIG)` in CMake versions before 3.24.
+
 ### CPM_USE_NAMED_CACHE_DIRECTORIES
 
 If set, CPM use additional directory level in cache to improve readability of packages names in IDEs like CLion. It changes cache structure, so all dependencies are downloaded again. There is no problem to mix both structures in one cache directory but then there may be 2 copies of some dependencies.
