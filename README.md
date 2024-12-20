@@ -65,6 +65,7 @@ Afterwards, any targets defined in the dependency can be used directly.
 
 ```cmake
 CPMAddPackage(
+  URI           # shorthand including repo, name, version and tag (see shorthand syntax)
   NAME          # The unique name of the dependency (should be the exported target's name)
   VERSION       # The minimum version of the dependency (optional, defaults to 0)
   PATCHES       # Patch files to be applied sequentially using patch and PATCH_OPTIONS (optional)
@@ -87,7 +88,7 @@ If an additional optional parameter `SYSTEM` is set to a truthy value, the SYSTE
 See the [add_subdirectory ](https://cmake.org/cmake/help/latest/command/add_subdirectory.html?highlight=add_subdirectory)
 and [SYSTEM](https://cmake.org/cmake/help/latest/prop_tgt/SYSTEM.html#prop_tgt:SYSTEM) target property for details.
 
-A single-argument compact syntax is also supported:
+A shorthand syntax is also supported:
 
 ```cmake
 # A git package from a given uri with a version
@@ -109,6 +110,13 @@ CPMAddPackage("https://example.com/my-package-1.2.3.zip")
 CPMAddPackage("https://example.com/my-package-1.2.3.zip#MD5=68e20f674a48be38d60e129f600faf7d")
 # An archive package from a given url. The version is explicitly given
 CPMAddPackage("https://example.com/my-package.zip@1.2.3")
+```
+
+Additionally, the shorthand syntax can be used with the URI and combined with the other options from above:
+```cmake
+CPMAddPackage("gh:nlohmann/json@3.9.1"
+  OPTIONS "JSON_BuildTests OFF"
+)
 ```
 
 After calling `CPMAddPackage`, the following variables are defined in the local scope, where `<dependency>` is the name of the dependency.
@@ -411,11 +419,8 @@ CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.6.3@0.6.3")
 
 ```cmake
 CPMAddPackage(
-  NAME nlohmann_json
-  VERSION 3.9.1
-  GITHUB_REPOSITORY nlohmann/json
-  OPTIONS
-    "JSON_BuildTests OFF"
+  URI "gh:nlohmann/json@3.9.1"
+  OPTIONS "JSON_BuildTests OFF"
 )
 ```
 
@@ -445,8 +450,7 @@ For a working example of using CPM to download and configure the Boost C++ Libra
 ```cmake
 # the install option has to be explicitly set to allow installation
 CPMAddPackage(
-  GITHUB_REPOSITORY jarro2783/cxxopts
-  VERSION 2.2.1
+  URI "gh:jarro2783/cxxopts@2.2.1"
   OPTIONS "CXXOPTS_BUILD_EXAMPLES NO" "CXXOPTS_BUILD_TESTS NO" "CXXOPTS_ENABLE_INSTALL YES"
 )
 ```
@@ -455,9 +459,7 @@ CPMAddPackage(
 
 ```cmake
 CPMAddPackage(
-  NAME benchmark
-  GITHUB_REPOSITORY google/benchmark
-  VERSION 1.5.2
+  URI "gh:google/benchmark@1.5.2"
   OPTIONS "BENCHMARK_ENABLE_TESTING Off"
 )
 
@@ -471,9 +473,7 @@ endif()
 
 ```cmake
 CPMAddPackage(
-  NAME lua
-  GIT_REPOSITORY https://github.com/lua/lua.git
-  VERSION 5.3.5
+  URI "gh:lua/lua@5.3.5"
   DOWNLOAD_ONLY YES
 )
 
