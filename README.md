@@ -80,6 +80,7 @@ On the other hand, if `VERSION` hasn't been explicitly specified, CPM can automa
 `GIT_TAG` can also be set to a specific commit or a branch name such as `master`, however this isn't recommended, as such packages will only be updated when the cache is cleared.
 
 `PATCHES` takes a list of patch files to apply sequentially. For a basic example, see [Highway](examples/highway/CMakeLists.txt).
+We recommend that if you use `PATCHES`, you also set `CPM_SOURCE_CACHE`. See [issue 577](https://github.com/cpm-cmake/CPM.cmake/issues/577).
 
 If an additional optional parameter `EXCLUDE_FROM_ALL` is set to a truthy value, then any targets defined inside the dependency won't be built by default. See the [CMake docs](https://cmake.org/cmake/help/latest/prop_tgt/EXCLUDE_FROM_ALL.html) for details.
 
@@ -213,6 +214,13 @@ These options can also be set as environmental variables.
 In the case that `find_package` requires additional arguments, the parameter `FIND_PACKAGE_ARGUMENTS` may be specified in the `CPMAddPackage` call. The value of this parameter will be forwarded to `find_package`.
 
 Note that this does not apply to dependencies that have been defined with a truthy `FORCE` parameter. These will be added as defined.
+
+### CPM_DONT_UPDATE_MODULE_PATH
+
+By default, CPM will override any `find_package` commands to use the CPM downloaded version.
+This is equivalent to the `OVERRIDE_FIND_PACKAGE` FetchContent option, which has no effect in CPM.
+To disable this behaviour set the `CPM_DONT_UPDATE_MODULE_PATH` option.
+This will not work for `find_package(CONFIG)` in CMake versions before 3.24.
 
 ### CPM_USE_NAMED_CACHE_DIRECTORIES
 

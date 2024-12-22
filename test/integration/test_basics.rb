@@ -31,7 +31,9 @@ class Basics < IntegrationTest
     assert_same_path File.join(prj.bin_dir, 'cpm-package-lock.cmake'), check_and_get('CPM_PACKAGE_LOCK_FILE')
 
     assert_equal 'OFF', check_and_get('CPM_DONT_UPDATE_MODULE_PATH', 'BOOL')
-    assert_same_path File.join(prj.bin_dir, 'CPM_modules'), check_and_get('CPM_MODULE_PATH')
+    if @cache.entries['CMAKE_FIND_PACKAGE_REDIRECTS_DIR'].nil?
+      assert_same_path File.join(prj.bin_dir, 'CPM_modules'), check_and_get('CPM_MODULE_PATH')
+    end
   end
 
   # Test when env CPM_SOURCE_CACHE is set
