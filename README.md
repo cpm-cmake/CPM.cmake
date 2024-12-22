@@ -80,6 +80,7 @@ On the other hand, if `VERSION` hasn't been explicitly specified, CPM can automa
 `GIT_TAG` can also be set to a specific commit or a branch name such as `master`, however this isn't recommended, as such packages will only be updated when the cache is cleared.
 
 `PATCHES` takes a list of patch files to apply sequentially. For a basic example, see [Highway](examples/highway/CMakeLists.txt).
+We recommend that if you use `PATCHES`, you also set `CPM_SOURCE_CACHE`. See [issue 577](https://github.com/cpm-cmake/CPM.cmake/issues/577).
 
 If an additional optional parameter `EXCLUDE_FROM_ALL` is set to a truthy value, then any targets defined inside the dependency won't be built by default. See the [CMake docs](https://cmake.org/cmake/help/latest/prop_tgt/EXCLUDE_FROM_ALL.html) for details.
 
