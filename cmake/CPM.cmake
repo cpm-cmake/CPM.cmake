@@ -630,7 +630,7 @@ function(CPMAddPackage)
     list(REMOVE_AT ARGN 0 1) # remove "URI gh:<...>@version#tag"
     cpm_parse_add_package_single_arg("${ARGV1}" ARGV0)
 
-    set(ARGN "${ARGV0};${ARGN}")
+    set(ARGN "${ARGV0};EXCLUDE_FROM_ALL;YES;SYSTEM;YES;${ARGN}")
   endif()
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
