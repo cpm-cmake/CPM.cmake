@@ -75,6 +75,8 @@ CPMAddPackage(
 )
 ```
 
+`URI` automatically sets `EXCLUDE_FROM_ALL YES` and `SYSTEM YES`. If this is not desired, `EXCLUDE_FROM_ALL NO` and `SYSTEM NO` have to be set.
+
 The origin may be specified by a `GIT_REPOSITORY`, but other sources, such as direct URLs, are [also supported](https://cmake.org/cmake/help/v3.11/module/ExternalProject.html#external-project-definition).
 If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for git projects.
 On the other hand, if `VERSION` hasn't been explicitly specified, CPM can automatically identify the version from the git tag in some common cases.
