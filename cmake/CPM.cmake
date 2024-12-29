@@ -490,7 +490,7 @@ function(cpm_add_patches)
 
   # Find the patch program.
   find_program(PATCH_EXECUTABLE patch)
-  if(WIN32 AND NOT PATCH_EXECUTABLE)
+  if(CMAKE_HOST_WIN32 AND NOT PATCH_EXECUTABLE)
     # The Windows git executable is distributed with patch.exe. Find the path to the executable, if
     # it exists, then search `../usr/bin` and `../../usr/bin` for patch.exe.
     find_package(Git QUIET)
