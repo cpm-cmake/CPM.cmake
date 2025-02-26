@@ -17,7 +17,6 @@ set(CMAKE_SKIP_INSTALL_RULES OFF)
 set(CMAKE_INSTALL_MESSAGE LAZY)
 set(CMAKE_UNITY_BUILD ON)
 
-
 set(BOOST_VERSION 1.87.0)
 list(APPEND BOOST_INCLUDE_LIBRARIES asio container)
 
@@ -42,18 +41,16 @@ endif()
 
 # ---- Install rules ----
 
-CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.11.0")
+CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.13.0")
 
 packageProject(
-  NAME CPMExampleBoost
-  TARGETS CPMExampleBoost
+  NAME CPMExampleBoost TARGETS CPMExampleBoost
   VERSION ${BOOST_VERSION}
   NAMESPACE BoostExample
   BINARY_DIR ${PROJECT_BINARY_DIR}
-  ARCH_INDEPENDENT NO
-  # INCLUDE_DIR ${BOOST_SOURCE}/boost
-  # INCLUDE_DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/boost
-  # INCLUDE_HEADER_REGEX [=[.*\.(inc|h|hpp|ipp)$]=]
+             ARCH_INDEPENDENT NO
+             # INCLUDE_DIR ${BOOST_SOURCE}/boost INCLUDE_DESTINATION
+             # ${CMAKE_INSTALL_INCLUDEDIR}/boost INCLUDE_HEADER_REGEX [=[.*\.(inc|h|hpp|ipp)$]=]
   DISABLE_VERSION_SUFFIX YES
   COMPATIBILITY SameMajorVersion
   DEPENDENCIES "Boost ${BOOST_VERSION}"
