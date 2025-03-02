@@ -25,8 +25,7 @@ CPMAddPackage(
   NAME sol2
   GITHUB_REPOSITORY ThePhD/sol2
   VERSION 3.3.0
-  # fix for clang 18.1.0, see
-  # https://github.com/ThePhD/sol2/issues/1581#issuecomment-2103463524
+  # fix for clang 18.1.0, see https://github.com/ThePhD/sol2/issues/1581#issuecomment-2103463524
   PATCHES fix_for_clang.patch
 )
 
