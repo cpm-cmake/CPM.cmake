@@ -1,5 +1,3 @@
-Common subdirectories: a/.bcr and b/.bcr
-Common subdirectories: a/.github and b/.github
 diff -u a/include/sol/function_types_stateless.hpp b/include/types/function_types_stateless.hpp
 --- a/include/sol/function_types_stateless.hpp
 +++ b/include/sol/function_types_stateless.hpp
