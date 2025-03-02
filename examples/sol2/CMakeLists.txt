@@ -8,7 +8,7 @@ include(../../cmake/CPM.cmake)
 
 CPMAddPackage(
   NAME lua
-  GIT_REPOSITORY https://github.com/lua/lua.git
+  GITHUB_REPOSITORY lua/lua
   VERSION 5.3.5
   DOWNLOAD_ONLY YES
 )
@@ -21,7 +21,13 @@ if(lua_ADDED)
   target_include_directories(lua SYSTEM PUBLIC $<BUILD_INTERFACE:${lua_SOURCE_DIR}>)
 endif()
 
-CPMAddPackage("gh:ThePhD/sol2@3.3.0")
+CPMAddPackage(
+  NAME sol2
+  GITHUB_REPOSITORY ThePhD/sol2
+  VERSION 3.3.0
+  # https://github.com/ThePhD/sol2/issues/1581#issuecomment-2103463524
+  PATCHES fix_for_clang.patch
+)
 
 # ---- Executable ----
 
