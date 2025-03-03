@@ -2,3 +2,5 @@ build/
 /build*
 /.vscode
 *.DS_Store
+install/
+venv/
