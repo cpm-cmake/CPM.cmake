@@ -1,0 +1,55 @@
+diff --git a/cmake/modules/FindPySide.cmake b/cmake/modules/FindPySide.cmake
+index 1fd02ff88..a20b3fe4c 100644
+--- a/cmake/modules/FindPySide.cmake
++++ b/cmake/modules/FindPySide.cmake
+@@ -16,7 +16,7 @@ execute_process(
+ )
+ if (pySideImportResult EQUAL 0)
+     set(pySideImportResult "PySide6")
+-    set(pySideUIC pyside6-uic python3-pyside6-uic)
++    set(pySideUIC uic pyside6-uic python3-pyside6-uic)
+ endif()
+ 
+ # PySide6 not found OR PYSIDE2 explicitly requested
+diff --git a/pxr/external/boost/CMakeLists.txt b/pxr/external/boost/CMakeLists.txt
+index c34d0bf21..0a1fb5988 100644
+--- a/pxr/external/boost/CMakeLists.txt
++++ b/pxr/external/boost/CMakeLists.txt
+@@ -1,5 +1,5 @@
+ set(PXR_PREFIX pxr/external)
+-set(PXR_PACKAGE boost)
++set(PXR_PACKAGE usd_boost)
+ 
+ # This subdirectory currently only contains Python-related
+ # libraries, so skip it entirely if Python support is disabled.
+@@ -7,7 +7,7 @@ if (NOT PXR_ENABLE_PYTHON_SUPPORT AND NOT TARGET python_modules)
+     return()
+ endif()
+ 
+-pxr_library(boost
++pxr_library(usd_boost
+     PUBLIC_HEADERS
+         python.hpp
+ 
+@@ -22,7 +22,7 @@ pxr_library(boost
+ # otherwise the build will error out at link time because no
+ # .lib file will be generated. Using this setting is OK because
+ # we only expect there to be one exportable symbol in this library.
+-set_target_properties(boost 
++set_target_properties(usd_boost
+     PROPERTIES 
+         WINDOWS_EXPORT_ALL_SYMBOLS TRUE
+ )
+diff --git a/pxr/external/boost/python/CMakeLists.txt b/pxr/external/boost/python/CMakeLists.txt
+index ec85789f7..bfdbb3570 100644
+--- a/pxr/external/boost/python/CMakeLists.txt
++++ b/pxr/external/boost/python/CMakeLists.txt
+@@ -101,7 +101,7 @@ endif()
+ 
+ pxr_library(python
+     LIBRARIES
+-        boost
++        usd_boost
+         ${libs}
+ 
+     INCLUDE_DIRS
