@@ -529,16 +529,16 @@ function(cpm_add_patches)
     # Convert to absolute path for use with patch file command.
     get_filename_component(PATCH_FILE "${PATCH_FILE}" ABSOLUTE)
 
-    # The first patch entry must be preceded by "PATCH_COMMAND" while the following items are
-    # preceded by "&&".
+    # The first patch entry must be preceded by "PATCH_COMMAND". Subsequent
+    # commands are preceeded by "COMMAND".
     if(first_item)
       set(first_item False)
       list(APPEND temp_list "PATCH_COMMAND")
     else()
-      list(APPEND temp_list "&&")
+      list(APPEND temp_list "COMMAND")
     endif()
     # Add the patch command to the list
-    list(APPEND temp_list "${PATCH_EXECUTABLE}" "-p1" "<" "${PATCH_FILE}")
+    list(APPEND temp_list "${PATCH_EXECUTABLE}" "-p1" "-i" "${PATCH_FILE}")
   endforeach()
 
   # Move temp out into parent scope.
