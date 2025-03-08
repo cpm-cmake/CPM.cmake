@@ -867,7 +867,9 @@ function(CPMAddPackage)
     endif()
   endif()
 
-  cpm_create_module_file(${CPM_ARGS_NAME} "CPMAddPackage(\"${ARGN}\")")
+  if(NOT "${DOWNLOAD_ONLY}")
+    cpm_create_module_file(${CPM_ARGS_NAME} "CPMAddPackage(\"${ARGN}\")")
+  endif()
 
   if(CPM_PACKAGE_LOCK_ENABLED)
     if((CPM_ARGS_VERSION AND NOT CPM_ARGS_SOURCE_DIR) OR CPM_INCLUDE_ALL_IN_PACKAGE_LOCK)
