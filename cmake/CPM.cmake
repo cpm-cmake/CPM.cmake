@@ -188,6 +188,26 @@ if(NOT CPM_DONT_CREATE_PACKAGE_LOCK)
   )
 endif()
 
+# look for string in TAG like "latest" or "master"
+function(cpm_fetch_git_tag_from_version_description URI RESULT)
+    find_package(Git REQUIRED)
+    if(NOT GIT_EXECUTABLE)
+        return()
+    endif()
+
+    # TODO: if not tag exists in rep, revert to last checkin
+    # TODO: make it work for case of multuple URI
+    # TODO: replace tail and sed with string functions so we don't have to call bash
+    set(CMD "${GIT_EXECUTABLE} ls-remote --refs --heads --tags --sort=v:refname ${URI} | tail -1 | sed 's:.*refs/tags/::' " )
+    execute_process(
+        COMMAND bash "-c" ${CMD}
+        OUTPUT_VARIABLE OUT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    message("found latest tag: ${OUT} from ${URI}")
+    set(${RESULT} ${OUT} PARENT_SCOPE)
+endfunction()
+
 include(FetchContent)
 
 # Try to infer package name from git repository uri (path or url)
@@ -628,11 +648,6 @@ function(CPMAddPackage)
 
   # Set default values for arguments
 
-  if(NOT DEFINED CPM_ARGS_VERSION)
-    if(DEFINED CPM_ARGS_GIT_TAG)
-      cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
-    endif()
-  endif()
 
   if(CPM_ARGS_DOWNLOAD_ONLY)
     set(DOWNLOAD_ONLY ${CPM_ARGS_DOWNLOAD_ONLY})
@@ -661,6 +676,19 @@ function(CPMAddPackage)
   endif()
 
   set(CPM_SKIP_FETCH FALSE)
+
+  # if "latest" version is specified, look at repository for last tagged version
+  if(DEFINED CPM_ARGS_GIT_REPOSITORY AND DEFINED CPM_ARGS_VERSION)
+    if(${CPM_ARGS_VERSION} MATCHES "^latest$")
+        cpm_fetch_git_tag_from_version_description(${CPM_ARGS_GIT_REPOSITORY} CPM_ARGS_GIT_TAG)
+    endif()
+  endif()
+
+  if(NOT DEFINED CPM_ARGS_VERSION)
+    if(DEFINED CPM_ARGS_GIT_TAG)
+      cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
+    endif()
+  endif()
 
   if(DEFINED CPM_ARGS_GIT_TAG)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_TAG ${CPM_ARGS_GIT_TAG})
