@@ -19,11 +19,60 @@ jobs:
           sed -e "s/1.0.0-development-version/${GITHUB_REF/refs\/tags\/v}/g" \
               -e "s/CPM_HASH_SUM_PLACEHOLDER/$(sha256sum dist/CPM.cmake | cut -d' ' -f1)/" cmake/get_cpm.cmake > dist/get_cpm.cmake
 
+      - name: Tarball url
+        run: echo "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.tar.gz"
+      
+      - name: Create tarball sha256 
+        run: |
+          echo ZIP_MD5=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.zip" | openssl dgst -md5 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo ZIP_SHA1=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.zip" | openssl dgst -sha1 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo ZIP_SHA224=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.zip" | openssl dgst -sha224 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo ZIP_SHA256=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.zip" | openssl dgst -sha256 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo ZIP_SHA384=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.zip" | openssl dgst -sha384 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo ZIP_SHA512=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.zip" | openssl dgst -sha512 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo ZIP_SHA3_224=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.zip" | openssl dgst -sha3-224 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo ZIP_SHA3_256=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.zip" | openssl dgst -sha3-256 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo ZIP_SHA3_384=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.zip" | openssl dgst -sha3-384 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo ZIP_SHA3_512=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.zip" | openssl dgst -sha3-512 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo TAR_GZ_MD5=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.tar.gz" | openssl dgst -md5 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo TAR_GZ_SHA1=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.tar.gz" | openssl dgst -sha1 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo TAR_GZ_SHA224=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.tar.gz" | openssl dgst -sha224 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo TAR_GZ_SHA256=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.tar.gz" | openssl dgst -sha256 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo TAR_GZ_SHA384=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.tar.gz" | openssl dgst -sha384 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo TAR_GZ_SHA512=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.tar.gz" | openssl dgst -sha512 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo TAR_GZ_SHA3_224=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.tar.gz" | openssl dgst -sha3-224 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo TAR_GZ_SHA3_256=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.tar.gz" | openssl dgst -sha3-256 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo TAR_GZ_SHA3_384=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.tar.gz" | openssl dgst -sha3-384 | cut -d " " -f 2) >> $GITHUB_ENV
+          echo TAR_GZ_SHA3_512=$(curl -sL "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.tar.gz" | openssl dgst -sha3-512 | cut -d " " -f 2) >> $GITHUB_ENV
+      
       - name: Upload CPM.cmake to release
-        uses: svenstaro/upload-release-action@v1-release
+        uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref }}
           file: dist/*.cmake
           file_glob: true
           overwrite: true
+          body: |
+            ${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.zip :
+            MD5: `${{ env.ZIP_MD5 }}`
+            SHA1: `${{ env.ZIP_SHA1 }}`
+            SHA224: `${{ env.ZIP_SHA224 }}`
+            SHA256: `${{ env.ZIP_SHA256 }}`
+            SHA384: `${{ env.ZIP_SHA384 }}`
+            SHA512: `${{ env.ZIP_SHA512 }}`
+            SHA3-224: `${{ env.ZIP_SHA3_224 }}`
+            SHA3-256: `${{ env.ZIP_SHA3_256 }}`
+            SHA3-384: `${{ env.ZIP_SHA3_384 }}`
+            SHA3-512: `${{ env.ZIP_SHA3_512 }}`
+            ${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.tar.gz :
+            MD5: `${{ env.TAR_GZ_MD5 }}`
+            SHA1: `${{ env.TAR_GZ_SHA1 }}`
+            SHA224: `${{ env.TAR_GZ_SHA224 }}`
+            SHA256: `${{ env.TAR_GZ_SHA256 }}`
+            SHA384: `${{ env.TAR_GZ_SHA384 }}`
+            SHA512: `${{ env.TAR_GZ_SHA512 }}`
+            SHA3-224: `${{ env.TAR_GZ_SHA3_224 }}`
+            SHA3-256: `${{ env.TAR_GZ_SHA3_256 }}`
+            SHA3-384: `${{ env.TAR_GZ_SHA3_384 }}`
+            SHA3-512: `${{ env.TAR_GZ_SHA3_512 }}`
