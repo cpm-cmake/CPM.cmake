@@ -1169,6 +1169,7 @@ function(cpm_parse_option OPTION)
   else()
     math(EXPR OPTION_KEY_LENGTH "${OPTION_KEY_LENGTH}+1")
     string(SUBSTRING "${OPTION}" "${OPTION_KEY_LENGTH}" "-1" OPTION_VALUE)
+    string(STRIP "${OPTION_VALUE}" OPTION_VALUE)
   endif()
   set(OPTION_KEY
       "${OPTION_KEY}"
