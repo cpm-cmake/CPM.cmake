@@ -134,10 +134,12 @@ class Simple < IntegrationTest
         File.basename(_1, '.exe')
       }.sort
 
-      # we should end up with two executables
+      # we should end up with three executables
       # * simple - the simple example from adder
+      # * test-adding - test for adder
       # * using-adder - for this project
-      # ...and notably no test for adder, which must be disabled from the option override from above
+      # ...in contrast to update_with_option_off_and_build_with_uri_shorthand_syntax with
+      # expect adder not to be disabled, since we set `EXCLUDE_FROM_ALL NO`.
       assert_equal ['simple', 'test-adding', 'using-adder'], exes
     }
 
