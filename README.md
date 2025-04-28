@@ -65,7 +65,6 @@ Afterwards, any targets defined in the dependency can be used directly.
 
 ```cmake
 CPMAddPackage(
-  URI           # shorthand including repo, name, version and tag (see shorthand syntax)
   NAME          # The unique name of the dependency (should be the exported target's name)
   VERSION       # The minimum version of the dependency (optional, defaults to 0)
   PATCHES       # Patch files to be applied sequentially using patch and PATCH_OPTIONS (optional)
@@ -115,9 +114,10 @@ CPMAddPackage("https://example.com/my-package-1.2.3.zip#MD5=68e20f674a48be38d60e
 CPMAddPackage("https://example.com/my-package.zip@1.2.3")
 ```
 
-Additionally, the shorthand syntax can be used with the long version, using the `URI` specifier.
+Additionally, if needed, extra arguments can be provided by using the shorthand syntax with the `URI` specifier.
 ```cmake
-CPMAddPackage(URI "gh:nlohmann/json@3.9.1"
+CPMAddPackage(
+  URI "gh:nlohmann/json@3.9.1"
   OPTIONS "JSON_BuildTests OFF"
 )
 ```
