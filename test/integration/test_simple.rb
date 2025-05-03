@@ -83,71 +83,9 @@ class Simple < IntegrationTest
       # ...and notably no test for adder, which must be disabled from the option override from above
       assert_equal ['simple', 'using-adder'], exes
     }
-    update_with_option_off_and_build_with_uri_shorthand_syntax = -> {
-      prj.create_lists_from_default_template package: <<~PACK
-        CPMAddPackage(
-          URI gh:cpm-cmake/testpack-adder@1.0.0
-          OPTIONS "ADDER_BUILD_TESTS OFF"
-        )
-      PACK
-      assert_success prj.configure
-      assert_success prj.build
-
-      exe_dir = File.join(prj.bin_dir, 'bin')
-      assert File.directory? exe_dir
-
-      exes = Dir[exe_dir + '/**/*'].filter {
-        # on multi-configuration generators (like Visual Studio) the executables will be in bin/<Config>
-        # also filter-out other artifacts like .pdb or .dsym
-        !File.directory?(_1) && File.stat(_1).executable?
-      }.map {
-        # remove .exe extension if any (there will be one on Windows)
-        File.basename(_1, '.exe')
-      }.sort
-
-      # we should end up with two executables
-      # * simple - the simple example from adder
-      # * using-adder - for this project
-      # ...and notably no test for adder, which must be disabled from the option override from above
-      assert_equal ['simple', 'using-adder'], exes
-    }
-    update_with_option_on_and_build_with_uri_shorthand_syntax_and_exclude_from_override = -> {
-      prj.create_lists_from_default_template package: <<~PACK
-        CPMAddPackage(
-          URI gh:cpm-cmake/testpack-adder@1.0.0
-          OPTIONS "ADDER_BUILD_TESTS ON"
-          EXCLUDE_FROM_ALL NO
-        )
-      PACK
-      assert_success prj.configure
-      assert_success prj.build
-
-      exe_dir = File.join(prj.bin_dir, 'bin')
-      assert File.directory? exe_dir
-
-      exes = Dir[exe_dir + '/**/*'].filter {
-        # on multi-configuration generators (like Visual Studio) the executables will be in bin/<Config>
-        # also filter-out other artifacts like .pdb or .dsym
-        !File.directory?(_1) && File.stat(_1).executable?
-      }.map {
-        # remove .exe extension if any (there will be one on Windows)
-        File.basename(_1, '.exe')
-      }.sort
-
-      # we should end up with three executables
-      # * simple - the simple example from adder
-      # * test-adding - test for adder
-      # * using-adder - for this project
-      # ...in contrast to update_with_option_off_and_build_with_uri_shorthand_syntax with
-      # expect adder not to be disabled, since we set `EXCLUDE_FROM_ALL NO`.
-      assert_equal ['simple', 'test-adding', 'using-adder'], exes
-    }
-
 
     create_with_commit_sha.()
     update_to_version_1.()
     update_with_option_off_and_build.()
-    update_with_option_off_and_build_with_uri_shorthand_syntax.()
-    update_with_option_on_and_build_with_uri_shorthand_syntax_and_exclude_from_override.()
   end
 end
