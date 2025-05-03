@@ -121,7 +121,9 @@ CPMAddPackage(
 )
 ```
 
-`URI` automatically sets `EXCLUDE_FROM_ALL YES` and `SYSTEM YES`. If this is not desired, `EXCLUDE_FROM_ALL NO` and `SYSTEM NO` have to be set.
+The `URI` argument must be the first argument to `CPMAddPackage`.
+`URI` automatically sets `EXCLUDE_FROM_ALL YES` and `SYSTEM YES`.
+If this is not desired, `EXCLUDE_FROM_ALL NO` and `SYSTEM NO` can be set afterwards.
 
 After calling `CPMAddPackage`, the following variables are defined in the local scope, where `<dependency>` is the name of the dependency.
 
