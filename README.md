@@ -74,8 +74,6 @@ CPMAddPackage(
 )
 ```
 
-`URI` automatically sets `EXCLUDE_FROM_ALL YES` and `SYSTEM YES`. If this is not desired, `EXCLUDE_FROM_ALL NO` and `SYSTEM NO` have to be set.
-
 The origin may be specified by a `GIT_REPOSITORY`, but other sources, such as direct URLs, are [also supported](https://cmake.org/cmake/help/v3.11/module/ExternalProject.html#external-project-definition).
 If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a common convention for git projects.
 On the other hand, if `VERSION` hasn't been explicitly specified, CPM can automatically identify the version from the git tag in some common cases.
@@ -114,13 +112,16 @@ CPMAddPackage("https://example.com/my-package-1.2.3.zip#MD5=68e20f674a48be38d60e
 CPMAddPackage("https://example.com/my-package.zip@1.2.3")
 ```
 
-Additionally, if needed, extra arguments can be provided by using the shorthand syntax with the `URI` specifier.
+Additionally, if needed, extra arguments can be provided while using single argument syntax by using the shorthand syntax with the `URI` specifier.
+
 ```cmake
 CPMAddPackage(
   URI "gh:nlohmann/json@3.9.1"
   OPTIONS "JSON_BuildTests OFF"
 )
 ```
+
+`URI` automatically sets `EXCLUDE_FROM_ALL YES` and `SYSTEM YES`. If this is not desired, `EXCLUDE_FROM_ALL NO` and `SYSTEM NO` have to be set.
 
 After calling `CPMAddPackage`, the following variables are defined in the local scope, where `<dependency>` is the name of the dependency.
 
