@@ -215,6 +215,16 @@ endfunction()
 # We will be able to use a shorter path with very high probability, but in the (rare) event that the
 # first couple characters collide, we will check longer and longer substrings.
 function(cpm_get_shortest_hash source_cache_dir origin_hash short_hash_output_var)
+  # for compatibility with caches populated by a previous version of CPM, check if a directory using
+  # the full hash already exists
+  if(EXISTS "${source_cache_dir}/${origin_hash}")
+    set(${short_hash_output_var}
+        "${origin_hash}"
+        PARENT_SCOPE
+    )
+    return()
+  endif()
+
   foreach(len RANGE 4 40 4)
     string(SUBSTRING "${origin_hash}" 0 ${len} short_hash)
     set(hash_lock ${source_cache_dir}/${short_hash}.lock)
