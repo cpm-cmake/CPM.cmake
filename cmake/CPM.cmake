@@ -202,30 +202,26 @@ function(cpm_package_name_from_git_uri URI RESULT)
   endif()
 endfunction()
 
-
-# Find the shortest hash that can be used
-# eg, if origin_hash is cccb77ae9609d2768ed80dd42cec54f77b1f1455
-# the following files will be checked, until one is found that
-# is either empty (allowing us to assign origin_hash), or whose contents matches
-# ${origin_hash}
+# Find the shortest hash that can be used eg, if origin_hash is
+# cccb77ae9609d2768ed80dd42cec54f77b1f1455 the following files will be checked, until one is found
+# that is either empty (allowing us to assign origin_hash), or whose contents matches ${origin_hash}
 #
-# - .../cccb.hash
-# - .../cccb77ae.hash
-# - .../cccb77ae9609.hash
-# - .../cccb77ae9609d276.hash
-# etc
-# We will be able to use a shorter path with very high probability, but in the
-# (rare) event that the first couple characters collide, we will check
-# longer and longer substrings.
+# * .../cccb.hash
+# * .../cccb77ae.hash
+# * .../cccb77ae9609.hash
+# * .../cccb77ae9609d276.hash
+# * etc
+#
+# We will be able to use a shorter path with very high probability, but in the (rare) event that the
+# first couple characters collide, we will check longer and longer substrings.
 function(cpm_get_shortest_hash source_cache_dir origin_hash short_hash_output_var)
   foreach(len RANGE 4 40 4)
     string(SUBSTRING "${origin_hash}" 0 ${len} short_hash)
     set(hash_lock ${source_cache_dir}/${short_hash}.lock)
     set(hash_fp ${source_cache_dir}/${short_hash}.hash)
-    # Take a lock, so we don't have a race condition with another instance
-    # of cmake. We will release this lock when we can, however, if there
-    # is an error, we want to ensure it gets released on it's own on exit
-    # from the function.
+    # Take a lock, so we don't have a race condition with another instance of cmake. We will release
+    # this lock when we can, however, if there is an error, we want to ensure it gets released on
+    # it's own on exit from the function.
     file(LOCK ${hash_lock} GUARD FUNCTION)
 
     # Load the contents of .../${short_hash}.hash
@@ -244,9 +240,11 @@ function(cpm_get_shortest_hash source_cache_dir origin_hash short_hash_output_va
       file(LOCK ${hash_lock} RELEASE)
     endif()
   endforeach()
-  set(${short_hash_output_var} "${short_hash}" PARENT_SCOPE)
+  set(${short_hash_output_var}
+      "${short_hash}"
+      PARENT_SCOPE
+  )
 endfunction()
-
 
 # Try to infer package name and version from a url
 function(cpm_package_name_and_ver_from_url url outName outVer)
@@ -845,17 +843,17 @@ function(CPMAddPackage)
     elseif(CPM_USE_NAMED_CACHE_DIRECTORIES)
       string(SHA1 origin_hash "${origin_parameters};NEW_CACHE_STRUCTURE_TAG")
       cpm_get_shortest_hash(
-        "${CPM_SOURCE_CACHE}/${lower_case_name}"  # source cache directory
-        "${origin_hash}"                          # Input hash
-        origin_hash                               # Computed hash
+        "${CPM_SOURCE_CACHE}/${lower_case_name}" # source cache directory
+        "${origin_hash}" # Input hash
+        origin_hash # Computed hash
       )
       set(download_directory ${CPM_SOURCE_CACHE}/${lower_case_name}/${origin_hash}/${CPM_ARGS_NAME})
     else()
       string(SHA1 origin_hash "${origin_parameters}")
       cpm_get_shortest_hash(
-        "${CPM_SOURCE_CACHE}/${lower_case_name}"  # source cache directory
-        "${origin_hash}"                          # Input hash
-        origin_hash                               # Computed hash
+        "${CPM_SOURCE_CACHE}/${lower_case_name}" # source cache directory
+        "${origin_hash}" # Input hash
+        origin_hash # Computed hash
       )
       set(download_directory ${CPM_SOURCE_CACHE}/${lower_case_name}/${origin_hash})
     endif()
