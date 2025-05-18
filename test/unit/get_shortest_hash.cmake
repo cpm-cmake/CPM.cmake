@@ -13,7 +13,7 @@ string(
 # Seconds since epoch
 string(TIMESTAMP tmpdir_base "%s" UTC)
 
-set(tmp "get_shortest_hash-${tmpdir_base}-${tmpdir_suffix}")
+set(tmp "${CMAKE_CURRENT_BINARY_DIR}/get_shortest_hash-${tmpdir_base}-${tmpdir_suffix}")
 
 if(IS_DIRECTORY ${tmp})
   message(FATAL_ERROR "Test directory ${tmp} already exists")
