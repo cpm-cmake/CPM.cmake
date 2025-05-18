@@ -53,6 +53,11 @@ cpm_get_shortest_hash(${tmp} "cccb77be9609d2768ed80dd42cec54f77b1f1456" hash)
 assert_equal(${hash} "cccb77be")
 assert_contents_equal(${tmp}/cccb77be.hash cccb77be9609d2768ed80dd42cec54f77b1f1456)
 
+# check that legacy hashs are recognized
+file(MAKE_DIRECTORY "${tmp}/cccb77be9609d2768ed80dd42cec54f77b1f1457")
+cpm_get_shortest_hash(${tmp} "cccb77be9609d2768ed80dd42cec54f77b1f1457" hash)
+assert_equal(${hash} "cccb77be9609d2768ed80dd42cec54f77b1f1457")
+
 # 1. The old file should still exist, and have the same content
 assert_contents_equal(${tmp}/cccb.hash cccb77ae9609d2768ed80dd42cec54f77b1f1455)
 assert_contents_equal(${tmp}/cccb77ae.hash cccb77ae9609d2768ed80dd42cec54f77b1f1456)
