@@ -21,7 +21,7 @@ void print(const boost::system::error_code& /*e*/) {
 }
 
 int main() {
-  boost::asio::io_service io;
+  boost::asio::io_context io;
 
   strings.push_back("Hello, world!\n");
 
