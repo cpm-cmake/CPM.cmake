@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
+set(CPM_DONT_CREATE_PACKAGE_LOCK TRUE)
 include(${CPM_PATH}/CPM.cmake)
 include(${CPM_PATH}/testing.cmake)
 
@@ -40,3 +41,20 @@ set(EXPECTED_COMMENTED_LOCALDIR "#  local directory
 "
 )
 assert_equal(${PRETTY_ARGN} ${EXPECTED_COMMENTED_LOCALDIR})
+
+# cmake-format: off
+cpm_prettify_package_arguments(PRETTY_ARGN false
+  NAME Dependency
+  PATCHES
+    patches/fix.patch
+    ${CMAKE_SOURCE_DIR}/patches/absolute.patch
+)
+# cmake-format: on
+set(EXPECTED_PATCHES
+    "  NAME Dependency
+  PATCHES
+    \"\${CMAKE_SOURCE_DIR}/patches/fix.patch\"
+    \"\${CMAKE_SOURCE_DIR}/patches/absolute.patch\"
+"
+)
+assert_equal(${PRETTY_ARGN} ${EXPECTED_PATCHES})
