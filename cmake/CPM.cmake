@@ -112,6 +112,62 @@ macro(cpm_set_policies)
 endmacro()
 cpm_set_policies()
 
+macro(cpm_generate_apply_patches_script)
+  set(_cpm_patch_script "${CPM_CURRENT_DIRECTORY}/cpm_apply_patches.cmake")
+
+  file(
+    WRITE "${_cpm_patch_script}"
+    [=[
+# Auto-generated patch application script
+separate_arguments(PATCH_FILES)
+
+foreach(patch_file IN LISTS PATCH_FILES)
+  message(STATUS "Checking patch: ${patch_file}")
+
+  execute_process(
+    COMMAND "${PATCH_EXECUTABLE}" --dry-run -p1
+    INPUT_FILE "${patch_file}"
+    RESULT_VARIABLE dry_run_result
+    OUTPUT_VARIABLE dry_out
+    ERROR_VARIABLE dry_err
+  )
+
+  if(dry_run_result EQUAL 0)
+    message(STATUS "Applying patch: ${patch_file}")
+    execute_process(
+      COMMAND "${PATCH_EXECUTABLE}" -p1
+      INPUT_FILE "${patch_file}"
+      RESULT_VARIABLE apply_result
+      OUTPUT_VARIABLE apply_out
+      ERROR_VARIABLE apply_err
+    )
+    if(apply_result EQUAL 0)
+      message(STATUS "Applied patch: ${patch_file}")
+    else()
+      message(FATAL_ERROR "Patch failed: ${patch_file}\n${apply_err}")
+    endif()
+  else()
+    execute_process(
+      COMMAND "${PATCH_EXECUTABLE}" --dry-run -p1 --reverse
+      INPUT_FILE "${patch_file}"
+      RESULT_VARIABLE reverse_result
+      OUTPUT_VARIABLE reverse_out
+      ERROR_VARIABLE reverse_err
+    )
+    if(reverse_result EQUAL 0)
+      message(STATUS "Patch already applied: ${patch_file}")
+    else()
+      message(
+        FATAL_ERROR "Patch cannot be applied and is not already applied: ${patch_file}\n${dry_err}"
+      )
+    endif()
+  endif()
+endforeach()
+]=]
+  )
+endmacro()
+cpm_generate_apply_patches_script()
+
 option(CPM_USE_LOCAL_PACKAGES "Always try to use `find_package` to get dependencies"
        $ENV{CPM_USE_LOCAL_PACKAGES}
 )
@@ -541,66 +597,69 @@ endfunction()
 # then generates a `PATCH_COMMAND` appropriate for `ExternalProject_Add()`. This command is appended
 # to the parent scope's `CPM_ARGS_UNPARSED_ARGUMENTS`.
 function(cpm_add_patches)
-  # Return if no patch files are supplied.
+  # Return early if no patch files are provided
   if(NOT ARGN)
     return()
   endif()
 
-  # Find the patch program.
+  # -----------------------------------------------------------------------------------------------
+  # Locate the 'patch' executable
+  # -----------------------------------------------------------------------------------------------
   find_program(PATCH_EXECUTABLE patch)
+
   if(CMAKE_HOST_WIN32 AND NOT PATCH_EXECUTABLE)
     # The Windows git executable is distributed with patch.exe. Find the path to the executable, if
     # it exists, then search `../usr/bin` and `../../usr/bin` for patch.exe.
     find_package(Git QUIET)
     if(GIT_EXECUTABLE)
-      get_filename_component(extra_search_path ${GIT_EXECUTABLE} DIRECTORY)
-      get_filename_component(extra_search_path_1up ${extra_search_path} DIRECTORY)
-      get_filename_component(extra_search_path_2up ${extra_search_path_1up} DIRECTORY)
+      get_filename_component(_git_bin_dir "${GIT_EXECUTABLE}" DIRECTORY)
+      get_filename_component(_git_root_1up "${_git_bin_dir}" DIRECTORY)
+      get_filename_component(_git_root_2up "${_git_root_1up}" DIRECTORY)
+
       find_program(
-        PATCH_EXECUTABLE patch HINTS "${extra_search_path_1up}/usr/bin"
-                                     "${extra_search_path_2up}/usr/bin"
+        PATCH_EXECUTABLE patch HINTS "${_git_root_1up}/usr/bin" "${_git_root_2up}/usr/bin"
       )
     endif()
   endif()
+
   if(NOT PATCH_EXECUTABLE)
     message(FATAL_ERROR "Couldn't find `patch` executable to use with PATCHES keyword.")
   endif()
 
-  # Create a temporary
-  set(temp_list ${CPM_ARGS_UNPARSED_ARGUMENTS})
+  # -----------------------------------------------------------------------------------------------
+  # Resolve and validate all patch file paths
+  # -----------------------------------------------------------------------------------------------
+  set(resolved_patch_files)
 
-  # Ensure each file exists (or error out) and add it to the list.
-  set(first_item True)
-  foreach(PATCH_FILE ${ARGN})
+  foreach(PATCH_FILE IN LISTS ARGN)
     # Make sure the patch file exists, if we can't find it, try again in the current directory.
     if(NOT EXISTS "${PATCH_FILE}")
-      if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/${PATCH_FILE}")
+      set(_fallback_path "${CMAKE_CURRENT_LIST_DIR}/${PATCH_FILE}")
+      if(NOT EXISTS "${_fallback_path}")
         message(FATAL_ERROR "Couldn't find patch file: '${PATCH_FILE}'")
       endif()
-      set(PATCH_FILE "${CMAKE_CURRENT_LIST_DIR}/${PATCH_FILE}")
+      set(PATCH_FILE "${_fallback_path}")
     endif()
 
     # Convert to absolute path for use with patch file command.
     get_filename_component(PATCH_FILE "${PATCH_FILE}" ABSOLUTE)
-
-    # The first patch entry must be preceded by "PATCH_COMMAND" while the following items are
-    # preceded by "&&".
-    if(first_item)
-      set(first_item False)
-      list(APPEND temp_list "PATCH_COMMAND")
-    else()
-      list(APPEND temp_list "&&")
-    endif()
-    # Add the patch command to the list
-    list(APPEND temp_list "${PATCH_EXECUTABLE}" "-p1" "<" "${PATCH_FILE}")
+    list(APPEND resolved_patch_files "${PATCH_FILE}")
   endforeach()
 
-  # Move temp out into parent scope.
-  set(CPM_ARGS_UNPARSED_ARGUMENTS
-      ${temp_list}
-      PARENT_SCOPE
+  # -----------------------------------------------------------------------------------------------
+  # Construct the patch command
+  # -----------------------------------------------------------------------------------------------
+  string(JOIN " " joined_patch_files ${resolved_patch_files})
+
+  set(_patch_command cmake -D "PATCH_FILES=${joined_patch_files}" -D
+                     "PATCH_EXECUTABLE=${PATCH_EXECUTABLE}" -P "${_cpm_patch_script}"
   )
 
+  list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS PATCH_COMMAND ${_patch_command})
+  set(CPM_ARGS_UNPARSED_ARGUMENTS
+      "${CPM_ARGS_UNPARSED_ARGUMENTS}"
+      PARENT_SCOPE
+  )
 endfunction()
 
 # method to overwrite internal FetchContent properties, to allow using CPM.cmake to overload
