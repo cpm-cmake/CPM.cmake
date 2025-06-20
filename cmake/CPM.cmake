@@ -155,7 +155,10 @@ set(CPM_DRY_RUN
     CACHE INTERNAL "Don't download or configure dependencies (for testing)"
 )
 
-if(DEFINED ENV{CPM_SOURCE_CACHE} AND NOT DEFINED CPM_SOURCE_CACHE_DEFAULT)
+# ENV gets top priority to control CPM_SOURCE_CACHE location
+# If it is not defined, allow user to control the location with CPM_SOURCE_CACHE_DEFAULT
+# If neither are set disable CPM_SOURCE_CACHE
+if(DEFINED ENV{CPM_SOURCE_CACHE})
   set(CPM_SOURCE_CACHE_DEFAULT $ENV{CPM_SOURCE_CACHE})
 elseif(NOT DEFINED CPM_SOURCE_CACHE_DEFAULT)
   set(CPM_SOURCE_CACHE_DEFAULT OFF)
