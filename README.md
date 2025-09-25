@@ -80,6 +80,7 @@ On the other hand, if `VERSION` hasn't been explicitly specified, CPM can automa
 `GIT_TAG` can also be set to a specific commit or a branch name such as `master`, however this isn't recommended, as such packages will only be updated when the cache is cleared.
 
 `PATCHES` takes a list of patch files to apply sequentially. For a basic example, see [Highway](examples/highway/CMakeLists.txt).
+We recommend that if you use `PATCHES`, you also set `CPM_SOURCE_CACHE`. See [issue 577](https://github.com/cpm-cmake/CPM.cmake/issues/577).
 
 If an additional optional parameter `EXCLUDE_FROM_ALL` is set to a truthy value, then any targets defined inside the dependency won't be built by default. See the [CMake docs](https://cmake.org/cmake/help/latest/prop_tgt/EXCLUDE_FROM_ALL.html) for details.
 
@@ -87,7 +88,7 @@ If an additional optional parameter `SYSTEM` is set to a truthy value, the SYSTE
 See the [add_subdirectory ](https://cmake.org/cmake/help/latest/command/add_subdirectory.html?highlight=add_subdirectory)
 and [SYSTEM](https://cmake.org/cmake/help/latest/prop_tgt/SYSTEM.html#prop_tgt:SYSTEM) target property for details.
 
-A single-argument compact syntax is also supported:
+A shorthand syntax is also supported:
 
 ```cmake
 # A git package from a given uri with a version
@@ -110,6 +111,19 @@ CPMAddPackage("https://example.com/my-package-1.2.3.zip#MD5=68e20f674a48be38d60e
 # An archive package from a given url. The version is explicitly given
 CPMAddPackage("https://example.com/my-package.zip@1.2.3")
 ```
+
+Additionally, if needed, extra arguments can be provided while using single argument syntax by using the shorthand syntax with the `URI` specifier.
+
+```cmake
+CPMAddPackage(
+  URI "gh:nlohmann/json@3.9.1"
+  OPTIONS "JSON_BuildTests OFF"
+)
+```
+
+The `URI` argument must be the first argument to `CPMAddPackage`.
+`URI` automatically sets `EXCLUDE_FROM_ALL YES` and `SYSTEM YES`.
+If this is not desired, `EXCLUDE_FROM_ALL NO` and `SYSTEM NO` can be set afterwards.
 
 After calling `CPMAddPackage`, the following variables are defined in the local scope, where `<dependency>` is the name of the dependency.
 
@@ -213,6 +227,13 @@ These options can also be set as environmental variables.
 In the case that `find_package` requires additional arguments, the parameter `FIND_PACKAGE_ARGUMENTS` may be specified in the `CPMAddPackage` call. The value of this parameter will be forwarded to `find_package`.
 
 Note that this does not apply to dependencies that have been defined with a truthy `FORCE` parameter. These will be added as defined.
+
+### CPM_DONT_UPDATE_MODULE_PATH
+
+By default, CPM will override any `find_package` commands to use the CPM downloaded version.
+This is equivalent to the `OVERRIDE_FIND_PACKAGE` FetchContent option, which has no effect in CPM.
+To disable this behaviour set the `CPM_DONT_UPDATE_MODULE_PATH` option.
+This will not work for `find_package(CONFIG)` in CMake versions before 3.24.
 
 ### CPM_USE_NAMED_CACHE_DIRECTORIES
 
@@ -404,11 +425,8 @@ CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.6.3@0.6.3")
 
 ```cmake
 CPMAddPackage(
-  NAME nlohmann_json
-  VERSION 3.9.1
-  GITHUB_REPOSITORY nlohmann/json
-  OPTIONS
-    "JSON_BuildTests OFF"
+  URI "gh:nlohmann/json@3.9.1"
+  OPTIONS "JSON_BuildTests OFF"
 )
 ```
 
@@ -438,8 +456,7 @@ For a working example of using CPM to download and configure the Boost C++ Libra
 ```cmake
 # the install option has to be explicitly set to allow installation
 CPMAddPackage(
-  GITHUB_REPOSITORY jarro2783/cxxopts
-  VERSION 2.2.1
+  URI "gh:jarro2783/cxxopts@2.2.1"
   OPTIONS "CXXOPTS_BUILD_EXAMPLES NO" "CXXOPTS_BUILD_TESTS NO" "CXXOPTS_ENABLE_INSTALL YES"
 )
 ```
@@ -448,9 +465,7 @@ CPMAddPackage(
 
 ```cmake
 CPMAddPackage(
-  NAME benchmark
-  GITHUB_REPOSITORY google/benchmark
-  VERSION 1.5.2
+  URI "gh:google/benchmark@1.5.2"
   OPTIONS "BENCHMARK_ENABLE_TESTING Off"
 )
 

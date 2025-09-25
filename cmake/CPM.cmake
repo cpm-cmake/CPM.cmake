@@ -42,7 +42,11 @@ if(NOT COMMAND cpm_message)
   endfunction()
 endif()
 
-set(CURRENT_CPM_VERSION 1.0.0-development-version)
+if(DEFINED EXTRACTED_CPM_VERSION)
+  set(CURRENT_CPM_VERSION "${EXTRACTED_CPM_VERSION}${CPM_DEVELOPMENT}")
+else()
+  set(CURRENT_CPM_VERSION 1.0.0-development-version)
+endif()
 
 get_filename_component(CPM_CURRENT_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" REALPATH)
 if(CPM_DIRECTORY)
@@ -210,7 +214,7 @@ set(CPM_SOURCE_CACHE
     CACHE PATH "Directory to download CPM dependencies"
 )
 
-if(NOT CPM_DONT_UPDATE_MODULE_PATH)
+if(NOT CPM_DONT_UPDATE_MODULE_PATH AND NOT DEFINED CMAKE_FIND_PACKAGE_REDIRECTS_DIR)
   set(CPM_MODULE_PATH
       "${CMAKE_BINARY_DIR}/CPM_modules"
       CACHE INTERNAL ""
@@ -244,6 +248,60 @@ function(cpm_package_name_from_git_uri URI RESULT)
   else()
     unset(${RESULT} PARENT_SCOPE)
   endif()
+endfunction()
+
+# Find the shortest hash that can be used eg, if origin_hash is
+# cccb77ae9609d2768ed80dd42cec54f77b1f1455 the following files will be checked, until one is found
+# that is either empty (allowing us to assign origin_hash), or whose contents matches ${origin_hash}
+#
+# * .../cccb.hash
+# * .../cccb77ae.hash
+# * .../cccb77ae9609.hash
+# * .../cccb77ae9609d276.hash
+# * etc
+#
+# We will be able to use a shorter path with very high probability, but in the (rare) event that the
+# first couple characters collide, we will check longer and longer substrings.
+function(cpm_get_shortest_hash source_cache_dir origin_hash short_hash_output_var)
+  # for compatibility with caches populated by a previous version of CPM, check if a directory using
+  # the full hash already exists
+  if(EXISTS "${source_cache_dir}/${origin_hash}")
+    set(${short_hash_output_var}
+        "${origin_hash}"
+        PARENT_SCOPE
+    )
+    return()
+  endif()
+
+  foreach(len RANGE 4 40 4)
+    string(SUBSTRING "${origin_hash}" 0 ${len} short_hash)
+    set(hash_lock ${source_cache_dir}/${short_hash}.lock)
+    set(hash_fp ${source_cache_dir}/${short_hash}.hash)
+    # Take a lock, so we don't have a race condition with another instance of cmake. We will release
+    # this lock when we can, however, if there is an error, we want to ensure it gets released on
+    # it's own on exit from the function.
+    file(LOCK ${hash_lock} GUARD FUNCTION)
+
+    # Load the contents of .../${short_hash}.hash
+    file(TOUCH ${hash_fp})
+    file(READ ${hash_fp} hash_fp_contents)
+
+    if(hash_fp_contents STREQUAL "")
+      # Write the origin hash
+      file(WRITE ${hash_fp} ${origin_hash})
+      file(LOCK ${hash_lock} RELEASE)
+      break()
+    elseif(hash_fp_contents STREQUAL origin_hash)
+      file(LOCK ${hash_lock} RELEASE)
+      break()
+    else()
+      file(LOCK ${hash_lock} RELEASE)
+    endif()
+  endforeach()
+  set(${short_hash_output_var}
+      "${short_hash}"
+      PARENT_SCOPE
+  )
 endfunction()
 
 # Try to infer package name and version from a url
@@ -317,10 +375,25 @@ endfunction()
 # finding the system library
 function(cpm_create_module_file Name)
   if(NOT CPM_DONT_UPDATE_MODULE_PATH)
-    # erase any previous modules
-    file(WRITE ${CPM_MODULE_PATH}/Find${Name}.cmake
-         "include(\"${CPM_FILE}\")\n${ARGN}\nset(${Name}_FOUND TRUE)"
-    )
+    if(DEFINED CMAKE_FIND_PACKAGE_REDIRECTS_DIR)
+      # Redirect find_package calls to the CPM package. This is what FetchContent does when you set
+      # OVERRIDE_FIND_PACKAGE. The CMAKE_FIND_PACKAGE_REDIRECTS_DIR works for find_package in CONFIG
+      # mode, unlike the Find${Name}.cmake fallback. CMAKE_FIND_PACKAGE_REDIRECTS_DIR is not defined
+      # in script mode, or in CMake < 3.24.
+      # https://cmake.org/cmake/help/latest/module/FetchContent.html#fetchcontent-find-package-integration-examples
+      string(TOLOWER ${Name} NameLower)
+      file(WRITE ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR}/${NameLower}-config.cmake
+           "include(\"\${CMAKE_CURRENT_LIST_DIR}/${NameLower}-extra.cmake\" OPTIONAL)\n"
+           "include(\"\${CMAKE_CURRENT_LIST_DIR}/${Name}Extra.cmake\" OPTIONAL)\n"
+      )
+      file(WRITE ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR}/${NameLower}-config-version.cmake
+           "set(PACKAGE_VERSION_COMPATIBLE TRUE)\n" "set(PACKAGE_VERSION_EXACT TRUE)\n"
+      )
+    else()
+      file(WRITE ${CPM_MODULE_PATH}/Find${Name}.cmake
+           "include(\"${CPM_FILE}\")\n${ARGN}\nset(${Name}_FOUND TRUE)"
+      )
+    endif()
   endif()
 endfunction()
 
@@ -627,15 +700,18 @@ function(cpm_add_patches)
 
   # Find the patch program.
   find_program(PATCH_EXECUTABLE patch)
-  if(WIN32 AND NOT PATCH_EXECUTABLE)
+  if(CMAKE_HOST_WIN32 AND NOT PATCH_EXECUTABLE)
     # The Windows git executable is distributed with patch.exe. Find the path to the executable, if
-    # it exists, then search `../../usr/bin` for patch.exe.
+    # it exists, then search `../usr/bin` and `../../usr/bin` for patch.exe.
     find_package(Git QUIET)
     if(GIT_EXECUTABLE)
       get_filename_component(extra_search_path ${GIT_EXECUTABLE} DIRECTORY)
-      get_filename_component(extra_search_path ${extra_search_path} DIRECTORY)
-      get_filename_component(extra_search_path ${extra_search_path} DIRECTORY)
-      find_program(PATCH_EXECUTABLE patch HINTS "${extra_search_path}/usr/bin")
+      get_filename_component(extra_search_path_1up ${extra_search_path} DIRECTORY)
+      get_filename_component(extra_search_path_2up ${extra_search_path_1up} DIRECTORY)
+      find_program(
+        PATCH_EXECUTABLE patch HINTS "${extra_search_path_1up}/usr/bin"
+                                     "${extra_search_path_2up}/usr/bin"
+      )
     endif()
   endif()
   if(NOT PATCH_EXECUTABLE)
@@ -724,14 +800,6 @@ endfunction()
 function(CPMAddPackage)
   cpm_set_policies()
 
-  list(LENGTH ARGN argnLength)
-  if(argnLength EQUAL 1)
-    cpm_parse_add_package_single_arg("${ARGN}" ARGN)
-
-    # The shorthand syntax implies EXCLUDE_FROM_ALL and SYSTEM
-    set(ARGN "${ARGN};EXCLUDE_FROM_ALL;YES;SYSTEM;YES;")
-  endif()
-
   set(oneValueArgs
       NAME
       FORCE
@@ -763,6 +831,23 @@ function(CPMAddPackage)
   endforeach()
 
   set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND PATCHES)
+
+  list(LENGTH ARGN argnLength)
+
+  # Parse single shorthand argument
+  if(argnLength EQUAL 1)
+    cpm_parse_add_package_single_arg("${ARGN}" ARGN)
+
+    # The shorthand syntax implies EXCLUDE_FROM_ALL and SYSTEM
+    set(ARGN "${ARGN};EXCLUDE_FROM_ALL;YES;SYSTEM;YES;")
+
+    # Parse URI shorthand argument
+  elseif(argnLength GREATER 1 AND "${ARGV0}" STREQUAL "URI")
+    list(REMOVE_AT ARGN 0 1) # remove "URI gh:<...>@version#tag"
+    cpm_parse_add_package_single_arg("${ARGV1}" ARGV0)
+
+    set(ARGN "${ARGV0};EXCLUDE_FROM_ALL;YES;SYSTEM;YES;${ARGN}")
+  endif()
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
 
@@ -947,9 +1032,19 @@ function(CPMAddPackage)
       set(download_directory ${CPM_SOURCE_CACHE}/${lower_case_name}/${CPM_ARGS_CUSTOM_CACHE_KEY})
     elseif(CPM_USE_NAMED_CACHE_DIRECTORIES)
       string(SHA1 origin_hash "${origin_parameters};NEW_CACHE_STRUCTURE_TAG")
+      cpm_get_shortest_hash(
+        "${CPM_SOURCE_CACHE}/${lower_case_name}" # source cache directory
+        "${origin_hash}" # Input hash
+        origin_hash # Computed hash
+      )
       set(download_directory ${CPM_SOURCE_CACHE}/${lower_case_name}/${origin_hash}/${CPM_ARGS_NAME})
     else()
       string(SHA1 origin_hash "${origin_parameters}")
+      cpm_get_shortest_hash(
+        "${CPM_SOURCE_CACHE}/${lower_case_name}" # source cache directory
+        "${origin_hash}" # Input hash
+        origin_hash # Computed hash
+      )
       set(download_directory ${CPM_SOURCE_CACHE}/${lower_case_name}/${origin_hash})
     endif()
     # Expand `download_directory` relative path. This is important because EXISTS doesn't work for
@@ -1016,7 +1111,9 @@ function(CPMAddPackage)
     endif()
   endif()
 
-  cpm_create_module_file(${CPM_ARGS_NAME} "CPMAddPackage(\"${ARGN}\")")
+  if(NOT "${DOWNLOAD_ONLY}")
+    cpm_create_module_file(${CPM_ARGS_NAME} "CPMAddPackage(\"${ARGN}\")")
+  endif()
 
   if(CPM_PACKAGE_LOCK_ENABLED)
     if((CPM_ARGS_VERSION AND NOT CPM_ARGS_SOURCE_DIR) OR CPM_INCLUDE_ALL_IN_PACKAGE_LOCK)
@@ -1033,14 +1130,39 @@ function(CPMAddPackage)
   )
 
   if(NOT CPM_SKIP_FETCH)
+    # CMake 3.28 added EXCLUDE, SYSTEM (3.25), and SOURCE_SUBDIR (3.18) to FetchContent_Declare.
+    # Calling FetchContent_MakeAvailable will then internally forward these options to
+    # add_subdirectory. Up until these changes, we had to call FetchContent_Populate and
+    # add_subdirectory separately, which is no longer necessary and has been deprecated as of 3.30.
+    # A Bug in CMake prevents us to use the non-deprecated functions until 3.30.3.
+    set(fetchContentDeclareExtraArgs "")
+    if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.30.3")
+      if(${CPM_ARGS_EXCLUDE_FROM_ALL})
+        list(APPEND fetchContentDeclareExtraArgs EXCLUDE_FROM_ALL)
+      endif()
+      if(${CPM_ARGS_SYSTEM})
+        list(APPEND fetchContentDeclareExtraArgs SYSTEM)
+      endif()
+      if(DEFINED CPM_ARGS_SOURCE_SUBDIR)
+        list(APPEND fetchContentDeclareExtraArgs SOURCE_SUBDIR ${CPM_ARGS_SOURCE_SUBDIR})
+      endif()
+      # For CMake version <3.28 OPTIONS are parsed in cpm_add_subdirectory
+      if(CPM_ARGS_OPTIONS AND NOT DOWNLOAD_ONLY)
+        foreach(OPTION ${CPM_ARGS_OPTIONS})
+          cpm_parse_option("${OPTION}")
+          set(${OPTION_KEY} "${OPTION_VALUE}")
+        endforeach()
+      endif()
+    endif()
     cpm_declare_fetch(
-      "${CPM_ARGS_NAME}" "${CPM_ARGS_VERSION}" "${PACKAGE_INFO}" "${CPM_ARGS_UNPARSED_ARGUMENTS}"
+      "${CPM_ARGS_NAME}" ${fetchContentDeclareExtraArgs} "${CPM_ARGS_UNPARSED_ARGUMENTS}"
     )
-    cpm_fetch_package("${CPM_ARGS_NAME}" populated)
+
+    cpm_fetch_package("${CPM_ARGS_NAME}" ${DOWNLOAD_ONLY} populated ${CPM_ARGS_UNPARSED_ARGUMENTS})
     if(CPM_SOURCE_CACHE AND download_directory)
       file(LOCK ${download_directory}/../cmake.lock RELEASE)
     endif()
-    if(${populated})
+    if(${populated} AND ${CMAKE_VERSION} VERSION_LESS "3.30.3")
       cpm_add_subdirectory(
         "${CPM_ARGS_NAME}"
         "${DOWNLOAD_ONLY}"
@@ -1151,7 +1273,7 @@ function(CPMGetPackageVersion PACKAGE OUTPUT)
 endfunction()
 
 # declares a package in FetchContent_Declare
-function(cpm_declare_fetch PACKAGE VERSION INFO)
+function(cpm_declare_fetch PACKAGE)
   if(${CPM_DRY_RUN})
     cpm_message(STATUS "${CPM_INDENT} Package not declared (dry run)")
     return()
@@ -1227,7 +1349,7 @@ endfunction()
 
 # downloads a previously declared package via FetchContent and exports the variables
 # `${PACKAGE}_SOURCE_DIR` and `${PACKAGE}_BINARY_DIR` to the parent scope
-function(cpm_fetch_package PACKAGE populated)
+function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY populated)
   set(${populated}
       FALSE
       PARENT_SCOPE
@@ -1242,7 +1364,24 @@ function(cpm_fetch_package PACKAGE populated)
   string(TOLOWER "${PACKAGE}" lower_case_name)
 
   if(NOT ${lower_case_name}_POPULATED)
-    FetchContent_Populate(${PACKAGE})
+    if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.30.3")
+      if(DOWNLOAD_ONLY)
+        # MakeAvailable will call add_subdirectory internally which is not what we want when
+        # DOWNLOAD_ONLY is set. Populate will only download the dependency without adding it to the
+        # build
+        FetchContent_Populate(
+          ${PACKAGE}
+          SOURCE_DIR "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-src"
+          BINARY_DIR "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-build"
+          SUBBUILD_DIR "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-subbuild"
+          ${ARGN}
+        )
+      else()
+        FetchContent_MakeAvailable(${PACKAGE})
+      endif()
+    else()
+      FetchContent_Populate(${PACKAGE})
+    endif()
     set(${populated}
         TRUE
         PARENT_SCOPE

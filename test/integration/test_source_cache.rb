@@ -75,6 +75,17 @@ class SourceCache < IntegrationTest
     assert_equal ver, package.ver
     expected_parent_dir = File.join(@cache_dir, name.downcase)
     assert package.src_dir.start_with?(expected_parent_dir), "#{package.src_dir} must be in #{expected_parent_dir}"
-    assert_equal dir_sha1, File.basename(package.src_dir)
+
+    # The hash has been shortened by cpm_get_shortest_hash. The following
+    # should hold:
+    # - The short hash should be a prefix of the input hash
+    # - There should be a file ".../${short_hash}.hash" which matches the full hash
+    short_hash = File.basename(package.src_dir)
+    assert dir_sha1.start_with?(short_hash), "short_hash should be a prefix of dir_sha1"
+
+    # Check that the full hash is stored in the .hash file
+    hash_file = "#{package.src_dir}.hash"
+    assert File.exist?(hash_file), "Hash file #{hash_file} should exist"
+    assert_equal dir_sha1, File.read(hash_file), "Hash file should contain the full original hash"
   end
 end
