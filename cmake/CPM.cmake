@@ -197,6 +197,10 @@ function(cpm_package_name_from_git_uri URI RESULT)
         ${CMAKE_MATCH_1}
         PARENT_SCOPE
     )
+    # Also export org-prefixed variant if org can be extracted
+    if("${URI}" MATCHES "[/:]([^/:]+)/([^/:]+)(/?.git/?)?$")
+      set(${RESULT}_WITH_ORG "${CMAKE_MATCH_1}-${CMAKE_MATCH_2}" PARENT_SCOPE)
+    endif()
   else()
     unset(${RESULT} PARENT_SCOPE)
   endif()
@@ -304,7 +308,14 @@ endfunction()
 
 function(cpm_find_package NAME VERSION)
   string(REPLACE " " ";" EXTRA_ARGS "${ARGN}")
-  find_package(${NAME} ${VERSION} ${EXTRA_ARGS} QUIET)
+  find_package(${NAME} ${VERSION} ${EXTRA_ARGS} QUIET
+
+  if(NOT ${CPM_ARGS_NAME}_FOUND AND DEFINED ${CPM_ARGS_NAME}_WITH_ORG)
+    find_package(${${CPM_ARGS_NAME}_WITH_ORG} ${CPM_ARGS_VERSION} QUIET ${CPM_ARGS_FIND_PACKAGE_ARGUMENTS})
+    if(${${CPM_ARGS_NAME}_WITH_ORG}_FOUND)
+      set(${CPM_ARGS_NAME}_FOUND TRUE)
+    endif()
+  endif()
   if(${CPM_ARGS_NAME}_FOUND)
     if(DEFINED ${CPM_ARGS_NAME}_VERSION)
       set(VERSION ${${CPM_ARGS_NAME}_VERSION})
