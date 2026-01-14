@@ -16,9 +16,31 @@ endif()
 # Expand relative path. This is important if the provided path contains a tilde (~)
 get_filename_component(CPM_DOWNLOAD_LOCATION ${CPM_DOWNLOAD_LOCATION} ABSOLUTE)
 
-file(DOWNLOAD
-     https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake
-     ${CPM_DOWNLOAD_LOCATION} EXPECTED_HASH SHA256=${CPM_HASH_SUM}
+file(
+  DOWNLOAD
+  https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake
+  ${CPM_DOWNLOAD_LOCATION}
+  EXPECTED_HASH SHA256=${CPM_HASH_SUM}
+  TLS_VERIFY ON
+  STATUS DOWNLOAD_STATUS
 )
+
+list(GET DOWNLOAD_STATUS 0 DOWNLOAD_ERRCODE)
+# 35 is "SSL connect error"
+if(DOWNLOAD_ERRCODE EQUAL 35)
+  message(
+    WARNING
+      "Could not retrieve CPM.cmake at the first tentative, retrying with TLS verification turned off."
+  )
+  # On Windows TLS issues may arise
+  file(
+    DOWNLOAD
+    https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake
+    ${CPM_DOWNLOAD_LOCATION}
+    EXPECTED_HASH SHA256=${CPM_HASH_SUM}
+    TLS_VERIFY OFF
+    STATUS DOWNLOAD_STATUS
+  )
+endif()
 
 include(${CPM_DOWNLOAD_LOCATION})
