@@ -329,7 +329,7 @@ If you know others, feel free to add them here through a PR.
     <td>
       <a href="https://github.com/variar/klogg">
         <p align="center">
-          <img src="https://github.com/variar/klogg/blob/master/src/app/images/hicolor/scalable/klogg.svg" alt="klogg" width="100pt" />
+          <img src="https://raw.githubusercontent.com/variar/klogg/refs/heads/master/src/app/images/hicolor/scalable/klogg.svg" alt="klogg" width="100pt" />
         </p>
         <p align="center"><b>klogg - fast advanced log explorer</b></p>
       </a>
@@ -381,7 +381,7 @@ If you know others, feel free to add them here through a PR.
     <td>
       <a href="https://github.com/exaloop/codon">
         <p align="center">
-          <img src="https://github.com/exaloop/codon/blob/develop/docs/img/logo.png?raw=true" alt="codon" width="100pt" />
+          <img src="https://raw.githubusercontent.com/exaloop/codon/refs/heads/develop/docs/img/codon.svg" alt="codon" width="100pt" />
         </p>
         <p align="center"><b>codon - A high-performance, zero-overhead, extensible Python compiler using LLVM</b></p>
       </a>
@@ -393,6 +393,20 @@ If you know others, feel free to add them here through a PR.
         </p>
         <p align="center"><b>CRoaring - Roaring bitmaps in C (and C++), with SIMD (AVX2, AVX-512 and NEON) optimizations: used by Apache Doris, ClickHouse, and StarRocks</b></p>
       </a>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="https://github.com/wolfpld/tracy">
+        <p align="center">
+          <img src="https://raw.githubusercontent.com/wolfpld/tracy/refs/heads/master/icon/icon.svg" alt="tracy" width="100pt" />
+        </p>
+        <p align="center"><b>Tracy Profiler - A real time, nanosecond resolution, remote telemetry, hybrid frame and sampling profiler for games and other applications.</b></p>
+      </a>
+    </td>
+    <td>
+    </td>
+    <td>
     </td>
   </tr>
 </table>
