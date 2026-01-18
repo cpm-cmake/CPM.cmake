@@ -134,6 +134,8 @@ After calling `CPMAddPackage`, the following variables are defined in the local 
 
 For using CPM.cmake projects with external package managers, such as conan or vcpkg, setting the variable [`CPM_USE_LOCAL_PACKAGES`](#options) will make CPM.cmake try to add a package through `find_package` first, and add it from source if it doesn't succeed.
 
+When using `find_package`, CPM will automatically try to locate installed packages using organization-prefixed names. For example, a package specified as `gh:org/library` will first be searched as `library`, and if not found, will be searched as `org-library`. This allows installed packages to be found using their organization-qualified names to avoid naming conflicts.
+
 In rare cases, this behaviour may be desirable by default. The function `CPMFindPackage` will try to find a local dependency via CMake's `find_package` and fallback to `CPMAddPackage`, if the dependency is not found.
 
 ## Updating CPM
