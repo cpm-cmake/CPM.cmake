@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
+# This test case assumes that no cache is set
+set(CPM_SOURCE_CACHE "")
+
 include(${CPM_PATH}/CPM.cmake)
 include(${CPM_PATH}/testing.cmake)
 
@@ -11,7 +14,7 @@ cpm_declare_fetch(PACKAGE VERSION INFO EMPTY "" ANOTHER)
 
 # TEST:`cpm_declare_fetch` shall forward empty arguments
 get_property(last_FetchContent_Declare_ARGN GLOBAL PROPERTY last_FetchContent_Declare_ARGN)
-assert_equal("${last_FetchContent_Declare_ARGN}" "PACKAGE;EMPTY;;ANOTHER")
+assert_equal("${last_FetchContent_Declare_ARGN}" "PACKAGE;VERSION;INFO;EMPTY;;ANOTHER")
 
 # TEST:`CPMDeclarePackage` shall store all including empty
 CPMDeclarePackage(FOO EMPTY "" ANOTHER)

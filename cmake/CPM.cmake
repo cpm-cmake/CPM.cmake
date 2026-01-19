@@ -1360,7 +1360,7 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
       EXCLUDE_FROM_ALL
       SOURCE_SUBDIR
   )
-  
+
   set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND)
   cmake_parse_arguments(PARSE_ARGV 2 CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}")
 
