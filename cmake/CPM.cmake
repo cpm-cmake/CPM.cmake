@@ -575,7 +575,7 @@ function(cpm_add_patches)
     # Make sure the patch file exists, if we can't find it, try again in the current directory.
     if(NOT EXISTS "${PATCH_FILE}")
       if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/${PATCH_FILE}")
-        message(FATAL_ERROR "Couldn't find patch file: '${PATCH_FILE}'")
+        message(FATAL_ERROR "Couldn't find patch file: '${CMAKE_CURRENT_LIST_DIR}/${PATCH_FILE}'")
       endif()
       set(PATCH_FILE "${CMAKE_CURRENT_LIST_DIR}/${PATCH_FILE}")
     endif()
@@ -644,8 +644,50 @@ function(cpm_override_fetchcontent contentName)
   set_property(GLOBAL PROPERTY ${propertyName} TRUE)
 endfunction()
 
+macro(cpm_cmake_eval)
+  set(__CPM_ARGN "SET(CMAKE_CURRENT_LIST_DIR ${CMAKE_CURRENT_LIST_DIR})\n${ARGN}")
+  if(COMMAND cmake_language)
+    # ensure that the `CMAKE_CURRENT_LIST_DIR` is correctly set inside the call
+    cmake_language(EVAL CODE "${__CPM_ARGN}")
+  else()
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/eval.cmake "${__CPM_ARGN}")
+    include(${CMAKE_CURRENT_BINARY_DIR}/eval.cmake)
+  endif()
+endmacro()
+
 # Download and add a package from source
-function(CPMAddPackage)
+macro(CPMAddPackage)
+  set(__CPM_ARGN "${ARGN}")
+  list(LENGTH __CPM_ARGN __CPM_ARGN_Length)
+  if(__CPM_ARGN_Length EQUAL 1)
+    cpm_add_package_single_arg(${ARGN})
+  else()
+    # Forward preserving empty string arguments
+    # (https://gitlab.kitware.com/cmake/cmake/-/merge_requests/4729)
+    set(__CPM_ARGN_Quoted)
+    foreach(__CPM_ARG IN LISTS __CPM_ARGN)
+      string(APPEND __CPM_ARGN_Quoted " [==[${__CPM_ARG}]==]")
+    endforeach()
+    cpm_cmake_eval("cpm_add_package_multi_arg( ${__CPM_ARGN_Quoted} )")
+  endif()
+endmacro()
+
+macro(cpm_add_package_single_arg arg)
+  cpm_set_policies()
+  cpm_parse_add_package_single_arg("${arg}" __ARGN_multi)
+
+  # The shorthand syntax implies EXCLUDE_FROM_ALL
+  # cmake-format: off
+  list(APPEND __ARGN_multi
+    EXCLUDE_FROM_ALL YES
+    SYSTEM YES
+  )
+  # cmake-format: on
+
+  cpm_add_package_multi_arg(${__ARGN_multi}) # Forward function arguments to CPMAddPackage()
+endmacro()
+
+function(cpm_add_package_multi_arg)
   cpm_set_policies()
 
   set(oneValueArgs
@@ -687,7 +729,7 @@ function(CPMAddPackage)
     set(ARGN "${ARGV0};EXCLUDE_FROM_ALL;YES;SYSTEM;YES;${ARGN}")
   endif()
 
-  cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
+  cmake_parse_arguments(PARSE_ARGV 0 CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}")
 
   # Set default values for arguments
   if(NOT DEFINED CPM_ARGS_VERSION)
@@ -1107,7 +1149,13 @@ function(cpm_declare_fetch PACKAGE)
     return()
   endif()
 
-  FetchContent_Declare(${PACKAGE} ${ARGN})
+  # Forward preserving empty string arguments
+  # (https://gitlab.kitware.com/cmake/cmake/-/merge_requests/4729)
+  set(__argsQuoted)
+  foreach(__item IN LISTS ARGN)
+    string(APPEND __argsQuoted " [==[${__item}]==]")
+  endforeach()
+  cpm_cmake_eval("FetchContent_Declare(${PACKAGE} ${__argsQuoted} )")
 endfunction()
 
 # returns properties for a package previously defined by cpm_declare_fetch
@@ -1313,8 +1361,9 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
       EXCLUDE_FROM_ALL
       SOURCE_SUBDIR
   )
+
   set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND)
-  cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(PARSE_ARGV 2 CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}")
 
   foreach(oneArgName ${oneValueArgs})
     if(DEFINED CPM_ARGS_${oneArgName})
