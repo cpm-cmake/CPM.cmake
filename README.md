@@ -37,7 +37,7 @@ include(cmake/CPM.cmake)
 
 CPMAddPackage("gh:fmtlib/fmt#7.1.3")
 CPMAddPackage("gh:nlohmann/json@3.10.5")
-CPMAddPackage("gh:catchorg/Catch2@3.2.1")
+CPMAddPackage("gh:catchorg/Catch2@3.4.0")
 
 # link dependencies
 target_link_libraries(main fmt::fmt nlohmann_json::nlohmann_json Catch2::Catch2WithMain)
@@ -67,6 +67,7 @@ Afterwards, any targets defined in the dependency can be used directly.
 CPMAddPackage(
   NAME          # The unique name of the dependency (should be the exported target's name)
   VERSION       # The minimum version of the dependency (optional, defaults to 0)
+  PATCHES       # Patch files to be applied sequentially using patch and PATCH_OPTIONS (optional)
   OPTIONS       # Configuration options passed to the dependency (optional)
   DOWNLOAD_ONLY # If set, the project is downloaded, but not configured (optional)
   [...]         # Origin parameters forwarded to FetchContent_Declare, see below
@@ -78,13 +79,16 @@ If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a com
 On the other hand, if `VERSION` hasn't been explicitly specified, CPM can automatically identify the version from the git tag in some common cases.
 `GIT_TAG` can also be set to a specific commit or a branch name such as `master`, however this isn't recommended, as such packages will only be updated when the cache is cleared.
 
+`PATCHES` takes a list of patch files to apply sequentially. For a basic example, see [Highway](examples/highway/CMakeLists.txt).
+We recommend that if you use `PATCHES`, you also set `CPM_SOURCE_CACHE`. See [issue 577](https://github.com/cpm-cmake/CPM.cmake/issues/577).
+
 If an additional optional parameter `EXCLUDE_FROM_ALL` is set to a truthy value, then any targets defined inside the dependency won't be built by default. See the [CMake docs](https://cmake.org/cmake/help/latest/prop_tgt/EXCLUDE_FROM_ALL.html) for details.
 
 If an additional optional parameter `SYSTEM` is set to a truthy value, the SYSTEM directory property of the subdirectory added will be set to true.
 See the [add_subdirectory ](https://cmake.org/cmake/help/latest/command/add_subdirectory.html?highlight=add_subdirectory)
 and [SYSTEM](https://cmake.org/cmake/help/latest/prop_tgt/SYSTEM.html#prop_tgt:SYSTEM) target property for details.
 
-A single-argument compact syntax is also supported:
+A shorthand syntax is also supported:
 
 ```cmake
 # A git package from a given uri with a version
@@ -107,6 +111,19 @@ CPMAddPackage("https://example.com/my-package-1.2.3.zip#MD5=68e20f674a48be38d60e
 # An archive package from a given url. The version is explicitly given
 CPMAddPackage("https://example.com/my-package.zip@1.2.3")
 ```
+
+Additionally, if needed, extra arguments can be provided while using single argument syntax by using the shorthand syntax with the `URI` specifier.
+
+```cmake
+CPMAddPackage(
+  URI "gh:nlohmann/json@3.9.1"
+  OPTIONS "JSON_BuildTests OFF"
+)
+```
+
+The `URI` argument must be the first argument to `CPMAddPackage`.
+`URI` automatically sets `EXCLUDE_FROM_ALL YES` and `SYSTEM YES`.
+If this is not desired, `EXCLUDE_FROM_ALL NO` and `SYSTEM NO` can be set afterwards.
 
 After calling `CPMAddPackage`, the following variables are defined in the local scope, where `<dependency>` is the name of the dependency.
 
@@ -142,6 +159,7 @@ Dependencies using CPM will automatically use the updated script of the outermos
 - **Some CMake policies set to `NEW`** Including CPM.cmake will lead to several CMake policies being set to `NEW`. Users which need the old behavior will need to manually modify their CMake code to ensure they're set to `OLD` at the appropriate places. The policies are:
     - [CMP0077](https://cmake.org/cmake/help/latest/policy/CMP0077.html) and [CMP0126](https://cmake.org/cmake/help/latest/policy/CMP0126.html). They make setting package options from `CMPAddPackage` possible.
     - [CMP0135](https://cmake.org/cmake/help/latest/policy/CMP0135.html) It allows for proper package rebuilds of packages which are archives, source cache is not used, and the package URL is changed to an older version.
+    - [CMP0150](https://cmake.org/cmake/help/latest/policy/CMP0150.html) Relative paths provided to `GIT_REPOSITORY` are treated as relative to the parent project's remote.
 
 For projects with more complex needs and where an extra setup step doesn't matter, it may be worth to check out an external C++ package manager such as [vcpkg](https://github.com/microsoft/vcpkg), [conan](https://conan.io) or [hunter](https://github.com/ruslo/hunter).
 Dependencies added with `CPMFindPackage` should work with external package managers.
@@ -189,6 +207,9 @@ Note that passing the variable as a configure option to CMake will always overri
 
 You can use `CPM_SOURCE_CACHE` on GitHub Actions workflows [cache](https://github.com/actions/cache) and combine it with ccache, to make your CI faster. See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Caching-with-CPM.cmake-and-ccache-on-GitHub-Actions) for more info.
 
+The directory where the version for a project is stored is by default the hash of the arguments to `CPMAddPackage()`.
+If for instance the patch command uses external files, the directory name can be set with the argument `CUSTOM_CACHE_KEY`.
+
 ### CPM_DOWNLOAD_ALL
 
 If set, CPM will forward all calls to `CPMFindPackage` as `CPMAddPackage`.
@@ -206,6 +227,13 @@ These options can also be set as environmental variables.
 In the case that `find_package` requires additional arguments, the parameter `FIND_PACKAGE_ARGUMENTS` may be specified in the `CPMAddPackage` call. The value of this parameter will be forwarded to `find_package`.
 
 Note that this does not apply to dependencies that have been defined with a truthy `FORCE` parameter. These will be added as defined.
+
+### CPM_DONT_UPDATE_MODULE_PATH
+
+By default, CPM will override any `find_package` commands to use the CPM downloaded version.
+This is equivalent to the `OVERRIDE_FIND_PACKAGE` FetchContent option, which has no effect in CPM.
+To disable this behaviour set the `CPM_DONT_UPDATE_MODULE_PATH` option.
+This will not work for `find_package(CONFIG)` in CMake versions before 3.24.
 
 ### CPM_USE_NAMED_CACHE_DIRECTORIES
 
@@ -301,7 +329,7 @@ If you know others, feel free to add them here through a PR.
     <td>
       <a href="https://github.com/variar/klogg">
         <p align="center">
-          <img src="https://github.com/variar/klogg/blob/master/src/app/images/hicolor/scalable/klogg.svg" alt="klogg" width="100pt" />
+          <img src="https://raw.githubusercontent.com/variar/klogg/refs/heads/master/src/app/images/hicolor/scalable/klogg.svg" alt="klogg" width="100pt" />
         </p>
         <p align="center"><b>klogg - fast advanced log explorer</b></p>
       </a>
@@ -341,6 +369,46 @@ If you know others, feel free to add them here through a PR.
       </a>
     </td>
   </tr>
+  <tr>
+    <td>
+      <a href="https://github.com/ada-url/ada">
+        <p align="center">
+          <img src="https://avatars.githubusercontent.com/u/120840559?s=200&v=4" alt="ada" width="100pt" />
+        </p>
+        <p align="center"><b>ada - WHATWG-compliant and fast URL parser written in modern C++</b></p>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/exaloop/codon">
+        <p align="center">
+          <img src="https://raw.githubusercontent.com/exaloop/codon/refs/heads/develop/docs/img/codon.svg" alt="codon" width="100pt" />
+        </p>
+        <p align="center"><b>codon - A high-performance, zero-overhead, extensible Python compiler using LLVM</b></p>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/RoaringBitmap/CRoaring">
+        <p align="center">
+          <img src="https://avatars.githubusercontent.com/u/16548876?s=200&v=4" alt="CRoaring" width="100pt" />
+        </p>
+        <p align="center"><b>CRoaring - Roaring bitmaps in C (and C++), with SIMD (AVX2, AVX-512 and NEON) optimizations: used by Apache Doris, ClickHouse, and StarRocks</b></p>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="https://github.com/wolfpld/tracy">
+        <p align="center">
+          <img src="https://raw.githubusercontent.com/wolfpld/tracy/refs/heads/master/icon/icon.svg" alt="tracy" width="100pt" />
+        </p>
+        <p align="center"><b>Tracy Profiler - A real time, nanosecond resolution, remote telemetry, hybrid frame and sampling profiler for games and other applications.</b></p>
+      </a>
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+  </tr>
 </table>
 
 ## Snippets
@@ -371,34 +439,38 @@ CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.6.3@0.6.3")
 
 ```cmake
 CPMAddPackage(
-  NAME nlohmann_json
-  VERSION 3.9.1
-  GITHUB_REPOSITORY nlohmann/json
-  OPTIONS
-    "JSON_BuildTests OFF"
+  URI "gh:nlohmann/json@3.9.1"
+  OPTIONS "JSON_BuildTests OFF"
 )
 ```
 
-### [Boost ](https://github.com/boostorg/boost)
+### [Boost](https://github.com/boostorg/boost)
+
+Boost is a large project and will take a while to download. Using
+`CPM_SOURCE_CACHE` is strongly recommended. Cloning moves much more
+data than a source archive, so this sample will use a compressed
+source archive (tar.xz) release from Boost's github page.
 
 ```CMake
-# boost is a huge project and will take a while to download
-# using `CPM_SOURCE_CACHE` is strongly recommended
+# boost is a huge project and directly downloading the 'alternate release'
+# from github is much faster than recursively cloning the repo.
 CPMAddPackage(
   NAME Boost
-  VERSION 1.81.0
-  GITHUB_REPOSITORY "boostorg/boost"
-  GIT_TAG "boost-1.81.0"
+  VERSION 1.84.0
+  URL https://github.com/boostorg/boost/releases/download/boost-1.84.0/boost-1.84.0.tar.xz
+  URL_HASH SHA256=2e64e5d79a738d0fa6fb546c6e5c2bd28f88d268a2a080546f74e5ff98f29d0e
+  OPTIONS "BOOST_ENABLE_CMAKE ON"
 )
 ```
+
+For a working example of using CPM to download and configure the Boost C++ Libraries see [here](examples/boost).
 
 ### [cxxopts](https://github.com/jarro2783/cxxopts)
 
 ```cmake
 # the install option has to be explicitly set to allow installation
 CPMAddPackage(
-  GITHUB_REPOSITORY jarro2783/cxxopts
-  VERSION 2.2.1
+  URI "gh:jarro2783/cxxopts@2.2.1"
   OPTIONS "CXXOPTS_BUILD_EXAMPLES NO" "CXXOPTS_BUILD_TESTS NO" "CXXOPTS_ENABLE_INSTALL YES"
 )
 ```
@@ -407,9 +479,7 @@ CPMAddPackage(
 
 ```cmake
 CPMAddPackage(
-  NAME benchmark
-  GITHUB_REPOSITORY google/benchmark
-  VERSION 1.5.2
+  URI "gh:google/benchmark@1.5.2"
   OPTIONS "BENCHMARK_ENABLE_TESTING Off"
 )
 
@@ -448,3 +518,85 @@ For a full example on using CPM to download and configure lua with sol2 see [her
 ### Full Examples
 
 See the [examples directory](https://github.com/cpm-cmake/CPM.cmake/tree/master/examples) for full examples with source code and check out the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets) for many more example snippets.
+
+## Source Archives from GitHub
+
+Using a compressed source archive is usually much faster than a shallow
+clone. Optionally, you can verify the integrity using
+[SHA256](https://en.wikipedia.org/wiki/SHA-2) or similar. Setting the hash is useful to ensure a
+specific source is imported, especially since tags, branches, and
+archives can change.
+
+Let's look at adding [spdlog](https://github.com/gabime/spdlog) to a project:
+
+```cmake
+CPMAddPackage(
+  NAME     spdlog
+  URL      https://github.com/gabime/spdlog/archive/refs/tags/v1.12.0.zip
+  URL_HASH SHA256=6174bf8885287422a6c6a0312eb8a30e8d22bcfcee7c48a6d02d1835d7769232
+)
+```
+
+URL_HASH is optional, but it's a good idea for releases.
+
+
+### Identifying the URL
+
+Information for determining the URL is found
+[here](https://docs.github.com/en/repositories/working-with-files/using-files/downloading-source-code-archives#source-code-archive-urls).
+
+
+#### Release
+
+Not every software package provides releases, but for those that do,
+they can be found on the release page of the project. In a browser,
+the URL of the specific release is determined in a browser is
+determined by right clicking and selecting `Copy link address` (or
+similar) for the desired release. This is the value you will use in
+the URL section.
+
+This is the URL for spdlog release 1.13.0 in zip format:
+`https://github.com/gabime/spdlog/archive/refs/tags/v1.13.0.zip`
+
+
+#### Branch
+
+The URL for branches is non-obvious from a browser. But it's still fairly easy to figure it out. The format is as follows:
+
+`https://github.com/<user>/<name>/archive/refs/heads/<branch-name>.<archive-type>`
+
+Archive type can be one of `tar.gz` or `zip`.
+
+The URL for branch `v2.x` of spdlog is:
+`https://github.com/gabime/spdlog/archive/refs/heads/v2.x.tar.gz`
+
+
+#### Tag
+
+Tags are similar, but with this format:
+
+`https://github.com/<user>/<name>/archive/refs/tags/<tag-name>.<archive-type>`
+
+Tag `v1.8.5` of spdlog is this:
+
+`https://github.com/gabime/spdlog/archive/refs/tags/v1.8.5.tar.gz`
+
+Exactly like the release.
+
+
+#### Commit
+
+If a specific commit contains the code you need, it's defined as follows:
+
+`https://github.com/<user>/<name>/archive/<commit-hash>.<archive-type>`
+
+Example:
+`https://github.com/gabime/spdlog/archive/c1569a3d293a6b511ecb9c18b2298826c9578d9f.tar.gz`
+
+
+### Determining the Hash
+
+The following snippet illustrates determining the SHA256 hash on a linux machine using `wget` and `sha256sum`:
+```bash
+wget https://github.com/gabime/spdlog/archive/refs/tags/v1.13.0.zip -O - | sha256sum
+```

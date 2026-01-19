@@ -137,3 +137,19 @@ execute_process(
 
 assert_equal(${ret} "0")
 assert_not_exists("${CPM_SOURCE_CACHE_DIR}/fibonacci")
+
+# Use custom cache directory
+
+set(FIBONACCI_PACKAGE_ARGS
+    "CUSTOM_CACHE_KEY my_custom_unique_dir GIT_TAG e9ebf168ca0fffaa4ef8c6fefc6346aaa22f6ed5"
+)
+set(FIBONACCI_VERSION 1.1)
+update_cmake_lists()
+
+execute_process(
+  COMMAND ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND}
+          "-S${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}" RESULT_VARIABLE ret
+)
+
+assert_equal(${ret} "0")
+assert_exists("${CPM_SOURCE_CACHE_DIR}/fibonacci/my_custom_unique_dir")
