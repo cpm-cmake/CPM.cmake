@@ -373,11 +373,31 @@ function(CPMFindPackage)
     return()
   endif()
 
-  cpm_find_package(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" ${CPM_ARGS_FIND_PACKAGE_ARGUMENTS})
+  if(${CPM_USE_LOCAL_PACKAGES})
+    cpm_find_package(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" ${CPM_ARGS_FIND_PACKAGE_ARGUMENTS})
 
-  if(NOT CPM_PACKAGE_FOUND)
-    CPMAddPackage(${ARGN})
+    if(CPM_PACKAGE_FOUND)
+      cpm_export_variables(${CPM_ARGS_NAME})
+      return()
+    else()
+      string(replace " " ";" EDITED_CPM_ARGS_FIND_PACKAGE_ARGUMENTS
+                     "${CPM_ARGS_FIND_PACKAGE_ARGUMENTS}"
+      )
+      message(
+        warning
+          "${CPM_INDENT} ${CPM_ARGS_NAME} not found via find_package(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} ${EDITED_CPM_ARGS_FIND_PACKAGE_ARGUMENTS}). The warning emitted bacause cpm_use_local_packages is set to \"${CPM_USE_LOCAL_PACKAGES}\" . Falling back to downloading the package."
+      )
+      CPMAddPackage(${ARGN})
+      cpm_export_variables(${CPM_ARGS_NAME})
+    endif()
+  endif()
+
+  if(${CPM_LOCAL_PACKAGES_ONLY})
+    cpm_find_package(
+      ${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" REQUIRED ${CPM_ARGS_FIND_PACKAGE_ARGUMENTS}
+    )
     cpm_export_variables(${CPM_ARGS_NAME})
+    return()
   endif()
 
 endfunction()
@@ -606,7 +626,8 @@ endfunction()
 # method to overwrite internal FetchContent properties, to allow using CPM.cmake to overload
 # FetchContent calls. As these are internal cmake properties, this method should be used carefully
 # and may need modification in future CMake versions. Source:
-# https://github.com/Kitware/CMake/blob/dc3d0b5a0a7d26d43d6cfeb511e224533b5d188f/Modules/FetchContent.cmake#L1152
+# https://github.com/Kitware/CMake/blob/dc3d0b5a0a7d26d43d6cfeb511e224533b5d188f/Modules/FetchContent.cmake
+# #L1152
 function(cpm_override_fetchcontent contentName)
   cmake_parse_arguments(PARSE_ARGV 1 arg "" "SOURCE_DIR;BINARY_DIR" "")
   if(NOT "${arg_UNPARSED_ARGUMENTS}" STREQUAL "")
@@ -797,20 +818,29 @@ function(CPMAddPackage)
   endif()
 
   if(NOT CPM_ARGS_FORCE)
-    if(CPM_USE_LOCAL_PACKAGES OR CPM_LOCAL_PACKAGES_ONLY)
+    if(${CPM_USE_LOCAL_PACKAGES})
       cpm_find_package(${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" ${CPM_ARGS_FIND_PACKAGE_ARGUMENTS})
 
       if(CPM_PACKAGE_FOUND)
         cpm_export_variables(${CPM_ARGS_NAME})
         return()
-      endif()
-
-      if(CPM_LOCAL_PACKAGES_ONLY)
+      else()
+        string(replace " " ";" EDITED_CPM_ARGS_FIND_PACKAGE_ARGUMENTS
+                       "${CPM_ARGS_FIND_PACKAGE_ARGUMENTS}"
+        )
         message(
-          SEND_ERROR
-            "${CPM_INDENT} ${CPM_ARGS_NAME} not found via find_package(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION})"
+          warning
+            "${CPM_INDENT} ${CPM_ARGS_NAME} not found via find_package(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} ${EDITED_CPM_ARGS_FIND_PACKAGE_ARGUMENTS}). The warning emitted bacause CPM_USE_LOCAL_PACKAGES is set to \"${CPM_USE_LOCAL_PACKAGES}\" . Falling back to downloading the package."
         )
       endif()
+    endif()
+    if(${CPM_LOCAL_PACKAGES_ONLY})
+      cpm_find_package(
+        ${CPM_ARGS_NAME} "${CPM_ARGS_VERSION}" REQUIRED ${CPM_ARGS_FIND_PACKAGE_ARGUMENTS}
+      )
+
+      cpm_export_variables(${CPM_ARGS_NAME})
+      return()
     endif()
   endif()
 
@@ -1159,7 +1189,7 @@ function(
       list(APPEND addSubdirectoryExtraArgs EXCLUDE_FROM_ALL)
     endif()
     if("${SYSTEM}" AND "${CMAKE_VERSION}" VERSION_GREATER_EQUAL "3.25")
-      # https://cmake.org/cmake/help/latest/prop_dir/SYSTEM.html#prop_dir:SYSTEM
+      # https://cmake.org/cmake/help/latest/prop_dir/SYSTEM.html #prop_dir:SYSTEM
       list(APPEND addSubdirectoryExtraArgs SYSTEM)
     endif()
     if(OPTIONS)
