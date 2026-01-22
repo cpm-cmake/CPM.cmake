@@ -766,6 +766,12 @@ function(CPMAddPackage)
     return()
   endif()
 
+  # @TODO Allow this as from a user-extension point for locating package source e.g. Check for ENV
+  # overide for local package-source
+  if(NOT DEFINED CPM_${CPM_ARGS_NAME}_SOURCE AND DEFINED ENV{CPM_${CPM_ARGS_NAME}_SOURCE})
+    file(TO_CMAKE_PATH $ENV{CPM_${CPM_ARGS_NAME}_SOURCE} CPM_${CPM_ARGS_NAME}_SOURCE)
+  endif()
+
   # Check for manual overrides
   if(NOT CPM_ARGS_FORCE AND NOT "${CPM_${CPM_ARGS_NAME}_SOURCE}" STREQUAL "")
     set(PACKAGE_SOURCE ${CPM_${CPM_ARGS_NAME}_SOURCE})
