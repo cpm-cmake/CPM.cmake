@@ -21,6 +21,7 @@ parse:
         FIND_PACKAGE_ARGUMENTS: 1
         NO_CACHE: 1
         GIT_SHALLOW: 1
+        GIT_SUBMODULES: 1
         URL: 1
         URL_HASH: 1
         URL_MD5: 1
