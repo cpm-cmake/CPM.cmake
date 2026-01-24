@@ -663,6 +663,7 @@ function(CPMAddPackage)
       NO_CACHE
       SYSTEM
       GIT_SHALLOW
+      GIT_SUBMODULES
       EXCLUDE_FROM_ALL
       SOURCE_SUBDIR
       CUSTOM_CACHE_KEY
@@ -688,6 +689,21 @@ function(CPMAddPackage)
   endif()
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
+
+  set(NO_SUBMODULES FALSE)
+  list(FIND ARGN GIT_SUBMODULES _git_submodules_index)
+  if(NOT _git_submodules_index EQUAL -1)
+    if(DEFINED CPM_ARGS_GIT_SUBMODULES)
+      list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_SUBMODULES ${CPM_ARGS_GIT_SUBMODULES})
+    else()
+      # cmake's FetchContent function will skip initializing submodules if GIT_SUBMODULES is set to
+      # "". CPM has issues passing a variable when it has a value  of "" (when lists are made/copied
+      # variables in them with a value of "" are considered NOT DEFINED). To work around this, we
+      # set NO_SUBMODULES to TRUE here and have it later tell the FetchContent call to set
+      # GIT_SUBMODULES to "".
+      set(NO_SUBMODULES TRUE)
+    endif()
+  endif()
 
   # Set default values for arguments
   if(NOT DEFINED CPM_ARGS_VERSION)
@@ -983,7 +999,8 @@ function(CPMAddPackage)
       endif()
     endif()
     cpm_declare_fetch(
-      "${CPM_ARGS_NAME}" ${fetchContentDeclareExtraArgs} "${CPM_ARGS_UNPARSED_ARGUMENTS}"
+      "${CPM_ARGS_NAME}" ${NO_SUBMODULES} ${fetchContentDeclareExtraArgs}
+      "${CPM_ARGS_UNPARSED_ARGUMENTS}"
     )
 
     cpm_fetch_package("${CPM_ARGS_NAME}" ${DOWNLOAD_ONLY} populated ${CPM_ARGS_UNPARSED_ARGUMENTS})
@@ -1101,13 +1118,22 @@ function(CPMGetPackageVersion PACKAGE OUTPUT)
 endfunction()
 
 # declares a package in FetchContent_Declare
-function(cpm_declare_fetch PACKAGE)
+function(cpm_declare_fetch PACKAGE NO_SUBMODULES)
   if(${CPM_DRY_RUN})
     cpm_message(STATUS "${CPM_INDENT} Package not declared (dry run)")
     return()
   endif()
 
-  FetchContent_Declare(${PACKAGE} ${ARGN})
+  if(${NO_SUBMODULES})
+    cpm_message(STATUS "${CPM_INDENT} ${PACKAGE}: Not cloning submodules")
+    FetchContent_Declare(
+      ${PACKAGE}
+      ${ARGN}
+      GIT_SUBMODULES ""
+    )
+  else()
+    FetchContent_Declare(${PACKAGE} ${ARGN})
+  endif()
 endfunction()
 
 # returns properties for a package previously defined by cpm_declare_fetch
