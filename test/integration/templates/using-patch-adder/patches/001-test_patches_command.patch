@@ -1,0 +1,12 @@
+diff --git a/code/adder/adder.hpp b/code/adder/adder.hpp
+index fdb9324..7c2fa00 100644
+--- a/code/adder/adder.hpp
++++ b/code/adder/adder.hpp
+@@ -1,6 +1,6 @@
+ #pragma once
+ 
+-namespace adder
++namespace patched
+ {
+ int add(int a, int b);
+ }

@@ -1,0 +1,28 @@
+Common subdirectories: a/.bcr and b/.bcr
+Common subdirectories: a/.github and b/.github
+diff -u a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt	2024-05-21 12:50:37.738318520 -0500
++++ b/CMakeLists.txt	2024-05-21 12:49:59.914226871 -0500
+@@ -350,7 +350,7 @@
+ target_compile_options(hwy PRIVATE ${HWY_FLAGS})
+ set_property(TARGET hwy PROPERTY POSITION_INDEPENDENT_CODE ON)
+ set_target_properties(hwy PROPERTIES VERSION ${LIBRARY_VERSION} SOVERSION ${LIBRARY_SOVERSION})
+-target_include_directories(hwy PUBLIC
++target_include_directories(hwy SYSTEM PUBLIC
+     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+ target_compile_features(hwy PUBLIC cxx_std_11)
+@@ -370,7 +370,7 @@
+ target_compile_options(hwy_contrib PRIVATE ${HWY_FLAGS})
+ set_property(TARGET hwy_contrib PROPERTY POSITION_INDEPENDENT_CODE ON)
+ set_target_properties(hwy_contrib PROPERTIES VERSION ${LIBRARY_VERSION} SOVERSION ${LIBRARY_SOVERSION})
+-target_include_directories(hwy_contrib PUBLIC
++target_include_directories(hwy_contrib SYSTEM PUBLIC
+     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+ target_compile_features(hwy_contrib PUBLIC cxx_std_11)
+Common subdirectories: a/cmake and b/cmake
+Common subdirectories: a/debian and b/debian
+Common subdirectories: a/docs and b/docs
+Common subdirectories: a/g3doc and b/g3doc
+Common subdirectories: a/hwy and b/hwy

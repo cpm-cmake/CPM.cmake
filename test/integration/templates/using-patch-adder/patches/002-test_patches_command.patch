@@ -1,0 +1,12 @@
+diff --git a/code/adder/adder.cpp b/code/adder/adder.cpp
+index fc6e767..44b1197 100644
+--- a/code/adder/adder.cpp
++++ b/code/adder/adder.cpp
+@@ -1,6 +1,6 @@
+ #include "adder.hpp"
+ 
+-namespace adder
++namespace patched
+ {
+ int add(int a, int b)
+ {

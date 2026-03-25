@@ -9,7 +9,7 @@ include(../../cmake/CPM.cmake)
 CPMAddPackage("gh:gabime/spdlog@1.8.2")
 
 # spdlog uses fmt and bundles that dependency. If you want to use fmt in your project as well, you
-# can let spdlog re-use fmt from CPM.cmake like this:
+# can let spdlog reuse fmt from CPM.cmake like this:
 #
 # cmake-format: off
 #

@@ -9,8 +9,7 @@ include(../../cmake/CPM.cmake)
 CPMAddPackage(
   NAME EnTT
   VERSION 3.1.1
-  GITHUB_REPOSITORY skypjack/entt
-  # EnTT's CMakeLists screws with configuration options
+  GITHUB_REPOSITORY skypjack/entt # EnTT's CMakeLists screws with configuration options
   DOWNLOAD_ONLY True
 )
 
