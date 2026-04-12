@@ -42,8 +42,13 @@ if(NOT COMMAND cpm_message)
   endfunction()
 endif()
 
+get_filename_component(CURRENT_FILENAME_PATH "${CMAKE_CURRENT_LIST_FILE}" DIRECTORY)
+set(CPM_CMAKE_DIRECTORY "${CURRENT_FILENAME_PATH}/..")
+
 if(DEFINED EXTRACTED_CPM_VERSION)
   set(CURRENT_CPM_VERSION "${EXTRACTED_CPM_VERSION}${CPM_DEVELOPMENT}")
+elseif(EXISTS "${CPM_CMAKE_DIRECTORY}/CMakeLists.txt")
+  add_subdirectory(${CPM_CMAKE_DIRECTORY})
 else()
   set(CURRENT_CPM_VERSION 1.0.0-development-version)
 endif()
