@@ -1,13 +1,22 @@
 # RFC: CPM Configuration Precedence for Environment vs Explicit Variables
 
+## Decision requested first
+Choose one policy direction for future consistency:
+1. Standardize cascading precedence (`explicit -> env -> default`) where applicable.
+2. Keep environment influence behind explicit opt-in gates for selected features.
+
+## Why this matters
+- CPM already uses a mix of precedence patterns, which is useful but not always obvious to users.
+- Local-package workflows, IDE-driven configure paths, and enterprise build wrappers often cannot inject explicit `-D...` arguments consistently.
+- Explicit-only users prioritize predictability and debuggability.
+- Environment-driven users prioritize practical control across many builds without editing each invocation.
+
 ## Context
 CPM currently uses environment variables in several places (for example option defaults and source cache behavior), while other flows rely on explicit CMake variables.
 
 Recent discussions (for example PR #406) show two valid camps:
 - Prefer cascading behavior for convenience (`explicit -> env -> default`)
 - Prefer explicit-only behavior for predictability/debuggability
-
-Some IDE and indirect build flows make passing explicit `-D...` arguments difficult, which increases demand for environment-based control.
 
 ## Existing precedence patterns in current codebase
 
@@ -48,18 +57,6 @@ This is the key place under discussion in #406 and in this RFC.
 - README explicitly states the configure option overrides environment for `CPM_SOURCE_CACHE`.
 - Local package override is documented via explicit `-DCPM_<dependency>_SOURCE=...`.
 
-## Proposal (policy discussion only)
-Define and document one consistent precedence model across CPM.
-
-### Option A: Standardize cascading
-Adopt a uniform precedence for all configurable CPM knobs:
-1. Explicit CMake variable/argument
-2. Environment variable
-3. Internal default
-
-### Option B: Explicit opt-in for environment control
-Keep explicit variables as default behavior and require an opt-in switch (for example `CPM_ENABLE_ENV`) before environment variables influence behavior.
-
 ## Goal of this PR
 This PR intentionally does not change runtime behavior.
 It exists to gather maintainer feedback on policy direction before additional implementation PRs are prepared.
@@ -79,8 +76,3 @@ It exists to gather maintainer feedback on policy direction before additional im
 - [#406](https://github.com/cpm-cmake/CPM.cmake/pull/406): env-based `CPM_<dependency>_SOURCE` and `CPM_PATH` proposal, with discussion around surprise vs convenience
 - [#669](https://github.com/cpm-cmake/CPM.cmake/pull/669): desire to shift away from hard env dependence by making defaults explicitly configurable
 - [#564](https://github.com/cpm-cmake/CPM.cmake/issues/564) and [#567](https://github.com/cpm-cmake/CPM.cmake/pull/567): enterprise-driven override and redirection requirements
-
-### Decision this RFC asks maintainers to make
-Choose one policy direction for future consistency:
-1. Standardize cascading precedence (`explicit -> env -> default`) where applicable.
-2. Keep environment influence behind explicit opt-in gates for selected features.
