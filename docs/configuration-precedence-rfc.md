@@ -11,6 +11,35 @@ Choose one policy direction for future consistency:
 - Explicit-only users prioritize predictability and debuggability.
 - Environment-driven users prioritize practical control across many builds without editing each invocation.
 
+## Short worked examples
+
+### Example 1: cache location precedence (`CPM_SOURCE_CACHE`)
+Input state:
+- `ENV{CPM_SOURCE_CACHE}` is set to `/env/cache`
+- configure argument sets `-DCPM_SOURCE_CACHE=/arg/cache`
+
+Expected result under both policy options:
+- Effective value is `/arg/cache` (explicit wins)
+
+### Example 2: local package override in IDE-style configure
+Input state:
+- `ENV{CPM_Dep_SOURCE}` is set to `/work/Dep`
+- configure invocation cannot easily inject `-DCPM_Dep_SOURCE=...`
+
+Result under Option 1 (cascading):
+- `Dep` resolves from `/work/Dep`
+
+Result under Option 2 (opt-in gate):
+- `Dep` resolves from env only if gate is enabled (for example `-DCPM_ENABLE_ENV=ON`)
+
+### Example 3: explicit local override always stays strongest
+Input state:
+- `ENV{CPM_Dep_SOURCE}` is `/work/DepA`
+- configure argument sets `-DCPM_Dep_SOURCE=/work/DepB`
+
+Expected result under both policy options:
+- `Dep` resolves from `/work/DepB` (explicit wins over env)
+
 ## Context
 CPM currently uses environment variables in several places (for example option defaults and source cache behavior), while other flows rely on explicit CMake variables.
 
