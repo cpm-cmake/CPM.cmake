@@ -21,24 +21,24 @@ Input state:
 Expected result under both policy options:
 - Effective value is `/arg/cache` (explicit wins)
 
-### Example 2: local package override in IDE-style configure
+### Example 2: per-package download toggle in IDE-style configure
 Input state:
-- `ENV{CPM_Dep_SOURCE}` is set to `/work/Dep`
-- configure invocation cannot easily inject `-DCPM_Dep_SOURCE=...`
+- `ENV{CPM_DOWNLOAD_fmt}` is set to `ON`
+- configure invocation cannot easily inject `-DCPM_DOWNLOAD_fmt=...`
 
 Result under Option 1 (cascading):
-- `Dep` resolves from `/work/Dep`
+- `CPMFindPackage(NAME fmt ...)` treats `fmt` as download-forced
 
 Result under Option 2 (opt-in gate):
-- `Dep` resolves from env only if gate is enabled (for example `-DCPM_ENABLE_ENV=ON`)
+- `fmt` download is forced from env only if gate is enabled (for example `-DCPM_ENABLE_ENV=ON`)
 
-### Example 3: explicit local override always stays strongest
+### Example 3: explicit per-package toggle stays strongest
 Input state:
-- `ENV{CPM_Dep_SOURCE}` is `/work/DepA`
-- configure argument sets `-DCPM_Dep_SOURCE=/work/DepB`
+- `ENV{CPM_DOWNLOAD_fmt}` is `ON`
+- configure argument sets `-DCPM_DOWNLOAD_fmt=OFF`
 
 Expected result under both policy options:
-- `Dep` resolves from `/work/DepB` (explicit wins over env)
+- `CPM_DOWNLOAD_fmt=OFF` wins (explicit wins over env)
 
 ## Context
 CPM currently uses environment variables in several places (for example option defaults and source cache behavior), while other flows rely on explicit CMake variables.
@@ -80,6 +80,26 @@ In `CPMFindPackage`, package-specific controls follow:
 ### Pattern group D: explicit-only local source override today
 `CPM_<dependency>_SOURCE` is currently a manual explicit override path in `CPMAddPackage`.
 This is the key place under discussion in #406 and in this RFC.
+
+## Master inventory table (runtime `CPM_*` controls)
+
+| Control | Explicit input available | Environment path | Effective pattern today | Alignment note |
+| --- | --- | --- | --- | --- |
+| `CPM_USE_LOCAL_PACKAGES` | Yes (`-DCPM_USE_LOCAL_PACKAGES=...`) | Yes (`ENV{CPM_USE_LOCAL_PACKAGES}`) | Env-seeded option default, explicit can override | Aligned with option-default pattern |
+| `CPM_LOCAL_PACKAGES_ONLY` | Yes | Yes | Env-seeded option default, explicit can override | Aligned with option-default pattern |
+| `CPM_DOWNLOAD_ALL` | Yes | Yes | Env-seeded option default, explicit can override | Aligned with option-default pattern |
+| `CPM_DONT_UPDATE_MODULE_PATH` | Yes | Yes | Env-seeded option default, explicit can override | Aligned with option-default pattern |
+| `CPM_DONT_CREATE_PACKAGE_LOCK` | Yes | Yes | Env-seeded option default, explicit can override | Aligned with option-default pattern |
+| `CPM_INCLUDE_ALL_IN_PACKAGE_LOCK` | Yes | Yes | Env-seeded option default, explicit can override | Aligned with option-default pattern |
+| `CPM_USE_NAMED_CACHE_DIRECTORIES` | Yes | Yes | Env-seeded option default, explicit can override | Aligned with option-default pattern |
+| `CPM_SOURCE_CACHE` (main CPM) | Yes (`-DCPM_SOURCE_CACHE=...`) | Yes (`ENV{CPM_SOURCE_CACHE}`) | Explicit/cache var, env fallback via default seed | Aligned with explicit->env->default |
+| `CPM_SOURCE_CACHE` (`get_cpm.cmake`) | Yes (`CPM_SOURCE_CACHE` var) | Yes (`ENV{CPM_SOURCE_CACHE}`) | Explicit var -> env -> built-in path | Aligned with explicit->env->default |
+| `CPM_DOWNLOAD_<name>` | Yes (`-DCPM_DOWNLOAD_fmt=...`) | Yes (`ENV{CPM_DOWNLOAD_fmt}`) | Per-package explicit -> env fallback | Aligned with explicit->env |
+| `CPM_<dependency>_SOURCE` | Yes (`-DCPM_Dep_SOURCE=...`) | No (today) | Explicit-only manual override | Primary alignment gap under discussion |
+
+Inventory result on current master code paths:
+- No runtime `CPM_*` controls were found that are environment-only with no explicit input path.
+- The key consistency question is whether `CPM_<dependency>_SOURCE` should stay explicit-only or join the existing explicit+env patterns.
 
 ## Existing docs signals in README
 - `CPM_SOURCE_CACHE` is documented as configurable by either `-D...` or environment variable.
