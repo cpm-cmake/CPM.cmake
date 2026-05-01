@@ -14,9 +14,9 @@ configure_package_config_file(
 execute_process(
   COMMAND
     ${CMAKE_COMMAND} -E env
-    "CPM_Dependency_SOURCE=${CMAKE_CURRENT_LIST_DIR}/local_dependency/dependency"
-    ${CMAKE_COMMAND} "-S${CMAKE_CURRENT_LIST_DIR}/local_dependency" "-B${TEST_BUILD_DIR}"
-    RESULT_VARIABLE ret
+    "CPM_Dependency_SOURCE=${CMAKE_CURRENT_LIST_DIR}/local_dependency/dependency" ${CMAKE_COMMAND}
+    "-S${CMAKE_CURRENT_LIST_DIR}/local_dependency" "-B${TEST_BUILD_DIR}"
+  RESULT_VARIABLE ret
 )
 
 assert_equal(${ret} "0")
