@@ -38,6 +38,9 @@ jobs:
           install: true
           cache: true
 
+      - name: show the current CMake version
+        run: mise x -- cmake --version
+
       - name: unit tests
         run: mise test:unit
 
