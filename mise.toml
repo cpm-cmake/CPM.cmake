@@ -70,4 +70,4 @@ usage='''
         help "Name of the directory in the examples to build"
     }
 '''
-run = "cmake -Sexamples/${usage_example} -Bbuild/${usage_example} && cmake --build build/${usage_example} -j $(nproc)"
+run = "cmake -Sexamples/${usage_example} -Bbuild/${usage_example} && cmake --build build/${usage_example} --parallel"
