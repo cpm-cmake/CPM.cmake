@@ -125,7 +125,7 @@ This project recommends [mise](https://mise.jdx.dev/) as the package and environ
 | Run integration     | `mise run test:integration`    | Run all integration tests                   |
 | Build all examples  | `mise run build:examples`      | Build all example projects                  |
 
-For more details, run `mist tasks` for a list of all tasks or see the [mise.toml](./mise.toml) file.
+For more details, run `mise tasks` for a list of all tasks or see the [mise.toml](./mise.toml) file.
 
 #### Unit tests
 
