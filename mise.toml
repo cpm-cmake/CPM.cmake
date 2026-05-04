@@ -29,7 +29,7 @@ run = "cmake --build build/test --target check-format"
 [tasks."test:unit"]
 description = "Run all unit tests"
 depends = ["init:cmake"]
-run = "cmake --build build/test --target test"
+run = "cmake --build build/test --target test-verbose"
 
 [tasks."test:unit:single"]
 description = "Run a single unit test by name"
