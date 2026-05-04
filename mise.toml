@@ -1,4 +1,4 @@
-min_version = "2026.04.27"
+min_version = "2026.01.01"
 
 [tools]
 cmake = "3.30"
@@ -28,9 +28,6 @@ run = "cmake --build build/test --target format"
 depends = ["init:cmake"]
 run = "cmake --build build/test --target test"
 
-[tasks."test:integration"]
-run = "ruby test/integration/runner.rb"
-
 [tasks."test:unit:single"]
 depends = ["init:cmake"]
 usage='''
@@ -44,6 +41,18 @@ run = """
     cd build/test
     ctest -R "^${TEST_NAME}$" --verbose
 """
+
+[tasks."test:integration"]
+run = "ruby test/integration/runner.rb"
+
+[tasks."test:integration:single"]
+usage='''
+    arg "<test>" {
+        help "The full path to the test script"
+    }
+'''
+run = "ruby ${usage_test}"
+
 
 [tasks."build:examples"]
 run = "python examples/build_all.py"
