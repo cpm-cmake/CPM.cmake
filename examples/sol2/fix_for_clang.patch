@@ -18,24 +18,16 @@ index a2f66ba..10573b4 100644
  			if constexpr (no_trampoline) {
  				nr = real_call(L);
 diff --git a/include/sol/optional_implementation.hpp b/include/sol/optional_implementation.hpp
-index 26f41d0..9c69fcb 100644
+index 26f41d0..e22226d 100644
 --- a/include/sol/optional_implementation.hpp
 +++ b/include/sol/optional_implementation.hpp
-@@ -1281,7 +1281,7 @@ namespace sol {
+@@ -2191,7 +2191,8 @@ namespace sol {
  			static_assert(std::is_constructible<T, Args&&...>::value, "T must be constructible with Args");
  
  			*this = nullopt;
 -			this->construct(std::forward<Args>(args)...);
-+			T(std::forward<Args>(args)...);
- 			return value();
- 		}
- 
-@@ -2191,7 +2191,7 @@ namespace sol {
- 			static_assert(std::is_constructible<T, Args&&...>::value, "T must be constructible with Args");
- 
- 			*this = nullopt;
--			this->construct(std::forward<Args>(args)...);
-+			T(std::forward<Args>(args)...);
++			new (static_cast<void*>(this)) optional(std::in_place, std::forward<Args>(args)...);
++			return **this;
  		}
  
  		/// Swaps this optional with the other.
