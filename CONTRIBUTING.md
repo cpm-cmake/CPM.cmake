@@ -173,6 +173,15 @@ mise run test:integration:single <test>
 
 For a detailed guide on integration tests, see the documentation in the [integration test directory](./test/integration/).
 
+#### Selecting a CMake Version
+
+To temporarily use a different CMake version for a command, set the `MISE_CMAKE_VERSION` environment variable:
+
+```bash
+MISE_CMAKE_VERSION=3.29 mise run test
+```
+
+This runs all tests with CMake 3.29 for that command.
 
 ## Styleguides
 
