@@ -22,7 +22,7 @@ run = "cmake --build build/test --target fix-format"
 
 [tasks."check:format"]
 depends = ["init:cmake", "init:python"]
-run = "cmake --build build/test --target format"
+run = "cmake --build build/test --target check-format"
 
 [tasks."test:unit"]
 depends = ["init:cmake"]

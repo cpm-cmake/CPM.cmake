@@ -10,7 +10,7 @@ jobs:
     name: Publish CPM.cmake
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
 
       - name: Set CPM version by tag
         run: |
@@ -20,7 +20,7 @@ jobs:
               -e "s/CPM_HASH_SUM_PLACEHOLDER/$(sha256sum dist/CPM.cmake | cut -d' ' -f1)/" cmake/get_cpm.cmake > dist/get_cpm.cmake
 
       - name: Upload CPM.cmake to release
-        uses: svenstaro/upload-release-action@v1-release
+        uses: svenstaro/upload-release-action@29e53e917877a24fad85510ded594ab3c9ca12de # 2.11.5
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref }}

@@ -12,19 +12,33 @@ jobs:
   gcc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
+      
+      - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # 4.0.1
+        with:
+          version: 2026.5.0
+          install: true
+          cache: true
+
       - name: build all
         env:
           CC: gcc
           CXX: g++
-        run: python3 examples/build_all.py
+        run: mise build:examples
 
   clang:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
+
+      - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # 4.0.1
+        with:
+          version: 2026.5.0
+          install: true
+          cache: true
+
       - name: build all
         env:
           CC: clang
           CXX: clang++
-        run: python3 examples/build_all.py
+        run: mise build:examples
