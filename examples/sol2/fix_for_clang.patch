@@ -1,7 +1,8 @@
-diff -u a/include/sol/function_types_stateless.hpp b/include/types/function_types_stateless.hpp
+diff --git a/include/sol/function_types_stateless.hpp b/include/sol/function_types_stateless.hpp
+index a2f66ba..10573b4 100644
 --- a/include/sol/function_types_stateless.hpp
 +++ b/include/sol/function_types_stateless.hpp
-@@ -322,7 +322,13 @@ namespace sol { namespace function_detail {
+@@ -320,7 +320,13 @@ namespace sol { namespace function_detail {
  		}
  
  		template <bool is_yielding, bool no_trampoline>
@@ -16,3 +17,25 @@ diff -u a/include/sol/function_types_stateless.hpp b/include/types/function_type
  			int nr;
  			if constexpr (no_trampoline) {
  				nr = real_call(L);
+diff --git a/include/sol/optional_implementation.hpp b/include/sol/optional_implementation.hpp
+index 26f41d0..9c69fcb 100644
+--- a/include/sol/optional_implementation.hpp
++++ b/include/sol/optional_implementation.hpp
+@@ -1281,7 +1281,7 @@ namespace sol {
+ 			static_assert(std::is_constructible<T, Args&&...>::value, "T must be constructible with Args");
+ 
+ 			*this = nullopt;
+-			this->construct(std::forward<Args>(args)...);
++			T(std::forward<Args>(args)...);
+ 			return value();
+ 		}
+ 
+@@ -2191,7 +2191,7 @@ namespace sol {
+ 			static_assert(std::is_constructible<T, Args&&...>::value, "T must be constructible with Args");
+ 
+ 			*this = nullopt;
+-			this->construct(std::forward<Args>(args)...);
++			T(std::forward<Args>(args)...);
+ 		}
+ 
+ 		/// Swaps this optional with the other.
