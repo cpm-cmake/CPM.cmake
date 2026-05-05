@@ -649,7 +649,6 @@ endfunction()
 # replaces empty arguments with a placeholder to compensate CMake issues with handling empty
 # arguments
 function(cpm_encode_empty_arguments args outVar)
-  message("ARGS ${args}")
   set(out "")
   # note: we don't use string replacement for ';;' -> ';__CPM_EMPTY_ARG;' here, as it would
   # interfere with nested arguments
@@ -1174,13 +1173,31 @@ function(CPMGetPackageVersion PACKAGE OUTPUT)
   )
 endfunction()
 
+macro(cpm_cmake_eval)
+  set(__CPM_ARGN "SET(CMAKE_CURRENT_LIST_DIR ${CMAKE_CURRENT_LIST_DIR})\n${ARGN}")
+  if(COMMAND cmake_language)
+    # ensure that the `CMAKE_CURRENT_LIST_DIR` is correctly set inside the call
+    cmake_language(EVAL CODE "${__CPM_ARGN}")
+  else()
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/eval.cmake "${__CPM_ARGN}")
+    include(${CMAKE_CURRENT_BINARY_DIR}/eval.cmake)
+  endif()
+endmacro()
+
 # declares a package in FetchContent_Declare
 function(cpm_declare_fetch PACKAGE)
   if(${CPM_DRY_RUN})
     cpm_message(STATUS "${CPM_INDENT} Package not declared (dry run)")
     return()
   endif()
-  FetchContent_Declare(${PACKAGE} ${ARGN})
+
+  # Forward preserving empty string arguments
+  # (https://gitlab.kitware.com/cmake/cmake/-/merge_requests/4729)
+  set(__argsQuoted)
+  foreach(__item IN LISTS ARGN)
+    string(APPEND __argsQuoted " [==[${__item}]==]")
+  endforeach()
+  cpm_cmake_eval("FetchContent_Declare(${PACKAGE} ${__argsQuoted} )")
 endfunction()
 
 # returns properties for a package previously defined by cpm_declare_fetch
