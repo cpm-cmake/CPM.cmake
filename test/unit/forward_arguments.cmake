@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 include(${CPM_PATH}/CPM.cmake)
 include(${CPM_PATH}/testing.cmake)
 
-set(input "a;;b;c;;;;def;g;;__CPM_EMPTY_ARG;")
+set(input "a;;b;c;;;;d\\ef;g;;__CPM_EMPTY_ARG;")
 cpm_encode_empty_arguments("${input}" encoded)
 foreach(arg IN LISTS encoded)
   assert_not_equal("${arg}" "")

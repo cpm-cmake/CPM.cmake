@@ -658,8 +658,6 @@ function(cpm_encode_empty_arguments args outVar)
     else()
       # allow passing __CPM_EMPTY_ARG string by appending __ to any occurrences
       string(REPLACE "__CPM_EMPTY_ARG" "____CPM_EMPTY_ARG" ARG "${ARG}")
-      # prevent escaped characters from getting resolved early
-      string(REPLACE "\\" "\\\\\\" ARG "${ARG}")
       list(APPEND out "${ARG}")
     endif()
   endforeach()
