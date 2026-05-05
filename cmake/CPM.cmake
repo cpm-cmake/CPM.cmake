@@ -1170,7 +1170,7 @@ endfunction()
 
 # Quotes the input argument `str` using bracket arguments [==[...]==] containing the minimum amount
 # of "=" needed.
-function(quote_as_braket_string_literal str out_var)
+function(cpm_quote_as_bracket_string_literal str out_var)
   # Find the shortest bracket depth that doesn't appear in the string, so we can safely use a
   # bracket string literal: [==[...]==]
   set(bracket "")
@@ -1193,7 +1193,7 @@ endfunction()
 # using a bracket string literal — avoiding escaping issues regardless of what characters the path
 # contains.
 macro(cpm_cmake_eval)
-  quote_as_braket_string_literal("${CMAKE_CURRENT_LIST_DIR}" __cpm_eval_CMAKE_CURRENT_LIST_DIR)
+  cpm_quote_as_bracket_string_literal("${CMAKE_CURRENT_LIST_DIR}" __cpm_eval_CMAKE_CURRENT_LIST_DIR)
   set(__cpm_eval_code "SET(CMAKE_CURRENT_LIST_DIR ${__cpm_eval_CMAKE_CURRENT_LIST_DIR})\n${ARGN}")
   if(COMMAND cmake_language)
     cmake_language(EVAL CODE "${__cpm_eval_code}")
@@ -1214,7 +1214,7 @@ function(cpm_declare_fetch PACKAGE)
   # (https://gitlab.kitware.com/cmake/cmake/-/merge_requests/4729)
   set(quoted_args)
   foreach(arg IN LISTS ARGN)
-    quote_as_braket_string_literal("${arg}" quoted_arg)
+    cpm_quote_as_bracket_string_literal("${arg}" quoted_arg)
     string(APPEND quoted_args " ${quoted_arg}")
   endforeach()
   cpm_cmake_eval("FetchContent_Declare(${PACKAGE} ${quoted_args} )")
