@@ -9,5 +9,5 @@ include(@CPM_PATH@/CPM.cmake)
 CPMAddPackage(
   NAME BrokenDependency
   SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/dependency
-  EXCLUDE_FROM_ALL @EXCLUDE_FROM_ALL@
+  EXCLUDE_FROM_ALL "@EXCLUDE_FROM_ALL@"
 )

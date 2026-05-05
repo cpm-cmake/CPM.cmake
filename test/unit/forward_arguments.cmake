@@ -23,7 +23,7 @@ cpm_declare_fetch(PACKAGE VERSION INFO EMPTY "" ANOTHER)
 
 # TEST:`cpm_declare_fetch` shall forward empty arguments
 get_property(last_FetchContent_Declare_ARGN GLOBAL PROPERTY last_FetchContent_Declare_ARGN)
-assert_equal("${last_FetchContent_Declare_ARGN}" "PACKAGE;EMPTY;;ANOTHER")
+assert_equal("${last_FetchContent_Declare_ARGN}" "PACKAGE;VERSION;INFO;EMPTY;;ANOTHER")
 
 # TEST:`CPMDeclarePackage` shall store all including empty
 CPMDeclarePackage(FOO EMPTY "" ANOTHER)

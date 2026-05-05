@@ -649,6 +649,7 @@ endfunction()
 # replaces empty arguments with a placeholder to compensate CMake issues with handling empty
 # arguments
 function(cpm_encode_empty_arguments args outVar)
+  message("ARGS ${args}")
   set(out "")
   # note: we don't use string replacement for ';;' -> ';__CPM_EMPTY_ARG;' here, as it would
   # interfere with nested arguments
@@ -747,20 +748,25 @@ function(CPMAddPackage)
   cpm_encode_empty_arguments("${ARGN}" "PARSE_ARGS")
 
   # Parse arguments
-  cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${PARSE_ARGS}")
+  cmake_parse_arguments(CPM_ARGS_ENCODED "" "${oneValueArgs}" "${multiValueArgs}" "${PARSE_ARGS}")
 
   # Decode arguments
   foreach(ARG IN LISTS oneValueArgs)
-    if(DEFINED CPM_ARGS_${ARG})
-      cpm_decode_empty_argument("${CPM_ARGS_${ARG}}" CPM_ARGS_${ARG})
+    if(DEFINED CPM_ARGS_ENCODED_${ARG})
+      cpm_decode_empty_argument("${CPM_ARGS_ENCODED_${ARG}}" CPM_ARGS_${ARG})
+    else()
+      unset(CPM_ARGS_${ARG})
     endif()
   endforeach()
   foreach(ARG IN LISTS multiValueArgs)
-    if(DEFINED CPM_ARGS_${ARG})
-      cpm_decode_empty_arguments("${CPM_ARGS_${ARG}}" CPM_ARGS_${ARG})
+    if(DEFINED CPM_ARGS_ENCODED_${ARG})
+      cpm_decode_empty_arguments("${CPM_ARGS_ENCODED_${ARG}}" CPM_ARGS_${ARG})
+    else()
+      unset(CPM_ARGS_${ARG})
     endif()
   endforeach()
-  cpm_decode_empty_arguments("${CPM_ARGS_UNPARSED_ARGUMENTS}" CPM_ARGS_UNPARSED_ARGUMENTS)
+
+  cpm_decode_empty_arguments("${CPM_ARGS_ENCODED_UNPARSED_ARGUMENTS}" CPM_ARGS_UNPARSED_ARGUMENTS)
 
   # Set default values for arguments
   if(NOT DEFINED CPM_ARGS_VERSION)
@@ -1029,7 +1035,6 @@ function(CPMAddPackage)
   cpm_message(
     STATUS "${CPM_INDENT} Adding package ${CPM_ARGS_NAME}@${CPM_ARGS_VERSION} (${PACKAGE_INFO})"
   )
-
   if(NOT CPM_SKIP_FETCH)
     # CMake 3.28 added EXCLUDE, SYSTEM (3.25), and SOURCE_SUBDIR (3.18) to FetchContent_Declare.
     # Calling FetchContent_MakeAvailable will then internally forward these options to
@@ -1179,7 +1184,7 @@ function(cpm_declare_fetch PACKAGE)
     cpm_message(STATUS "${CPM_INDENT} Package not declared (dry run)")
     return()
   endif()
-  FetchContent_Declare(${PACKAGE} "${ARGN}")
+  FetchContent_Declare(${PACKAGE} ${ARGN})
 endfunction()
 
 # returns properties for a package previously defined by cpm_declare_fetch
@@ -1250,6 +1255,7 @@ endfunction()
 # downloads a previously declared package via FetchContent and exports the variables
 # `${PACKAGE}_SOURCE_DIR` and `${PACKAGE}_BINARY_DIR` to the parent scope
 function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY populated)
+
   set(${populated}
       FALSE
       PARENT_SCOPE
