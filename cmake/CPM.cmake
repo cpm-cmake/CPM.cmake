@@ -1173,6 +1173,7 @@ function(CPMGetPackageVersion PACKAGE OUTPUT)
   )
 endfunction()
 
+# evaluates a string as CMake code using `cmake_language` if supported.
 macro(cpm_cmake_eval)
   set(__CPM_ARGN "SET(CMAKE_CURRENT_LIST_DIR ${CMAKE_CURRENT_LIST_DIR})\n${ARGN}")
   if(COMMAND cmake_language)
