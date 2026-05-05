@@ -15,7 +15,7 @@ CPMAddPackage(
   SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/dependency
   OPTIONS
     "DEFINE_ALTERNATIVE_FUNCTION YES"
-    "LIST_ARGUMENT a\\\\;b\\\\;c"
+    "LIST_ARGUMENT       a\\\\;b\\\\;c"
   EXCLUDE_FROM_ALL YES
 )
 
