@@ -55,6 +55,12 @@ cpm_package_name_and_ver_from_url("https://example.com/foo" name ver)
 assert_not_defined(name)
 assert_not_defined(ver)
 
+cpm_package_name_and_ver_from_url(
+  "http://downloads.xiph.org/releases/ogg/libogg-1.3.5.tar.xz" name ver
+)
+assert_equal("libogg" ${name})
+assert_equal("1.3.5" ${ver})
+
 cpm_package_name_and_ver_from_url("example.zip.com/foo" name ver)
 assert_not_defined(name)
 assert_not_defined(ver)
