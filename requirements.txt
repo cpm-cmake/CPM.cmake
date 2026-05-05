@@ -1,0 +1,4 @@
+clang-format==14.0.6
+cmake-format==0.6.11
+pyyaml==6.0.3
+six==1.17.0

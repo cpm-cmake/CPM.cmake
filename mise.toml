@@ -9,11 +9,13 @@ uv = "0.11"
 [settings]
 lockfile=true
 ruby.compile=false
-python.uv_venv_auto = "create|source"
+
+[env]
+_.python.venv = { path = ".venv", create = true }
 
 [tasks]
 "init:cmake" = { description = "Configure CMake for test build", run = "cmake -Stest -Bbuild/test" }
-"init:python" = { description = "Install Python dependencies using uv", run = "uv sync" }
+"init:python" = { description = "Install Python dependencies using uv", run = "uv pip install -r requirements.txt" }
 "clean" = { description = "Remove build directory", run = "python -c \"import shutil; shutil.rmtree('build', ignore_errors=True)\"" }
 "test" = { description = "Run all unit and integration tests", run = "mise run test:unit && mise run test:integration" }
 
