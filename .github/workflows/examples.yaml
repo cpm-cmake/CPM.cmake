@@ -24,7 +24,7 @@ jobs:
         env:
           CC: gcc
           CXX: g++
-        run: mise build:examples
+        run: mise run build:examples
 
   clang:
     runs-on: ubuntu-latest
@@ -41,4 +41,4 @@ jobs:
         env:
           CC: clang
           CXX: clang++
-        run: mise build:examples
+        run: mise run build:examples

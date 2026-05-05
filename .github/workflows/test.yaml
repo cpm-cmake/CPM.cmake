@@ -38,13 +38,10 @@ jobs:
           install: true
           cache: true
 
-      - name: show the current CMake version
-        run: mise x -- cmake --version
-
       - name: unit tests
-        run: mise test:unit
+        run: mise run test:unit
 
       - name: integration tests
-        run: mise test:integration
+        run: mise run test:integration
         env:
           CPM_INTEGRATION_TEST_DIR: ./build/integration

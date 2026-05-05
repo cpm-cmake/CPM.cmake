@@ -23,4 +23,4 @@ jobs:
         cache: true
 
     - name: check style
-      run: mise check:format
+      run: mise run check:format
