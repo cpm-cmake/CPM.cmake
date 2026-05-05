@@ -14,7 +14,7 @@ class MyTest < IntegrationTest
 end
 ```
 
-Now we have our test case class, and the single test method that we will require. Let's focus on the method's contents. The integration test framework provides us with a helper class, `Project`, which can be used for this scenario. A project has an assoiciated pair of source and binary directories in the temporary directory and it provides methods to work with them.
+Now we have our test case class, and the single test method that we will require. Let's focus on the method's contents. The integration test framework provides us with a helper class, `Project`, which can be used for this scenario. A project has an associated pair of source and binary directories in the temporary directory and it provides methods to work with them.
 
 We start by creating the project:
 

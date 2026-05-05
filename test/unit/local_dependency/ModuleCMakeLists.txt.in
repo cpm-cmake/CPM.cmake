@@ -8,6 +8,10 @@ option(ENABLE_TEST_COVERAGE "Enable test coverage" OFF)
 
 # ---- Dependencies ----
 
+if (@TEST_FORCE_MODULE_MODE@)
+  unset(CMAKE_FIND_PACKAGE_REDIRECTS_DIR CACHE)
+endif()
+
 include(@CPM_PATH@/CPM.cmake)
 
 CPMAddPackage(
@@ -15,21 +19,23 @@ CPMAddPackage(
   SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/dependency
 )
 
-# ---- check if generated modules override find_package ----
-
-if (@test_check_find_package@)
-  find_package(@TEST_DEPENDENCY_NAME@ REQUIRED)
-endif()
-
 # ---- Call dependency method to validate correct addition of directory ----
 
 dependency_function()
 
-# ---- Check parameters ----
-
+# ---- Check newly added ----
 include(@CPM_PATH@/testing.cmake)
-
 ASSERT_TRUTHY(@TEST_DEPENDENCY_NAME@_ADDED)
+
+# ---- Check if generated modules override find_package ----
+
+if (@TEST_FIND_PACKAGE@)
+  find_package(@TEST_DEPENDENCY_NAME@ @TEST_FIND_PACKAGE_CONFIG@ REQUIRED)
+  find_package(@TEST_CANT_FIND_PACKAGE_NAME@ @TEST_FIND_PACKAGE_CONFIG@ QUIET)
+  ASSERT_FALSY(@TEST_CANT_FIND_PACKAGE_NAME@_FOUND)
+endif()
+
+# ---- Check parameters ----
 ASSERT_DEFINED(@TEST_DEPENDENCY_NAME@_SOURCE_DIR)
 ASSERT_DEFINED(@TEST_DEPENDENCY_NAME@_BINARY_DIR)
 ASSERT_EQUAL("${CPM_LAST_PACKAGE_NAME}" "@TEST_DEPENDENCY_NAME@")

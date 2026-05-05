@@ -19,7 +19,7 @@ jobs:
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@v1.13
       with:
-        cmake-version: '3.25.x'
+        cmake-version: '3.27.x'
     
     - name: Install format dependencies
       run: pip3 install clang-format==14.0.6 cmake_format==0.6.11 pyyaml

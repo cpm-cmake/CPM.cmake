@@ -7,7 +7,7 @@ project(CPMExampleCatch2)
 include(../../cmake/CPM.cmake)
 
 CPMAddPackage("gh:cpm-cmake/testpack-fibonacci@2.0")
-CPMAddPackage("gh:catchorg/Catch2@3.2.1")
+CPMAddPackage("gh:catchorg/Catch2@3.4.0")
 
 # ---- Create binary ----
 
