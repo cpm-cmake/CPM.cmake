@@ -656,6 +656,8 @@ function(cpm_encode_empty_arguments args outVar)
     if(ARG STREQUAL "")
       list(APPEND out "__CPM_EMPTY_ARG")
     else()
+      # prevent escaped characters from getting resolved early
+      string(REPLACE "\\" "\\\\\\" ARG "${ARG}")
       # allow passing __CPM_EMPTY_ARG string by appending __ to any occurrences
       string(REPLACE "__CPM_EMPTY_ARG" "____CPM_EMPTY_ARG" ARG "${ARG}")
       list(APPEND out "${ARG}")
@@ -674,6 +676,7 @@ function(cpm_decode_empty_argument arg outVar)
         PARENT_SCOPE
     )
   else()
+    string(REPLACE "\\\\\\" "\\" arg "${arg}")
     string(REPLACE "____CPM_EMPTY_ARG" "__CPM_EMPTY_ARG" arg "${arg}")
     set("${outVar}"
         "${arg}"
