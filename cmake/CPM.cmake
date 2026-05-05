@@ -748,25 +748,21 @@ function(CPMAddPackage)
   cpm_encode_empty_arguments("${ARGN}" "PARSE_ARGS")
 
   # Parse arguments
-  cmake_parse_arguments(CPM_ARGS_ENCODED "" "${oneValueArgs}" "${multiValueArgs}" "${PARSE_ARGS}")
+  cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${PARSE_ARGS}")
 
   # Decode arguments
   foreach(ARG IN LISTS oneValueArgs)
-    if(DEFINED CPM_ARGS_ENCODED_${ARG})
-      cpm_decode_empty_argument("${CPM_ARGS_ENCODED_${ARG}}" CPM_ARGS_${ARG})
-    else()
-      unset(CPM_ARGS_${ARG})
+    if(DEFINED CPM_ARGS_${ARG})
+      cpm_decode_empty_argument("${CPM_ARGS_${ARG}}" CPM_ARGS_${ARG})
     endif()
   endforeach()
   foreach(ARG IN LISTS multiValueArgs)
-    if(DEFINED CPM_ARGS_ENCODED_${ARG})
-      cpm_decode_empty_arguments("${CPM_ARGS_ENCODED_${ARG}}" CPM_ARGS_${ARG})
-    else()
-      unset(CPM_ARGS_${ARG})
+    if(DEFINED CPM_ARGS_${ARG})
+      cpm_decode_empty_arguments("${CPM_ARGS_${ARG}}" CPM_ARGS_${ARG})
     endif()
   endforeach()
 
-  cpm_decode_empty_arguments("${CPM_ARGS_ENCODED_UNPARSED_ARGUMENTS}" CPM_ARGS_UNPARSED_ARGUMENTS)
+  cpm_decode_empty_arguments("${CPM_ARGS_UNPARSED_ARGUMENTS}" CPM_ARGS_UNPARSED_ARGUMENTS)
 
   # Set default values for arguments
   if(NOT DEFINED CPM_ARGS_VERSION)
