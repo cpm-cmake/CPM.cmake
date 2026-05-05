@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 option(DEFINE_ALTERNATIVE_FUNCTION "define the alternative function" OFF)
 option(LEAKED_OPTION "this option will be leaked to the outer scope" OFF)
