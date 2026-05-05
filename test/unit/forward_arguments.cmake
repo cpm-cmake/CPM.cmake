@@ -18,12 +18,20 @@ set(CPM_SOURCE_CACHE "")
 # Intercept underlying `FetchContent_Declare`
 function(FetchContent_Declare)
   set_property(GLOBAL PROPERTY last_FetchContent_Declare_ARGN "${ARGN}")
+  set_property(
+    GLOBAL PROPERTY last_FetchContent_Declare_CMAKE_CURRENT_LIST_DIR "${CMAKE_CURRENT_LIST_DIR}"
+  )
 endfunction()
 cpm_declare_fetch(PACKAGE VERSION INFO EMPTY "" ANOTHER)
 
 # TEST:`cpm_declare_fetch` shall forward empty arguments
 get_property(last_FetchContent_Declare_ARGN GLOBAL PROPERTY last_FetchContent_Declare_ARGN)
 assert_equal("${last_FetchContent_Declare_ARGN}" "PACKAGE;VERSION;INFO;EMPTY;;ANOTHER")
+get_property(
+  last_FetchContent_Declare_CMAKE_CURRENT_LIST_DIR GLOBAL
+  PROPERTY last_FetchContent_Declare_CMAKE_CURRENT_LIST_DIR
+)
+assert_equal("${last_FetchContent_Declare_CMAKE_CURRENT_LIST_DIR}" "${CMAKE_CURRENT_LIST_DIR}")
 
 # TEST:`CPMDeclarePackage` shall store all including empty
 CPMDeclarePackage(FOO EMPTY "" ANOTHER)

@@ -1167,14 +1167,29 @@ function(CPMGetPackageVersion PACKAGE OUTPUT)
   )
 endfunction()
 
-# evaluates a string as CMake code using `cmake_language` if supported.
+# Evaluates CMake code (passed as ARGN) while preserving CMAKE_CURRENT_LIST_DIR.
+#
+# CMake's cmake_language(EVAL CODE ...) resets CMAKE_CURRENT_LIST_DIR, so we prepend a SET() call
+# using a bracket string literal — avoiding escaping issues regardless of what characters the path
+# contains.
 macro(cpm_cmake_eval)
-  set(__CPM_ARGN "SET(CMAKE_CURRENT_LIST_DIR [==[${CMAKE_CURRENT_LIST_DIR}]==])\n${ARGN}")
+  # Find the shortest bracket depth that doesn't appear in the path, so we can safely use a bracket
+  # string literal: [==[...]==]
+  set(__cpm_eval_bracket "")
+  while(TRUE)
+    string(FIND "${CMAKE_CURRENT_LIST_DIR}" "]${__cpm_eval_bracket}]" __cpm_eval_bracket_pos)
+    if(__cpm_eval_bracket_pos EQUAL -1)
+      break()
+    endif()
+    string(APPEND __cpm_eval_bracket "=")
+  endwhile()
+  set(__cpm_eval_code
+      "SET(CMAKE_CURRENT_LIST_DIR [${__cpm_eval_bracket}[${CMAKE_CURRENT_LIST_DIR}]${__cpm_eval_bracket}])\n${ARGN}"
+  )
   if(COMMAND cmake_language)
-    # ensure that the `CMAKE_CURRENT_LIST_DIR` is correctly set inside the call
-    cmake_language(EVAL CODE "${__CPM_ARGN}")
+    cmake_language(EVAL CODE "${__cpm_eval_code}")
   else()
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/eval.cmake "${__CPM_ARGN}")
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/eval.cmake "${__cpm_eval_code}")
     include(${CMAKE_CURRENT_BINARY_DIR}/eval.cmake)
   endif()
 endmacro()
