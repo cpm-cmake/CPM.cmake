@@ -653,15 +653,12 @@ function(cpm_encode_empty_arguments args outVar)
   # note: we don't use string replacement for ';;' -> ';__CPM_EMPTY_ARG;' here, as it would
   # interfere with nested arguments
   foreach(ARG IN LISTS args)
-    if(NOT out STREQUAL "")
-      string(APPEND out ";")
-    endif()
     if(ARG STREQUAL "")
-      string(APPEND out "__CPM_EMPTY_ARG")
+      list(APPEND out "__CPM_EMPTY_ARG")
     else()
       # prevent escaped characters from getting resolved early
       string(REPLACE "\\" "\\\\\\" ARG "${ARG}")
-      string(APPEND out "${ARG}")
+      list(APPEND out "${ARG}")
     endif()
   endforeach()
   set("${outVar}"
@@ -688,11 +685,8 @@ endfunction()
 function(cpm_decode_empty_arguments args outVar)
   set(out "")
   foreach(ARG IN LISTS args)
-    if(NOT out STREQUAL "")
-      string(APPEND out ";")
-    endif()
     cpm_decode_empty_argument("${ARG}" ARG)
-    string(APPEND out "${ARG}")
+    list(APPEND out "${ARG}")
   endforeach()
   set("${outVar}"
       "${out}"
@@ -1175,7 +1169,7 @@ endfunction()
 
 # evaluates a string as CMake code using `cmake_language` if supported.
 macro(cpm_cmake_eval)
-  set(__CPM_ARGN "SET(CMAKE_CURRENT_LIST_DIR ${CMAKE_CURRENT_LIST_DIR})\n${ARGN}")
+  set(__CPM_ARGN "SET(CMAKE_CURRENT_LIST_DIR [==[${CMAKE_CURRENT_LIST_DIR}]==])\n${ARGN}")
   if(COMMAND cmake_language)
     # ensure that the `CMAKE_CURRENT_LIST_DIR` is correctly set inside the call
     cmake_language(EVAL CODE "${__CPM_ARGN}")
