@@ -14,7 +14,7 @@ python.uv_venv_auto = "create|source"
 [tasks]
 "init:cmake" = { description = "Configure CMake for test build", run = "cmake -Stest -Bbuild/test" }
 "init:python" = { description = "Install Python dependencies using uv", run = "uv sync" }
-"clean" = { description = "Remove build directory", run = "rm -rf build" }
+"clean" = { description = "Remove build directory", run = "python -c \"import shutil; shutil.rmtree('build', ignore_errors=True)\"" }
 "test" = { description = "Run all unit and integration tests", run = "mise run test:unit && mise run test:integration" }
 
 [tasks.format]
@@ -37,15 +37,10 @@ description = "Run a single unit test by name"
 depends = ["init:cmake"]
 usage='''
     arg "<test>" {
-        help "Test name (without .cmake)"
+        help "Regex to match tests to run, e.g. the path to a test case."
     }
 '''
-run = """
-    set -euo pipefail
-    TEST_NAME="${usage_test}"
-    cd build/test
-    ctest -R "^${TEST_NAME}$" --verbose
-"""
+run = "ctest --test-dir build/test -R \"${usage_test}\" --verbose"
 
 [tasks."test:integration"]
 description = "Run all integration tests"
@@ -58,7 +53,7 @@ usage='''
         help "The full path to the test script"
     }
 '''
-run = "ruby ${usage_test}"
+run = "ruby \"${usage_test}\""
 
 [tasks."build:examples"]
 description = "Build all example projects"

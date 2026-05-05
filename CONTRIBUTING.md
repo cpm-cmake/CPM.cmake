@@ -151,7 +151,7 @@ To run a single unit test, use:
 
 ```bash
 mise run test:unit:single <test>
-# <test> is the test name (without .cmake)
+# <test> Regex to match tests to run, e.g. the path to a test case.
 ```
 
 #### Integration tests
