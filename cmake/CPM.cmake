@@ -50,6 +50,13 @@ endif()
 
 get_filename_component(CPM_CURRENT_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" REALPATH)
 if(CPM_DIRECTORY)
+  if(${CMAKE_VERSION} VERSION_LESS "3.17.0")
+    get_directory_property(hasParent PARENT_DIRECTORY)
+    if(NOT CPM_DIRECTORY STREQUAL CPM_CURRENT_DIRECTORY OR ${hasParent})
+      include(FetchContent)
+    endif()
+  endif()
+
   if(NOT CPM_DIRECTORY STREQUAL CPM_CURRENT_DIRECTORY)
     if(CPM_VERSION VERSION_LESS CURRENT_CPM_VERSION)
       message(
@@ -59,9 +66,6 @@ A dependency is using a more recent CPM version (${CURRENT_CPM_VERSION}) than th
 It is recommended to upgrade CPM to the most recent version. \
 See https://github.com/cpm-cmake/CPM.cmake for more information."
       )
-    endif()
-    if(${CMAKE_VERSION} VERSION_LESS "3.17.0")
-      include(FetchContent)
     endif()
     return()
   endif()
