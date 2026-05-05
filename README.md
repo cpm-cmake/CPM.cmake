@@ -88,7 +88,7 @@ If an additional optional parameter `SYSTEM` is set to a truthy value, the SYSTE
 See the [add_subdirectory ](https://cmake.org/cmake/help/latest/command/add_subdirectory.html?highlight=add_subdirectory)
 and [SYSTEM](https://cmake.org/cmake/help/latest/prop_tgt/SYSTEM.html#prop_tgt:SYSTEM) target property for details.
 
-A single-argument compact syntax is also supported:
+A shorthand syntax is also supported:
 
 ```cmake
 # A git package from a given uri with a version
@@ -111,6 +111,22 @@ CPMAddPackage("https://example.com/my-package-1.2.3.zip#MD5=68e20f674a48be38d60e
 # An archive package from a given url. The version is explicitly given
 CPMAddPackage("https://example.com/my-package.zip@1.2.3")
 ```
+
+> **Supply chain security best practice:**
+> For maximum security and reproducibility, always prefer specifying immutable git commit hashes instead of tags or branches when referencing dependencies. Tags and branches can be changed or moved, but commit hashes always refer to the same code. You can specify a commit hash before the version in the URI, e.g. `gh:user/repo#<commit>@<version>`. This ensures your builds are protected from unexpected upstream changes or attacks.
+
+Additionally, if needed, extra arguments can be provided while using single argument syntax by using the shorthand syntax with the `URI` specifier.
+
+```cmake
+CPMAddPackage(
+  URI "gh:nlohmann/json@3.9.1"
+  OPTIONS "JSON_BuildTests OFF"
+)
+```
+
+The `URI` argument must be the first argument to `CPMAddPackage`.
+`URI` automatically sets `EXCLUDE_FROM_ALL YES` and `SYSTEM YES`.
+If this is not desired, `EXCLUDE_FROM_ALL NO` and `SYSTEM NO` can be set afterwards.
 
 After calling `CPMAddPackage`, the following variables are defined in the local scope, where `<dependency>` is the name of the dependency.
 
@@ -316,7 +332,7 @@ If you know others, feel free to add them here through a PR.
     <td>
       <a href="https://github.com/variar/klogg">
         <p align="center">
-          <img src="https://github.com/variar/klogg/blob/master/src/app/images/hicolor/scalable/klogg.svg" alt="klogg" width="100pt" />
+          <img src="https://raw.githubusercontent.com/variar/klogg/refs/heads/master/src/app/images/hicolor/scalable/klogg.svg" alt="klogg" width="100pt" />
         </p>
         <p align="center"><b>klogg - fast advanced log explorer</b></p>
       </a>
@@ -368,7 +384,7 @@ If you know others, feel free to add them here through a PR.
     <td>
       <a href="https://github.com/exaloop/codon">
         <p align="center">
-          <img src="https://github.com/exaloop/codon/blob/develop/docs/img/logo.png?raw=true" alt="codon" width="100pt" />
+          <img src="https://raw.githubusercontent.com/exaloop/codon/refs/heads/develop/docs/img/codon.svg" alt="codon" width="100pt" />
         </p>
         <p align="center"><b>codon - A high-performance, zero-overhead, extensible Python compiler using LLVM</b></p>
       </a>
@@ -380,6 +396,20 @@ If you know others, feel free to add them here through a PR.
         </p>
         <p align="center"><b>CRoaring - Roaring bitmaps in C (and C++), with SIMD (AVX2, AVX-512 and NEON) optimizations: used by Apache Doris, ClickHouse, and StarRocks</b></p>
       </a>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="https://github.com/wolfpld/tracy">
+        <p align="center">
+          <img src="https://raw.githubusercontent.com/wolfpld/tracy/refs/heads/master/icon/icon.svg" alt="tracy" width="100pt" />
+        </p>
+        <p align="center"><b>Tracy Profiler - A real time, nanosecond resolution, remote telemetry, hybrid frame and sampling profiler for games and other applications.</b></p>
+      </a>
+    </td>
+    <td>
+    </td>
+    <td>
     </td>
   </tr>
 </table>
@@ -412,11 +442,8 @@ CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.6.3@0.6.3")
 
 ```cmake
 CPMAddPackage(
-  NAME nlohmann_json
-  VERSION 3.9.1
-  GITHUB_REPOSITORY nlohmann/json
-  OPTIONS
-    "JSON_BuildTests OFF"
+  URI "gh:nlohmann/json@3.9.1"
+  OPTIONS "JSON_BuildTests OFF"
 )
 ```
 
@@ -446,8 +473,7 @@ For a working example of using CPM to download and configure the Boost C++ Libra
 ```cmake
 # the install option has to be explicitly set to allow installation
 CPMAddPackage(
-  GITHUB_REPOSITORY jarro2783/cxxopts
-  VERSION 2.2.1
+  URI "gh:jarro2783/cxxopts@2.2.1"
   OPTIONS "CXXOPTS_BUILD_EXAMPLES NO" "CXXOPTS_BUILD_TESTS NO" "CXXOPTS_ENABLE_INSTALL YES"
 )
 ```
@@ -456,9 +482,7 @@ CPMAddPackage(
 
 ```cmake
 CPMAddPackage(
-  NAME benchmark
-  GITHUB_REPOSITORY google/benchmark
-  VERSION 1.5.2
+  URI "gh:google/benchmark@1.5.2"
   OPTIONS "BENCHMARK_ENABLE_TESTING Off"
 )
 
@@ -516,7 +540,10 @@ CPMAddPackage(
 )
 ```
 
-URL_HASH is optional, but it's a good idea for releases.
+`URL_HASH` is optional, but it's a good idea for releases.
+
+> **Supply chain security best practice:**
+> When using source archives, always specify a hash (e.g., `SHA256`) with the `URL_HASH` option. This ensures the downloaded archive matches the expected content and helps prevent supply chain attacks. Never rely solely on URLs or tags for security.
 
 
 ### Identifying the URL
