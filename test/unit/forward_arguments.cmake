@@ -48,13 +48,13 @@ endmacro()
 # Empty-string arguments
 CPMAddPackage(
   NAME fibonacci
-  GIT_REPOSITORY https://github.com/cpm-cmake/testpack-fibonacci.git
+  GIT_REPOSITORY https://github.com/cpm-cmake/testpack-fibonacci.git GIT_SUBMODULES ""
   VERSION 1.2.3 EMPTY_OPTION "" COMMAND_WITH_EMPTY_ARG foo "" bar
 )
 get_property(last_FetchContent_Declare_ARGN GLOBAL PROPERTY last_FetchContent_Declare_ARGN)
 assert_equal(
   "${last_FetchContent_Declare_ARGN}"
-  "fibonacci;EMPTY_OPTION;;COMMAND_WITH_EMPTY_ARG;foo;;bar;GIT_REPOSITORY;https://github.com/cpm-cmake/testpack-fibonacci.git;GIT_TAG;v1.2.3"
+  "fibonacci;GIT_SUBMODULES;;EMPTY_OPTION;;COMMAND_WITH_EMPTY_ARG;foo;;bar;GIT_REPOSITORY;https://github.com/cpm-cmake/testpack-fibonacci.git;GIT_TAG;v1.2.3"
 )
 
 # Intercept underlying `cpm_add_package_multi_arg`
@@ -68,7 +68,7 @@ include(${CPM_MODULE_PATH}/Findfibonacci.cmake)
 get_property(last_cpmaddpackage_argn GLOBAL PROPERTY last_cpmaddpackage_argn)
 assert_equal(
   "${last_cpmaddpackage_argn}"
-  "NAME;fibonacci;GIT_REPOSITORY;https://github.com/cpm-cmake/testpack-fibonacci.git;VERSION;1.2.3;EMPTY_OPTION;;COMMAND_WITH_EMPTY_ARG;foo;;bar"
+  "NAME;fibonacci;GIT_REPOSITORY;https://github.com/cpm-cmake/testpack-fibonacci.git;GIT_SUBMODULES;;VERSION;1.2.3;EMPTY_OPTION;;COMMAND_WITH_EMPTY_ARG;foo;;bar"
 )
 
 # remove generated files
