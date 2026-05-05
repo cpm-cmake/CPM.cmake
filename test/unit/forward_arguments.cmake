@@ -65,5 +65,5 @@ assert_equal(
 )
 
 # remove generated files
-file(REMOVE_RECURSE ${CPM_MODULE_PATH})
-file(REMOVE ${CPM_PACKAGE_LOCK_FILE})
+file(REMOVE_RECURSE "${CPM_MODULE_PATH}")
+file(REMOVE "${CPM_PACKAGE_LOCK_FILE}")
