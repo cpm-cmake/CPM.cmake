@@ -101,6 +101,7 @@ function(run_test_single_patch)
   file(REMOVE_RECURSE "${test_dir}/.cpm_patches")
   run_patch_script("${patch_script}" "${test_dir}")
   assert_file_content("${test_dir}/input.txt" "new\n")
+  assert_not_exists("${test_dir}/input.txt.rej")
 endfunction()
 
 # ----------------------------------------------------------------------------------------
@@ -198,6 +199,68 @@ function(run_test_failed_patch_does_not_write_stamp)
 
   run_patch_script_expect_failure("${patch_script}" "${test_dir}")
   assert_not_exists("${test_dir}/.cpm_patches")
+  assert_not_exists("${test_dir}/input.txt.rej")
+endfunction()
+
+# ----------------------------------------------------------------------------------------
+# Test Case 7: Patch scripts work without dry-run support (forced NO)
+# ----------------------------------------------------------------------------------------
+function(run_test_patch_without_dry_run_support)
+  set(test_dir "${CMAKE_CURRENT_BINARY_DIR}/patch_without_dry_run")
+  set(patch_file "${test_dir}/change.patch")
+  set(patch_script "${CMAKE_BINARY_DIR}/CPM_scripts/cpm_apply_patches_no_dry_run_test.cmake")
+
+  find_program(PATCH_EXECUTABLE patch REQUIRED)
+
+  file(REMOVE_RECURSE "${test_dir}")
+  file(MAKE_DIRECTORY "${test_dir}")
+  file(WRITE "${test_dir}/input.txt" "old\n")
+  write_patch("${patch_file}" "old" "new")
+
+  file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/CPM_scripts")
+  cpm_write_apply_patches_script(
+    "${patch_script}" "${PATCH_EXECUTABLE}" NO "no_dry_run_test" "${patch_file}"
+  )
+
+  run_patch_script("${patch_script}" "${test_dir}")
+  assert_file_content("${test_dir}/input.txt" "new\n")
+
+  file(REMOVE_RECURSE "${test_dir}/.cpm_patches")
+  run_patch_script("${patch_script}" "${test_dir}")
+  assert_file_content("${test_dir}/input.txt" "new\n")
+  assert_not_exists("${test_dir}/input.txt.rej")
+endfunction()
+
+# ----------------------------------------------------------------------------------------
+# Test Case 8: Patch scripts work with dry-run support (forced YES)
+# Only runs on systems where --dry-run is supported (skipped on BSD/macOS patch).
+# ----------------------------------------------------------------------------------------
+function(run_test_patch_with_dry_run_support)
+  set(test_dir "${CMAKE_CURRENT_BINARY_DIR}/patch_with_dry_run")
+  set(patch_file "${test_dir}/change.patch")
+  set(patch_script "${CMAKE_BINARY_DIR}/CPM_scripts/cpm_apply_patches_dry_run_test.cmake")
+
+  find_program(PATCH_EXECUTABLE patch REQUIRED)
+
+  file(REMOVE_RECURSE "${test_dir}")
+  file(MAKE_DIRECTORY "${test_dir}")
+  file(WRITE "${test_dir}/input.txt" "old\n")
+  write_patch("${patch_file}" "old" "new")
+
+  file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/CPM_scripts")
+  cpm_write_apply_patches_script(
+    "${patch_script}" "${PATCH_EXECUTABLE}" YES "dry_run_test" "${patch_file}"
+  )
+
+  run_patch_script("${patch_script}" "${test_dir}")
+  assert_file_content("${test_dir}/input.txt" "new\n")
+
+  run_patch_script("${patch_script}" "${test_dir}")
+  assert_file_content("${test_dir}/input.txt" "new\n")
+
+  file(REMOVE_RECURSE "${test_dir}/.cpm_patches")
+  run_patch_script("${patch_script}" "${test_dir}")
+  assert_file_content("${test_dir}/input.txt" "new\n")
 endfunction()
 
 function(cleanup_patch_test_files)
@@ -207,6 +270,8 @@ function(cleanup_patch_test_files)
   file(REMOVE_RECURSE "${CMAKE_CURRENT_BINARY_DIR}/patch files with spaces")
   file(REMOVE_RECURSE "${CMAKE_CURRENT_BINARY_DIR}/changed_patch_file")
   file(REMOVE_RECURSE "${CMAKE_CURRENT_BINARY_DIR}/failed_patch")
+  file(REMOVE_RECURSE "${CMAKE_CURRENT_BINARY_DIR}/patch_without_dry_run")
+  file(REMOVE_RECURSE "${CMAKE_CURRENT_BINARY_DIR}/patch_with_dry_run")
   file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/CPM_scripts")
 endfunction()
 
@@ -216,4 +281,14 @@ run_test_multiple_patches()
 run_test_patch_path_with_spaces()
 run_test_patch_file_content_change()
 run_test_failed_patch_does_not_write_stamp()
+run_test_patch_without_dry_run_support()
+
+find_program(_cpm_patch_exe patch QUIET)
+if(_cpm_patch_exe)
+  cpm_patch_supports_dry_run("${_cpm_patch_exe}" _cpm_patch_dry_run)
+  if(_cpm_patch_dry_run)
+    run_test_patch_with_dry_run_support()
+  endif()
+endif()
+
 cleanup_patch_test_files()
