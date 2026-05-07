@@ -551,13 +551,32 @@ function(cpm_escape_for_generated_cmake input output_variable)
   )
 endfunction()
 
+function(cpm_patch_supports_dry_run patch_executable output_variable)
+  execute_process(
+    COMMAND "${patch_executable}" --help
+    RESULT_VARIABLE _result
+    OUTPUT_VARIABLE _help
+    ERROR_VARIABLE _help_err
+  )
+  string(FIND "${_help}${_help_err}" "--dry-run" _index)
+  if(_index GREATER_EQUAL 0)
+    set(${output_variable} YES PARENT_SCOPE)
+  else()
+    set(${output_variable} NO PARENT_SCOPE)
+  endif()
+endfunction()
+
 # Generate a script that applies patches from the dependency source directory.
-function(cpm_write_apply_patches_script script_path patch_executable patch_set_hash)
+function(cpm_write_apply_patches_script script_path patch_executable patch_supports_dry_run
+         patch_set_hash
+)
   cpm_escape_for_generated_cmake("${patch_executable}" escaped_patch_executable)
 
   set(script "# Auto-generated patch application script\n")
   string(APPEND script "set(patch_executable \"${escaped_patch_executable}\")\n")
+  string(APPEND script "set(patch_supports_dry_run ${patch_supports_dry_run})\n")
   string(APPEND script "set(patch_arguments -p1)\n")
+  string(APPEND script "set(patch_forward_arguments -N -p1 -r -)\n")
   string(APPEND script "set(patch_stamp_file \".cpm_patches/${patch_set_hash}.stamp\")\n")
   string(APPEND script "set(patch_files)\n")
 
@@ -579,60 +598,92 @@ if(EXISTS "${patch_stamp_file}")
 endif()
 
 foreach(patch_file IN LISTS patch_files)
-  message(STATUS "Checking patch: ${patch_file}")
+  if(patch_supports_dry_run)
+    message(STATUS "Checking patch: ${patch_file}")
+    execute_process(
+      COMMAND "${patch_executable}" --dry-run ${patch_arguments}
+      WORKING_DIRECTORY "${patch_working_directory}"
+      INPUT_FILE "${patch_file}"
+      RESULT_VARIABLE patch_check_result
+      OUTPUT_VARIABLE patch_check_output
+      ERROR_VARIABLE patch_check_error
+    )
 
-  execute_process(
-    COMMAND "${patch_executable}" --dry-run ${patch_arguments}
-    WORKING_DIRECTORY "${patch_working_directory}"
-    INPUT_FILE "${patch_file}"
-    RESULT_VARIABLE patch_check_result
-    OUTPUT_VARIABLE patch_check_output
-    ERROR_VARIABLE patch_check_error
-  )
-
-  if(patch_check_result EQUAL 0)
+    if(patch_check_result EQUAL 0)
+      message(STATUS "Applying patch: ${patch_file}")
+      execute_process(
+        COMMAND "${patch_executable}" ${patch_arguments}
+        WORKING_DIRECTORY "${patch_working_directory}"
+        INPUT_FILE "${patch_file}"
+        RESULT_VARIABLE patch_apply_result
+        OUTPUT_VARIABLE patch_apply_output
+        ERROR_VARIABLE patch_apply_error
+      )
+      if(patch_apply_result EQUAL 0)
+        message(STATUS "Applied patch: ${patch_file}")
+      else()
+        message(
+          FATAL_ERROR
+            "Patch failed: ${patch_file}\n"
+            "Working directory: ${patch_working_directory}\n"
+            "Patch executable: ${patch_executable}\n"
+            "Patch arguments: ${patch_arguments}\n"
+            "${patch_apply_output}\n${patch_apply_error}"
+        )
+      endif()
+    else()
+      execute_process(
+        COMMAND "${patch_executable}" --dry-run ${patch_arguments} --reverse
+        WORKING_DIRECTORY "${patch_working_directory}"
+        INPUT_FILE "${patch_file}"
+        RESULT_VARIABLE reverse_check_result
+        OUTPUT_VARIABLE reverse_check_output
+        ERROR_VARIABLE reverse_check_error
+      )
+      if(reverse_check_result EQUAL 0)
+        message(STATUS "Patch already applied: ${patch_file}")
+      else()
+        message(
+          FATAL_ERROR
+            "Patch cannot be applied and is not already applied: ${patch_file}\n"
+            "Working directory: ${patch_working_directory}\n"
+            "Patch executable: ${patch_executable}\n"
+            "Patch arguments: ${patch_arguments}\n"
+            "${patch_check_output}\n${patch_check_error}\n"
+            "${reverse_check_output}\n${reverse_check_error}"
+        )
+      endif()
+    endif()
+  else()
     message(STATUS "Applying patch: ${patch_file}")
     execute_process(
-      COMMAND "${patch_executable}" ${patch_arguments}
+      COMMAND "${patch_executable}" ${patch_forward_arguments}
       WORKING_DIRECTORY "${patch_working_directory}"
       INPUT_FILE "${patch_file}"
       RESULT_VARIABLE patch_apply_result
       OUTPUT_VARIABLE patch_apply_output
       ERROR_VARIABLE patch_apply_error
     )
+
     if(patch_apply_result EQUAL 0)
       message(STATUS "Applied patch: ${patch_file}")
     else()
-      message(
-        FATAL_ERROR
-          "Patch failed: ${patch_file}\n"
-          "Working directory: ${patch_working_directory}\n"
-          "Patch executable: ${patch_executable}\n"
-          "Patch arguments: ${patch_arguments}\n"
-          "${patch_apply_output}\n${patch_apply_error}"
-      )
-    endif()
-  else()
-    execute_process(
-      COMMAND "${patch_executable}" --dry-run ${patch_arguments} --reverse
-      WORKING_DIRECTORY "${patch_working_directory}"
-      INPUT_FILE "${patch_file}"
-      RESULT_VARIABLE reverse_check_result
-      OUTPUT_VARIABLE reverse_check_output
-      ERROR_VARIABLE reverse_check_error
-    )
-    if(reverse_check_result EQUAL 0)
-      message(STATUS "Patch already applied: ${patch_file}")
-    else()
-      message(
-        FATAL_ERROR
-          "Patch cannot be applied and is not already applied: ${patch_file}\n"
-          "Working directory: ${patch_working_directory}\n"
-          "Patch executable: ${patch_executable}\n"
-          "Patch arguments: ${patch_arguments}\n"
-          "${patch_check_output}\n${patch_check_error}\n"
-          "${reverse_check_output}\n${reverse_check_error}"
-      )
+      set(patch_apply_log "${patch_apply_output}\n${patch_apply_error}")
+      # -N makes patch exit non-zero when hunks are skipped. Detect already-applied patches by
+      # matching known output strings: GNU patch emits "Reversed (or previously applied)",
+      # BSD/macOS patch emits "Skipping patch".
+      if(patch_apply_log MATCHES "Reversed|previously applied|Skipping patch")
+        message(STATUS "Patch already applied: ${patch_file}")
+      else()
+        message(
+          FATAL_ERROR
+            "Patch failed: ${patch_file}\n"
+            "Working directory: ${patch_working_directory}\n"
+            "Patch executable: ${patch_executable}\n"
+            "Patch arguments: ${patch_forward_arguments}\n"
+            "${patch_apply_log}"
+        )
+      endif()
     endif()
   endif()
 endforeach()
@@ -673,8 +724,11 @@ function(cpm_add_patches)
   endif()
 
   set(resolved_patch_files)
-  set(patch_arguments -p1)
-  set(patch_set_fingerprint "${PATCH_EXECUTABLE}" "${patch_arguments}" "WORKING_DIRECTORY=.")
+  cpm_patch_supports_dry_run("${PATCH_EXECUTABLE}" patch_supports_dry_run)
+
+  # Fingerprint: executable path + dry-run capability + working dir marker + each file's path and
+  # content hash. Any change to the patch set produces a new hash and therefore a new stamp file.
+  set(patch_set_fingerprint "${PATCH_EXECUTABLE}" "${patch_supports_dry_run}" "WORKING_DIRECTORY=.")
 
   foreach(patch_file IN LISTS ARGN)
     # Resolve relative patch files from the current package list file.
@@ -693,7 +747,6 @@ function(cpm_add_patches)
     list(APPEND patch_set_fingerprint "${patch_file}" "${patch_file_hash}")
   endforeach()
 
-  # Include patch contents in the stamp key.
   string(REPLACE ";" "\n" patch_set_fingerprint_text "${patch_set_fingerprint}")
   string(SHA1 patch_set_hash "${patch_set_fingerprint_text}")
   set(patch_script_directory "${CMAKE_BINARY_DIR}/CPM_scripts")
@@ -701,7 +754,8 @@ function(cpm_add_patches)
 
   file(MAKE_DIRECTORY "${patch_script_directory}")
   cpm_write_apply_patches_script(
-    "${patch_script}" "${PATCH_EXECUTABLE}" "${patch_set_hash}" ${resolved_patch_files}
+    "${patch_script}" "${PATCH_EXECUTABLE}" "${patch_supports_dry_run}" "${patch_set_hash}"
+    ${resolved_patch_files}
   )
 
   list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS PATCH_COMMAND "${CMAKE_COMMAND}" -P "${patch_script}")
