@@ -314,7 +314,9 @@ endfunction()
 
 # Try to infer package name and version from a url
 function(cpm_package_name_and_ver_from_url url outName outVer)
-  if(url MATCHES "[/\\?]([a-zA-Z0-9_\\.-]+)\\.(tar|tar\\.gz|tar\\.bz2|zip|ZIP)(\\?|/|$)")
+  if(url MATCHES
+     "[/\\?]([a-zA-Z0-9_\\.-]+)\\.(tar|tar\\.gz|tar\\.bz2|tar\\.xz|tar\\.zst|zip|ZIP)(\\?|/|$)"
+  )
     # We matched an archive
     set(filename "${CMAKE_MATCH_1}")
 
@@ -1302,6 +1304,7 @@ function(cpm_parse_option OPTION)
   else()
     math(EXPR OPTION_KEY_LENGTH "${OPTION_KEY_LENGTH}+1")
     string(SUBSTRING "${OPTION}" "${OPTION_KEY_LENGTH}" "-1" OPTION_VALUE)
+    string(STRIP "${OPTION_VALUE}" OPTION_VALUE)
   endif()
   set(OPTION_KEY
       "${OPTION_KEY}"
