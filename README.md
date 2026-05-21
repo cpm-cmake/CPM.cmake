@@ -112,6 +112,9 @@ CPMAddPackage("https://example.com/my-package-1.2.3.zip#MD5=68e20f674a48be38d60e
 CPMAddPackage("https://example.com/my-package.zip@1.2.3")
 ```
 
+> **Supply chain security best practice:**
+> For maximum security and reproducibility, always prefer specifying immutable git commit hashes instead of tags or branches when referencing dependencies. Tags and branches can be changed or moved, but commit hashes always refer to the same code. You can specify a commit hash before the version in the URI, e.g. `gh:user/repo#<commit>@<version>`. This ensures your builds are protected from unexpected upstream changes or attacks.
+
 Additionally, if needed, extra arguments can be provided while using single argument syntax by using the shorthand syntax with the `URI` specifier.
 
 ```cmake
@@ -331,7 +334,7 @@ If you know others, feel free to add them here through a PR.
     <td>
       <a href="https://github.com/variar/klogg">
         <p align="center">
-          <img src="https://github.com/variar/klogg/blob/master/src/app/images/hicolor/scalable/klogg.svg" alt="klogg" width="100pt" />
+          <img src="https://raw.githubusercontent.com/variar/klogg/refs/heads/master/src/app/images/hicolor/scalable/klogg.svg" alt="klogg" width="100pt" />
         </p>
         <p align="center"><b>klogg - fast advanced log explorer</b></p>
       </a>
@@ -383,7 +386,7 @@ If you know others, feel free to add them here through a PR.
     <td>
       <a href="https://github.com/exaloop/codon">
         <p align="center">
-          <img src="https://github.com/exaloop/codon/blob/develop/docs/img/logo.png?raw=true" alt="codon" width="100pt" />
+          <img src="https://raw.githubusercontent.com/exaloop/codon/refs/heads/develop/docs/img/codon.svg" alt="codon" width="100pt" />
         </p>
         <p align="center"><b>codon - A high-performance, zero-overhead, extensible Python compiler using LLVM</b></p>
       </a>
@@ -395,6 +398,20 @@ If you know others, feel free to add them here through a PR.
         </p>
         <p align="center"><b>CRoaring - Roaring bitmaps in C (and C++), with SIMD (AVX2, AVX-512 and NEON) optimizations: used by Apache Doris, ClickHouse, and StarRocks</b></p>
       </a>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="https://github.com/wolfpld/tracy">
+        <p align="center">
+          <img src="https://raw.githubusercontent.com/wolfpld/tracy/refs/heads/master/icon/icon.svg" alt="tracy" width="100pt" />
+        </p>
+        <p align="center"><b>Tracy Profiler - A real time, nanosecond resolution, remote telemetry, hybrid frame and sampling profiler for games and other applications.</b></p>
+      </a>
+    </td>
+    <td>
+    </td>
+    <td>
     </td>
   </tr>
 </table>
@@ -525,7 +542,10 @@ CPMAddPackage(
 )
 ```
 
-URL_HASH is optional, but it's a good idea for releases.
+`URL_HASH` is optional, but it's a good idea for releases.
+
+> **Supply chain security best practice:**
+> When using source archives, always specify a hash (e.g., `SHA256`) with the `URL_HASH` option. This ensures the downloaded archive matches the expected content and helps prevent supply chain attacks. Never rely solely on URLs or tags for security.
 
 
 ### Identifying the URL
