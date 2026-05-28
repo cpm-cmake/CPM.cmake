@@ -606,3 +606,9 @@ The following snippet illustrates determining the SHA256 hash on a linux machine
 ```bash
 wget https://github.com/gabime/spdlog/archive/refs/tags/v1.13.0.zip -O - | sha256sum
 ```
+
+The following snippet illustrates determining the SHA256 hash on a Windows machine using Powershell:
+
+```powershell
+Get-FileHash -InputStream ((Invoke-WebRequest 'https://github.com/gabime/spdlog/archive/refs/tags/v1.13.0.zip').RawContentStream)
+```
