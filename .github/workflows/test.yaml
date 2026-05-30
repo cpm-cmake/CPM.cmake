@@ -24,25 +24,24 @@ jobs:
           # there seems to be an issue with CMake 3.16 not finding a C++ compiler on windows-2022 
           - os: windows-2022
             cmake_version: '3.16.3'
+    
+    env:
+      MISE_CMAKE_VERSION: ${{ matrix.cmake_version }}
 
     steps:
       - name: clone
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v1.13
+      - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # 4.0.1
         with:
-          cmake-version: ${{ matrix.cmake_version }}
+          version: 2026.5.0
+          install: true
+          cache: true
 
       - name: unit tests
-        run: |
-          cmake -Stest -Bbuild/test
-          cmake --build build/test --target test-verbose
-        env:
-          CMAKE_VERSION: ${{ matrix.cmake_version }}
+        run: mise run test:unit
 
       - name: integration tests
-        run: ruby test/integration/runner.rb
+        run: mise run test:integration
         env:
           CPM_INTEGRATION_TEST_DIR: ./build/integration
-          CMAKE_VERSION: ${{ matrix.cmake_version }}

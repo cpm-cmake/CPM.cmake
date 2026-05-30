@@ -3,6 +3,7 @@ require 'open3'
 require 'tmpdir'
 require 'test/unit'
 
+
 module TestLib
   TMP_DIR = File.expand_path(ENV['CPM_INTEGRATION_TEST_DIR'] || File.join(Dir.tmpdir, 'cpm-test', Time.now.strftime('%Y_%m_%d-%H_%M_%S')))
   CPM_PATH = File.expand_path('../../cmake/CPM.cmake', __dir__)
@@ -22,6 +23,20 @@ module TestLib
   )
   def self.clear_env
     CPM_ENV.each { ENV[_1] = nil }
+  end
+
+  # Returns the CMake version as a Gem::Version
+  def self.cmake_version
+    @cmake_version ||= begin
+      out, status = Open3.capture2('cmake --version')
+      unless status.success?
+        raise 'Failed to run cmake --version'
+      end
+      # Expect output like: "cmake version 3.27.1"
+      m = out.match(/cmake version (\d+\.\d+\.\d+)/)
+      raise "Could not parse cmake version from: #{out}" unless m
+      Gem::Version.new(m[1])
+    end
   end
 end
 

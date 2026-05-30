@@ -5,10 +5,9 @@ project(CPMSIMDJSONExample)
 # ---- Dependencies ----
 
 include(../../cmake/CPM.cmake)
-CPMAddPackage("gh:simdjson/simdjson@3.5.0")
+CPMAddPackage("gh:simdjson/simdjson@4.6.3")
 
 # ---- Executable ----
 
 add_executable(CPMSIMDJSONExample main.cpp)
-target_compile_features(CPMSIMDJSONExample PRIVATE cxx_std_17)
 target_link_libraries(CPMSIMDJSONExample simdjson::simdjson)

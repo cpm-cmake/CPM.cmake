@@ -23,7 +23,7 @@ def runCommand(command):
 
 print('')
 for example in examples:
-  print("running example %s" % example.name)
+  print("building example %s" % example.name)
   print("================" + ('=' * len(example.name)))
   project = Path(".") / 'build' / example.name
   configure = runCommand('cmake -S%s -B%s' % (example, project))

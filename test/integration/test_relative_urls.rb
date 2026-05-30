@@ -1,9 +1,10 @@
 require_relative './lib'
 
 class RelativeURLs < IntegrationTest
+
   def setup
     # relative URLs were introduced in CMake 3.27
-    @relative_urls_supported = (!ENV['CMAKE_VERSION']) || (Gem::Version.new(ENV['CMAKE_VERSION']) >= Gem::Version.new('3.27'))
+    @relative_urls_supported = TestLib.cmake_version >= Gem::Version.new('3.27')
   end
 
   def test_add_project_with_relative_urls
