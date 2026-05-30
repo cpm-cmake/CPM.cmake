@@ -14,18 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
 
-    - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v1.13
+    - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # 4.0.1
       with:
-        cmake-version: '3.27.x'
-    
-    - name: Install format dependencies
-      run: pip3 install clang-format==14.0.6 cmake_format==0.6.11 pyyaml
-
-    - name: configure
-      run: cmake -Stest/style -Bbuild/style
+        version: 2026.5.0
+        install: true
+        cache: true
 
     - name: check style
-      run: cmake --build build/style --target check-format
+      run: mise run check:format
