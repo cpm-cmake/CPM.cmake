@@ -100,20 +100,36 @@ Enhancement suggestions are tracked as [GitHub issues](https://github.com/cpm-cm
 
 ### Your First Code Contribution
 
-Please try to keep your individual changes as minimal and focussed on the issue as possible.
-If you discover that the scope of your contribution is growing larger than expected you might want to split the changes into multiple separate contributions to allow a more focussed discussion and review.
 
-It is usually a great idea and often required to add tests for your changes.
-This allows us to quickly validate that the changes are working as intended and also guarantees that they won't be broken by other future updates.
-For small and targeted functional changes, e.g. supporting a new URL schema, a [unit test](#unit-tests) may be enough.
-For contributions that change large-scale behaviour, such as dependency caching features, an [integration test](#integration-tests) is more suited.
-Depending on the changes, a combination of both test types may also be appropriate.
+Please try to keep your individual changes as minimal and focused on the issue as possible. If your contribution grows larger than expected, consider splitting it into multiple separate contributions for more focused discussion and review.
+
+It is usually a great idea and often required to add tests for your changes. This allows us to quickly validate that the changes are working as intended and also guarantees that they won't be broken by future updates. For small and targeted functional changes, e.g. supporting a new URL schema, a [unit test](#unit-tests) may be enough. For contributions that change large-scale behaviour, such as dependency caching features, an [integration test](#integration-tests) is more suited. Depending on the changes, a combination of both test types may also be appropriate.
+
+#### Using mise for Development
+
+This project recommends [mise](https://mise.jdx.dev/) as the package and environment manager for all development tasks. All required tools and workflows are defined in [mise.toml](./mise.toml).
+
+> **Note:** Some required system tools (such as GCC, Clang, or other compilers) are not managed by mise and must be installed separately using your system package manager (e.g., `apt`, `brew`, `dnf`, etc.).
+
+#### Getting Started
+
+1. **Install mise** ([instructions](https://mise.jdx.dev/getting-started.html))
+2. Run `mise install` to install all required tools and set up the environment.
+3. Use the provided mise tasks for all development workflows:
+
+| Task                | Command                        | Description                                 |
+|---------------------|--------------------------------|---------------------------------------------|
+| Format code         | `mise run format`              | Auto-format all code                        |
+| Run all tests       | `mise run test`                | Run all unit and integration tests          |
+| Run unit tests      | `mise run test:unit`           | Run all unit tests                          |
+| Run integration     | `mise run test:integration`    | Run all integration tests                   |
+| Build all examples  | `mise run build:examples`      | Build all example projects                  |
+
+For more details, run `mise tasks` for a list of all tasks or see the [mise.toml](./mise.toml) file.
 
 #### Unit tests
 
-Unit tests are small CMake scripts that live in the [unit test directory](./test/unit/).
-They usually make use of some of the helper assertions defined in the [testing.cmake](./cmake/testing.cmake) file.
-An example unit test for checking the `cpm_get_version_from_git_tag` function could look like the following.
+Unit tests are small CMake scripts that live in the [unit test directory](./test/unit/). They usually make use of some of the helper assertions defined in the [testing.cmake](./cmake/testing.cmake) file. An example unit test for checking the `cpm_get_version_from_git_tag` function could look like the following:
 
 ```cmake
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
@@ -125,52 +141,59 @@ cpm_get_version_from_git_tag("v1.2.3-a" VERSION)
 assert_equal("1.2.3" ${VERSION})
 ```
 
-This test can be run directly with CMake by providing the CPM source directory.
+To run all unit tests, use:
 
 ```bash
-cmake -DCPM_PATH=$(pwd)/cmake -P <path to the test file>
+mise run test:unit
 ```
 
-We can also the [test directory's](./test/) CMakeLists to detect and run all unit tests using CMake's test runner.
+To run a single unit test, use:
 
 ```bash
-cmake -Stest -Bbuild/test
-cmake --build build/test --target test-verbose # or `test` for less noisy output 
+mise run test:unit:single <test>
+# <test> Regex to match tests to run, e.g. the path to a test case.
 ```
 
 #### Integration tests
 
-The integration tests of CPM.cmake are written in Ruby. They use a custom integration test framework which extends the [Test::Unit](https://www.rubydoc.info/github/test-unit/test-unit/Test/Unit) library.
+The integration tests of CPM.cmake are written in Ruby and use a custom integration test framework based on [Test::Unit](https://www.rubydoc.info/github/test-unit/test-unit/Test/Unit).
 
-They require Ruby 2.7.0 or later.
+To run all integration tests, use:
 
-To run all tests from the repo root execute:
-
+```bash
+mise run test:integration
 ```
-ruby test/integration/runner.rb
+
+To run a single integration test script:
+
+```bash
+mise run test:integration:single <test>
+# <test> is the full path to the test script
 ```
 
 For a detailed guide on integration tests, see the documentation in the [integration test directory](./test/integration/).
 
+#### Selecting a CMake Version
+
+To temporarily use a different CMake version for a command, set the `MISE_CMAKE_VERSION` environment variable:
+
+```bash
+MISE_CMAKE_VERSION=3.29 mise run test
+```
+
+This runs all tests with CMake 3.29 for that command.
+
 ## Styleguides
 
-This project uses automatic code styling using [clang-format](https://clang.llvm.org/docs/ClangFormat.html) and [cmake-format](https://github.com/cheshirekow/cmake_format).
-The code style is enforced by the tools using the style options defined in the [.clang-format](./.clang-format) and [.cmake-format](./.cmake-format) configuration files.
+This project uses automatic code styling using [clang-format](https://clang.llvm.org/docs/ClangFormat.html) and [cmake-format](https://github.com/cheshirekow/cmake_format). The code style is enforced by the tools using the style options defined in the [.clang-format](./.clang-format) and [.cmake-format](./.cmake-format) configuration files.
 
-To install the necessary tools for code styling we recommend using recent version of [Python/pip](https://www.python.org).
-
-```bash
-pip3 install clang-format==14.0.6 cmake_format==0.6.11 pyyaml
-```
-
-For convenience, we have a CMake project defined in the [test/style](./test/style/) directory that can be called to automatically apply the code styling to all files currently added in git.
+All formatting and checking should be done via the mise tasks:
 
 ```bash
-# initialize the project
-cmake -Stest/style -Bbuild/style
-# apply the code styling to this repository
-cmake --build build/style --target fix-format
+mise run format         # Auto-format all code
+mise run check:format   # Check code formatting (CI/lint)
 ```
+
 
 <!-- omit in toc -->
 ## Attribution

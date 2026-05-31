@@ -2,9 +2,10 @@ require_relative './lib'
 
 class SystemWarnings < IntegrationTest
   
+
   def setup
-    # system is only supported for CMake >= 3.25 
-    @system_supported = (!ENV['CMAKE_VERSION']) || (Gem::Version.new(ENV['CMAKE_VERSION']) >= Gem::Version.new('3.25'))
+    # system is only supported for CMake >= 3.25
+    @system_supported = TestLib.cmake_version >= Gem::Version.new('3.25')
   end
 
   def test_dependency_added_using_system

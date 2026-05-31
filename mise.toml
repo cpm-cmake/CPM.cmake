@@ -1,0 +1,71 @@
+min_version = "2026.01.01"
+
+[tools]
+cmake = "3.30"
+ruby = "4.0"
+python = "3.14"
+uv = "0.11"
+
+[settings]
+lockfile=true
+ruby.compile=false
+
+[env]
+_.python.venv = { path = ".venv", create = true }
+
+[tasks]
+"init:cmake" = { description = "Configure CMake for test build", run = "cmake -Stest -Bbuild/test" }
+"init:python" = { description = "Install Python dependencies using uv", run = "uv pip install -r requirements.txt" }
+"clean" = { description = "Remove build directory", run = "python -c \"import shutil; shutil.rmtree('build', ignore_errors=True)\"" }
+"test" = { description = "Run all unit and integration tests", run = "mise run test:unit && mise run test:integration" }
+
+[tasks.format]
+description = "Format code using CMake target"
+depends = ["init:cmake", "init:python"]
+run = "cmake --build build/test --target fix-format"
+
+[tasks."check:format"]
+description = "Check code formatting using CMake target"
+depends = ["init:cmake", "init:python"]
+run = "cmake --build build/test --target check-format"
+
+[tasks."test:unit"]
+description = "Run all unit tests"
+depends = ["init:cmake"]
+run = "cmake --build build/test --target test-verbose"
+
+[tasks."test:unit:single"]
+description = "Run a single unit test by name"
+depends = ["init:cmake"]
+usage='''
+    arg "<test>" {
+        help "Regex to match tests to run, e.g. the path to a test case."
+    }
+'''
+run = "ctest --test-dir build/test -R \"${usage_test}\" --verbose"
+
+[tasks."test:integration"]
+description = "Run all integration tests"
+run = "ruby test/integration/runner.rb"
+
+[tasks."test:integration:single"]
+description = "Run a single integration test by script path"
+usage='''
+    arg "<test>" {
+        help "The full path to the test script"
+    }
+'''
+run = "ruby \"${usage_test}\""
+
+[tasks."build:examples"]
+description = "Build all example projects"
+run = "python examples/build_all.py"
+
+[tasks."build:example"]
+description = "Build a single example project by name"
+usage='''
+    arg "<example>" {
+        help "Name of the directory in the examples to build"
+    }
+'''
+run = "cmake -Sexamples/${usage_example} -Bbuild/${usage_example} && cmake --build build/${usage_example} --parallel"
