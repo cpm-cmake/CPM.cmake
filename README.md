@@ -55,6 +55,13 @@ mkdir -p cmake
 wget -O cmake/CPM.cmake https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/get_cpm.cmake
 ```
 
+Or using PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force -Path "cmake"
+Invoke-WebRequest -Uri "https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/get_cpm.cmake" -OutFile "cmake/CPM.cmake"
+```
+
 You can also download CPM.cmake directly from your project's `CMakeLists.txt`. See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Downloading-CPM.cmake-in-CMake) for more details.
 
 ## Usage
