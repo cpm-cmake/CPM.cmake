@@ -260,6 +260,16 @@ For example, to use the local version of the dependency `Dep` at the path `/path
 cmake -Bbuild -DCPM_Dep_SOURCE=/path/to/dep
 ```
 
+Environment-based local package overrides are also available via `CPM_<dependency name>_SOURCE`.
+For example:
+
+```bash
+export CPM_Dep_SOURCE=/path/to/dep
+cmake -Bbuild
+```
+
+If both the CMake option and environment variable are set, the explicit CMake option takes precedence.
+
 ## Package lock
 
 In large projects with many transitive dependencies, it can be useful to introduce a package lock file.
