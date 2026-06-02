@@ -646,6 +646,58 @@ function(cpm_override_fetchcontent contentName)
   set_property(GLOBAL PROPERTY ${propertyName} TRUE)
 endfunction()
 
+# replaces empty arguments with a placeholder to compensate CMake issues with handling empty
+# arguments
+function(cpm_encode_empty_arguments args outVar)
+  set(out "")
+  # note: we don't use string replacement for ';;' -> ';__CPM_EMPTY_ARG;' here, as it would
+  # interfere with nested arguments
+  foreach(ARG IN LISTS args)
+    if(ARG STREQUAL "")
+      list(APPEND out "__CPM_EMPTY_ARG")
+    else()
+      # prevent escaped characters from getting resolved early
+      string(REPLACE "\\" "\\\\\\" ARG "${ARG}")
+      # allow passing __CPM_EMPTY_ARG string by appending __ to any occurrences
+      string(REPLACE "__CPM_EMPTY_ARG" "____CPM_EMPTY_ARG" ARG "${ARG}")
+      list(APPEND out "${ARG}")
+    endif()
+  endforeach()
+  set("${outVar}"
+      "${out}"
+      PARENT_SCOPE
+  )
+endfunction()
+
+function(cpm_decode_empty_argument arg outVar)
+  if("${arg}" STREQUAL "__CPM_EMPTY_ARG")
+    set("${outVar}"
+        ""
+        PARENT_SCOPE
+    )
+  else()
+    string(REPLACE "\\\\\\" "\\" arg "${arg}")
+    string(REPLACE "____CPM_EMPTY_ARG" "__CPM_EMPTY_ARG" arg "${arg}")
+    set("${outVar}"
+        "${arg}"
+        PARENT_SCOPE
+    )
+  endif()
+endfunction()
+
+# replaces placeholder arguments from `cpm_encode_empty_arguments` with empty arguments
+function(cpm_decode_empty_arguments args outVar)
+  set(out "")
+  foreach(arg IN LISTS args)
+    cpm_decode_empty_argument("${arg}" arg)
+    list(APPEND out "${arg}")
+  endforeach()
+  set("${outVar}"
+      "${out}"
+      PARENT_SCOPE
+  )
+endfunction()
+
 # Download and add a package from source
 function(CPMAddPackage)
   cpm_set_policies()
@@ -689,7 +741,25 @@ function(CPMAddPackage)
     set(ARGN "${ARGV0};EXCLUDE_FROM_ALL;YES;SYSTEM;YES;${ARGN}")
   endif()
 
-  cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}")
+  # Encode arguments for `cmake_parse_arguments`
+  cpm_encode_empty_arguments("${ARGN}" "PARSE_ARGS")
+
+  # Parse arguments
+  cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" "${PARSE_ARGS}")
+
+  # Decode arguments
+  foreach(ARG IN LISTS oneValueArgs)
+    if(DEFINED CPM_ARGS_${ARG})
+      cpm_decode_empty_argument("${CPM_ARGS_${ARG}}" CPM_ARGS_${ARG})
+    endif()
+  endforeach()
+  foreach(ARG IN LISTS multiValueArgs)
+    if(DEFINED CPM_ARGS_${ARG})
+      cpm_decode_empty_arguments("${CPM_ARGS_${ARG}}" CPM_ARGS_${ARG})
+    endif()
+  endforeach()
+
+  cpm_decode_empty_arguments("${CPM_ARGS_UNPARSED_ARGUMENTS}" CPM_ARGS_UNPARSED_ARGUMENTS)
 
   # Set default values for arguments
   if(NOT DEFINED CPM_ARGS_VERSION)
@@ -958,7 +1028,6 @@ function(CPMAddPackage)
   cpm_message(
     STATUS "${CPM_INDENT} Adding package ${CPM_ARGS_NAME}@${CPM_ARGS_VERSION} (${PACKAGE_INFO})"
   )
-
   if(NOT CPM_SKIP_FETCH)
     # CMake 3.28 added EXCLUDE, SYSTEM (3.25), and SOURCE_SUBDIR (3.18) to FetchContent_Declare.
     # Calling FetchContent_MakeAvailable will then internally forward these options to
@@ -1102,6 +1171,41 @@ function(CPMGetPackageVersion PACKAGE OUTPUT)
   )
 endfunction()
 
+# Quotes the input argument `str` using bracket arguments [==[...]==] containing the minimum amount
+# of "=" needed.
+function(cpm_quote_as_bracket_string_literal str out_var)
+  # Find the shortest bracket depth that doesn't appear in the string, so we can safely use a
+  # bracket string literal: [==[...]==]
+  set(bracket "")
+  while(TRUE)
+    string(FIND "${str}" "]${bracket}]" pos)
+    if(pos EQUAL -1)
+      break()
+    endif()
+    string(APPEND bracket "=")
+  endwhile()
+  set(${out_var}
+      [${bracket}[${str}]${bracket}]
+      PARENT_SCOPE
+  )
+endfunction()
+
+# Evaluates CMake code (passed as ARGN) while preserving CMAKE_CURRENT_LIST_DIR.
+#
+# CMake's cmake_language(EVAL CODE ...) resets CMAKE_CURRENT_LIST_DIR, so we prepend a SET() call
+# using a bracket string literal — avoiding escaping issues regardless of what characters the path
+# contains.
+macro(cpm_cmake_eval)
+  cpm_quote_as_bracket_string_literal("${CMAKE_CURRENT_LIST_DIR}" __cpm_eval_CMAKE_CURRENT_LIST_DIR)
+  set(__cpm_eval_code "SET(CMAKE_CURRENT_LIST_DIR ${__cpm_eval_CMAKE_CURRENT_LIST_DIR})\n${ARGN}")
+  if(COMMAND cmake_language)
+    cmake_language(EVAL CODE "${__cpm_eval_code}")
+  else()
+    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/eval.cmake" "${__cpm_eval_code}")
+    include("${CMAKE_CURRENT_BINARY_DIR}/eval.cmake")
+  endif()
+endmacro()
+
 # declares a package in FetchContent_Declare
 function(cpm_declare_fetch PACKAGE)
   if(${CPM_DRY_RUN})
@@ -1109,7 +1213,14 @@ function(cpm_declare_fetch PACKAGE)
     return()
   endif()
 
-  FetchContent_Declare(${PACKAGE} ${ARGN})
+  # Forward preserving empty string arguments
+  # (https://gitlab.kitware.com/cmake/cmake/-/merge_requests/4729)
+  set(quoted_args)
+  foreach(arg IN LISTS ARGN)
+    cpm_quote_as_bracket_string_literal("${arg}" quoted_arg)
+    string(APPEND quoted_args " ${quoted_arg}")
+  endforeach()
+  cpm_cmake_eval("FetchContent_Declare(${PACKAGE} ${quoted_args} )")
 endfunction()
 
 # returns properties for a package previously defined by cpm_declare_fetch
@@ -1180,6 +1291,7 @@ endfunction()
 # downloads a previously declared package via FetchContent and exports the variables
 # `${PACKAGE}_SOURCE_DIR` and `${PACKAGE}_BINARY_DIR` to the parent scope
 function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY populated)
+
   set(${populated}
       FALSE
       PARENT_SCOPE
