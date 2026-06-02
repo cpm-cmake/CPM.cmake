@@ -74,7 +74,7 @@ Afterwards, any targets defined in the dependency can be used directly.
 CPMAddPackage(
   NAME          # The unique name of the dependency (should be the exported target's name)
   VERSION       # The minimum version of the dependency (optional, defaults to 0)
-  PATCHES       # Patch files to be applied sequentially using patch and PATCH_OPTIONS (optional)
+  PATCHES       # Patch files to be applied sequentially using patch (optional)
   OPTIONS       # Configuration options passed to the dependency (optional)
   DOWNLOAD_ONLY # If set to YES, the project is downloaded, but not configured (optional, default NO)
   [...]         # Origin parameters forwarded to FetchContent_Declare, see below
@@ -86,8 +86,7 @@ If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a com
 On the other hand, if `VERSION` hasn't been explicitly specified, CPM can automatically identify the version from the git tag in some common cases.
 `GIT_TAG` can also be set to a specific commit or a branch name such as `master`, however this isn't recommended, as such packages will only be updated when the cache is cleared.
 
-`PATCHES` takes a list of patch files to apply sequentially. For a basic example, see [Highway](examples/highway/CMakeLists.txt).
-We recommend that if you use `PATCHES`, you also set `CPM_SOURCE_CACHE`. See [issue 577](https://github.com/cpm-cmake/CPM.cmake/issues/577).
+`PATCHES` takes a list of patch files to apply sequentially. Patch files are applied from the dependency source directory and skipped on later configure runs after the same patch set has been applied successfully. For a basic example, see [Highway](examples/highway/CMakeLists.txt).
 
 If an additional optional parameter `EXCLUDE_FROM_ALL` is set to a truthy value, then any targets defined inside the dependency won't be built by default. See the [CMake docs](https://cmake.org/cmake/help/latest/prop_tgt/EXCLUDE_FROM_ALL.html) for details.
 
