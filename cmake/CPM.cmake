@@ -112,6 +112,62 @@ macro(cpm_set_policies)
 endmacro()
 cpm_set_policies()
 
+macro(cpm_generate_apply_patches_script)
+  set(_cpm_patch_script "${CPM_CURRENT_DIRECTORY}/cpm_apply_patches.cmake")
+
+  file(
+    WRITE "${_cpm_patch_script}"
+    [=[
+# Auto-generated patch application script
+separate_arguments(PATCH_FILES)
+
+foreach(patch_file IN LISTS PATCH_FILES)
+  message(STATUS "Checking patch: ${patch_file}")
+
+  execute_process(
+    COMMAND "${PATCH_EXECUTABLE}" --dry-run -p1
+    INPUT_FILE "${patch_file}"
+    RESULT_VARIABLE dry_run_result
+    OUTPUT_VARIABLE dry_out
+    ERROR_VARIABLE dry_err
+  )
+
+  if(dry_run_result EQUAL 0)
+    message(STATUS "Applying patch: ${patch_file}")
+    execute_process(
+      COMMAND "${PATCH_EXECUTABLE}" -p1
+      INPUT_FILE "${patch_file}"
+      RESULT_VARIABLE apply_result
+      OUTPUT_VARIABLE apply_out
+      ERROR_VARIABLE apply_err
+    )
+    if(apply_result EQUAL 0)
+      message(STATUS "Applied patch: ${patch_file}")
+    else()
+      message(FATAL_ERROR "Patch failed: ${patch_file}\n${apply_err}")
+    endif()
+  else()
+    execute_process(
+      COMMAND "${PATCH_EXECUTABLE}" --dry-run -p1 --reverse
+      INPUT_FILE "${patch_file}"
+      RESULT_VARIABLE reverse_result
+      OUTPUT_VARIABLE reverse_out
+      ERROR_VARIABLE reverse_err
+    )
+    if(reverse_result EQUAL 0)
+      message(STATUS "Patch already applied: ${patch_file}")
+    else()
+      message(
+        FATAL_ERROR "Patch cannot be applied and is not already applied: ${patch_file}\n${dry_err}"
+      )
+    endif()
+  endif()
+endforeach()
+]=]
+  )
+endmacro()
+cpm_generate_apply_patches_script()
+
 option(CPM_USE_LOCAL_PACKAGES "Always try to use `find_package` to get dependencies"
        $ENV{CPM_USE_LOCAL_PACKAGES}
 )
@@ -568,41 +624,43 @@ function(cpm_add_patches)
     message(FATAL_ERROR "Couldn't find `patch` executable to use with PATCHES keyword.")
   endif()
 
-  # Create a temporary
-  set(temp_list ${CPM_ARGS_UNPARSED_ARGUMENTS})
+  # -----------------------------------------------------------------------------------------------
+  # Resolve and validate all patch file paths
+  # -----------------------------------------------------------------------------------------------
+  set(resolved_patch_files)
 
-  # Ensure each file exists (or error out) and add it to the list.
-  set(first_item True)
-  foreach(PATCH_FILE ${ARGN})
+  # Allow for generator expressions in patch file paths
+  string(CONFIGURE "${ARGN}" ARGN)
+
+  foreach(PATCH_FILE IN LISTS ARGN)
     # Make sure the patch file exists, if we can't find it, try again in the current directory.
-    if(NOT EXISTS "${PATCH_FILE}")
-      if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/${PATCH_FILE}")
+    if(NOT EXISTS ${PATCH_FILE})
+      set(_fallback_path "${PROJECT_SOURCE_DIR}/${PATCH_FILE}")
+      if(NOT EXISTS "${_fallback_path}")
         message(FATAL_ERROR "Couldn't find patch file: '${PATCH_FILE}'")
       endif()
-      set(PATCH_FILE "${CMAKE_CURRENT_LIST_DIR}/${PATCH_FILE}")
+      set(PATCH_FILE "${_fallback_path}")
     endif()
 
     # Convert to absolute path for use with patch file command.
     get_filename_component(PATCH_FILE "${PATCH_FILE}" ABSOLUTE)
-
-    # The first patch entry must be preceded by "PATCH_COMMAND" while the following items are
-    # preceded by "&&".
-    if(first_item)
-      set(first_item False)
-      list(APPEND temp_list "PATCH_COMMAND")
-    else()
-      list(APPEND temp_list "&&")
-    endif()
-    # Add the patch command to the list
-    list(APPEND temp_list "${PATCH_EXECUTABLE}" "-p1" "<" "${PATCH_FILE}")
+    list(APPEND resolved_patch_files "${PATCH_FILE}")
   endforeach()
 
-  # Move temp out into parent scope.
-  set(CPM_ARGS_UNPARSED_ARGUMENTS
-      ${temp_list}
-      PARENT_SCOPE
+  # -----------------------------------------------------------------------------------------------
+  # Construct the patch command
+  # -----------------------------------------------------------------------------------------------
+  string(JOIN " " joined_patch_files ${resolved_patch_files})
+
+  set(_patch_command cmake -D "PATCH_FILES=${joined_patch_files}" -D
+                     "PATCH_EXECUTABLE=${PATCH_EXECUTABLE}" -P "${_cpm_patch_script}"
   )
 
+  list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS PATCH_COMMAND ${_patch_command})
+  set(CPM_ARGS_UNPARSED_ARGUMENTS
+      "${CPM_ARGS_UNPARSED_ARGUMENTS}"
+      PARENT_SCOPE
+  )
 endfunction()
 
 # method to overwrite internal FetchContent properties, to allow using CPM.cmake to overload
@@ -1041,11 +1099,14 @@ endmacro()
 
 # declares a package, so that any call to CPMAddPackage for the package name will use these
 # arguments instead. Previous declarations will not be overridden.
-macro(CPMDeclarePackage Name)
+function(CPMDeclarePackage Name)
   if(NOT DEFINED "CPM_DECLARATION_${Name}")
-    set("CPM_DECLARATION_${Name}" "${ARGN}")
+    set("CPM_DECLARATION_${Name}"
+        "${ARGN}"
+        PARENT_SCOPE
+    )
   endif()
-endmacro()
+endfunction()
 
 function(cpm_add_to_package_lock Name)
   if(NOT CPM_DONT_CREATE_PACKAGE_LOCK)
@@ -1316,8 +1377,10 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
       EXCLUDE_FROM_ALL
       SOURCE_SUBDIR
   )
-  set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND)
+  set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND PATCHES)
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  string(TOLOWER "${PROJECT_NAME}" CPM_PROJECT_NAME)
 
   foreach(oneArgName ${oneValueArgs})
     if(DEFINED CPM_ARGS_${oneArgName})
@@ -1341,6 +1404,23 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
       foreach(singleOption ${CPM_ARGS_${multiArgName}})
         if(${IS_IN_COMMENT})
           string(APPEND PRETTY_OUT_VAR "#")
+        endif()
+        if(${multiArgName} STREQUAL "PATCHES")
+          # Check if the path contains a "${[NAME]_SOURCE_DIR}" variable, if it does not, issue a
+          # warning a an prepend the PROJECT_SOURCE_DIR to make sure the path is correct. Else this
+          # would lead to huge issues in other projects using this package as dependency, as the
+          # patch file would not be found.
+          if(NOT singleOption MATCHES "\\$\\{${CPM_PROJECT_NAME}_SOURCE_DIR\\}")
+            message(
+              WARNING
+                "${CPM_INDENT} Patch file path '${singleOption}' does not contain \${${CPM_PROJECT_NAME}_SOURCE_DIR}, this may lead to issues when used as a dependency. Prepending \${PROJECT_SOURCE_DIR} to the path."
+            )
+            set(singleOption "${PROJECT_SOURCE_DIR}/${singleOption}")
+          endif()
+          string(REPLACE \$ "\\\$" singleOption ${singleOption})
+          string(REPLACE ${PROJECT_SOURCE_DIR} "\\\${${CPM_PROJECT_NAME}_SOURCE_DIR}" singleOption
+                         ${singleOption}
+          )
         endif()
         string(APPEND PRETTY_OUT_VAR "    \"${singleOption}\"\n")
       endforeach()
