@@ -882,14 +882,19 @@ function(CPMAddPackage)
     get_filename_component(download_directory ${download_directory} ABSOLUTE)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS SOURCE_DIR ${download_directory})
 
-    if(CPM_SOURCE_CACHE)
-      file(LOCK ${download_directory}/../cmake.lock)
+    file(LOCK ${download_directory}/../cmake.lock)
+
+    if(EXISTS ${download_directory} AND NOT EXISTS ${download_directory}.download)
+      message(
+        WARNING
+          "Cache for ${CPM_ARGS_NAME} is missing .download, downloading. (${download_directory}.download)"
+      )
+      file(REMOVE_RECURSE ${download_directory})
     endif()
 
     if(EXISTS ${download_directory})
-      if(CPM_SOURCE_CACHE)
-        file(LOCK ${download_directory}/../cmake.lock RELEASE)
-      endif()
+      # Directory content is considered OK
+      file(LOCK ${download_directory}/../cmake.lock RELEASE)
 
       cpm_store_fetch_properties(
         ${CPM_ARGS_NAME} "${download_directory}"
@@ -990,6 +995,9 @@ function(CPMAddPackage)
 
     cpm_fetch_package("${CPM_ARGS_NAME}" ${DOWNLOAD_ONLY} populated ${CPM_ARGS_UNPARSED_ARGUMENTS})
     if(CPM_SOURCE_CACHE AND download_directory)
+      if(${populated})
+        file(WRITE ${download_directory}.download "")
+      endif()
       file(LOCK ${download_directory}/../cmake.lock RELEASE)
     endif()
     if(${populated} AND ${CMAKE_VERSION} VERSION_LESS "3.30.3")
