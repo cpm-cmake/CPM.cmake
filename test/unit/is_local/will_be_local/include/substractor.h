@@ -1,0 +1,6 @@
+#ifndef INCLUDE_WILL_BE_LOCAL_SUBSTRACTOR_H_
+#define INCLUDE_WILL_BE_LOCAL_SUBSTRACTOR_H_
+
+long substract(int, int);
+
+#endif  // INCLUDE_WILL_BE_LOCAL_SUBSTRACTOR_H_
