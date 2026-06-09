@@ -129,6 +129,11 @@ option(CPM_INCLUDE_ALL_IN_PACKAGE_LOCK
        "Add all packages added through CPM.cmake to the package lock"
        $ENV{CPM_INCLUDE_ALL_IN_PACKAGE_LOCK}
 )
+option(
+  CPM_GENERATE_PACKAGE_LOCK
+  "Keep the package lock in sync on every configure (pnpm/npm style), pinning git deps to the resolved commit"
+  $ENV{CPM_GENERATE_PACKAGE_LOCK}
+)
 option(CPM_USE_NAMED_CACHE_DIRECTORIES
        "Use additional directory of package name in cache on the most nested level."
        $ENV{CPM_USE_NAMED_CACHE_DIRECTORIES}
@@ -945,16 +950,6 @@ function(CPMAddPackage)
     cpm_create_module_file(${CPM_ARGS_NAME} "CPMAddPackage(\"${ARGN}\")")
   endif()
 
-  if(CPM_PACKAGE_LOCK_ENABLED)
-    if((CPM_ARGS_VERSION AND NOT CPM_ARGS_SOURCE_DIR) OR CPM_INCLUDE_ALL_IN_PACKAGE_LOCK)
-      cpm_add_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
-    elseif(CPM_ARGS_SOURCE_DIR)
-      cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "local directory")
-    else()
-      cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
-    endif()
-  endif()
-
   cpm_message(
     STATUS "${CPM_INDENT} Adding package ${CPM_ARGS_NAME}@${CPM_ARGS_VERSION} (${PACKAGE_INFO})"
   )
@@ -1006,6 +1001,41 @@ function(CPMAddPackage)
     cpm_get_fetch_properties("${CPM_ARGS_NAME}")
   endif()
 
+  # Record the package in the lock. This runs after the fetch so a generated lock can pin git
+  # packages to the commit that was actually checked out (the source dir now exists).
+  if(CPM_PACKAGE_LOCK_ENABLED)
+    set(CPM_LOCK_ARGN "${ARGN}")
+    if(CPM_PACKAGE_LOCK_GENERATED
+       AND DEFINED CPM_ARGS_GIT_REPOSITORY
+       AND DEFINED ${CPM_ARGS_NAME}_SOURCE_DIR
+    )
+      cpm_get_git_commit_hash("${${CPM_ARGS_NAME}_SOURCE_DIR}" CPM_LOCK_COMMIT)
+      if(CPM_LOCK_COMMIT)
+        # Replace the (possibly moving) GIT_TAG with the resolved commit, so the lock is
+        # reproducible regardless of where the branch/tag later points.
+        list(FIND CPM_LOCK_ARGN "GIT_TAG" CPM_LOCK_GIT_TAG_INDEX)
+        if(CPM_LOCK_GIT_TAG_INDEX GREATER -1)
+          math(EXPR CPM_LOCK_GIT_TAG_VALUE_INDEX "${CPM_LOCK_GIT_TAG_INDEX} + 1")
+          list(REMOVE_AT CPM_LOCK_ARGN ${CPM_LOCK_GIT_TAG_VALUE_INDEX})
+          list(INSERT CPM_LOCK_ARGN ${CPM_LOCK_GIT_TAG_VALUE_INDEX} "${CPM_LOCK_COMMIT}")
+        else()
+          list(APPEND CPM_LOCK_ARGN GIT_TAG "${CPM_LOCK_COMMIT}")
+        endif()
+      endif()
+    endif()
+
+    if((CPM_ARGS_VERSION AND NOT CPM_ARGS_SOURCE_DIR)
+       OR CPM_INCLUDE_ALL_IN_PACKAGE_LOCK
+       OR (CPM_PACKAGE_LOCK_GENERATED AND NOT CPM_ARGS_SOURCE_DIR)
+    )
+      cpm_add_to_package_lock(${CPM_ARGS_NAME} "${CPM_LOCK_ARGN}")
+    elseif(CPM_ARGS_SOURCE_DIR)
+      cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "local directory")
+    else()
+      cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
+    endif()
+  endif()
+
   set(${CPM_ARGS_NAME}_ADDED YES)
   cpm_export_variables("${CPM_ARGS_NAME}")
 endfunction()
@@ -1047,6 +1077,35 @@ macro(CPMDeclarePackage Name)
   endif()
 endmacro()
 
+# Resolves the exact commit currently checked out in a git package's source dir, so a generated
+# package lock can pin it. Sets ${result} to the empty string when it cannot be determined.
+function(cpm_get_git_commit_hash repoPath result)
+  set(${result}
+      ""
+      PARENT_SCOPE
+  )
+
+  find_package(Git QUIET)
+  if(NOT GIT_EXECUTABLE OR NOT EXISTS "${repoPath}/.git")
+    return()
+  endif()
+
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+    WORKING_DIRECTORY ${repoPath}
+    RESULT_VARIABLE resultGitRevParse
+    OUTPUT_VARIABLE commitHash
+    OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET
+  )
+
+  if(resultGitRevParse EQUAL 0)
+    set(${result}
+        "${commitHash}"
+        PARENT_SCOPE
+    )
+  endif()
+endfunction()
+
 function(cpm_add_to_package_lock Name)
   if(NOT CPM_DONT_CREATE_PACKAGE_LOCK)
     cpm_prettify_package_arguments(PRETTY_ARGN false ${ARGN})
@@ -1063,19 +1122,49 @@ function(cpm_add_comment_to_package_lock Name)
   endif()
 endfunction()
 
-# includes the package lock file if it exists and creates a target `cpm-update-package-lock` to
-# update it
+# Includes the package lock file if it exists and creates a target `cpm-update-package-lock` to
+# update it.
+#
+# Pass GENERATED (or set CPM_GENERATE_PACKAGE_LOCK) for pnpm/npm-style behaviour: the lock at <file>
+# is (re)written in the source tree on every configure and git packages are pinned to the exact
+# commit that was checked out, so it stays in sync with no separate update step. Delete the file and
+# reconfigure to refresh the pins, just like deleting a `pnpm-lock.yaml`.
 macro(CPMUsePackageLock file)
   if(NOT CPM_DONT_CREATE_PACKAGE_LOCK)
+    cmake_parse_arguments(CPM_USE_LOCK "GENERATED" "" "" ${ARGN})
+
     get_filename_component(CPM_ABSOLUTE_PACKAGE_LOCK_PATH ${file} ABSOLUTE)
+
+    # Apply any existing pins before the lock is (re)written below.
     if(EXISTS ${CPM_ABSOLUTE_PACKAGE_LOCK_PATH})
       include(${CPM_ABSOLUTE_PACKAGE_LOCK_PATH})
     endif()
-    if(NOT TARGET cpm-update-package-lock)
-      add_custom_target(
-        cpm-update-package-lock COMMAND ${CMAKE_COMMAND} -E copy ${CPM_PACKAGE_LOCK_FILE}
-                                        ${CPM_ABSOLUTE_PACKAGE_LOCK_PATH}
+
+    if(CPM_USE_LOCK_GENERATED OR CPM_GENERATE_PACKAGE_LOCK)
+      # Author the lock directly in the source tree and keep it current on every configure.
+      set(CPM_PACKAGE_LOCK_GENERATED
+          TRUE
+          CACHE INTERNAL ""
       )
+      set(CPM_PACKAGE_LOCK_FILE
+          "${CPM_ABSOLUTE_PACKAGE_LOCK_PATH}"
+          CACHE INTERNAL ""
+      )
+      file(
+        WRITE ${CPM_PACKAGE_LOCK_FILE}
+        "# CPM Package Lock\n# This file is generated by CPM.cmake and should be committed to version control\n\n"
+      )
+    else()
+      set(CPM_PACKAGE_LOCK_GENERATED
+          FALSE
+          CACHE INTERNAL ""
+      )
+      if(NOT TARGET cpm-update-package-lock)
+        add_custom_target(
+          cpm-update-package-lock COMMAND ${CMAKE_COMMAND} -E copy ${CPM_PACKAGE_LOCK_FILE}
+                                          ${CPM_ABSOLUTE_PACKAGE_LOCK_PATH}
+        )
+      endif()
     endif()
     set(CPM_PACKAGE_LOCK_ENABLED true)
   endif()

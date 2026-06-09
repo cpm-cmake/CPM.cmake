@@ -277,6 +277,31 @@ cmake -Bbuild
 cmake --build build --target cpm-update-package-lock
 ```
 
+### Generated package lock (pnpm/npm style)
+
+Pass `GENERATED` to keep the lock in sync automatically, the way `pnpm-lock.yaml` or
+`package-lock.json` work:
+
+```cmake
+CPMUsePackageLock(package-lock.cmake GENERATED)
+```
+
+In this mode the lock at the given path is rewritten in your source tree on **every configure**,
+and git packages are pinned to the **exact commit that was checked out** rather than the (possibly
+moving) `GIT_TAG`. This makes the lock reproducible even when dependencies are declared against a
+branch like `main`. No separate `cpm-update-package-lock` step is needed.
+
+To refresh the pins (e.g. to pull in newer upstream commits), delete the lock file and reconfigure,
+just like deleting a `pnpm-lock.yaml`:
+
+```bash
+rm package-lock.cmake
+cmake -Bbuild
+```
+
+The same behaviour can be enabled globally without editing `CMakeLists.txt` by setting the
+`CPM_GENERATE_PACKAGE_LOCK` option (or environment variable).
+
 See the [wiki](https://github.com/cpm-cmake/CPM.cmake/wiki/Package-lock) for more info.
 
 ## Private repositories and CI
