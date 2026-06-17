@@ -1122,15 +1122,27 @@ function(cpm_add_comment_to_package_lock Name)
   endif()
 endfunction()
 
-# Includes the package lock file if it exists and creates a target `cpm-update-package-lock` to
-# update it.
+# Includes the package lock file if it exists. In the default mode this also creates a
+# `cpm-update-package-lock` target that copies the lock generated in the binary dir back to <file>.
 #
-# Pass GENERATED (or set CPM_GENERATE_PACKAGE_LOCK) for pnpm/npm-style behaviour: the lock at <file>
-# is (re)written in the source tree on every configure and git packages are pinned to the exact
-# commit that was checked out, so it stays in sync with no separate update step. Delete the file and
-# reconfigure to refresh the pins, just like deleting a `pnpm-lock.yaml`.
+# Pass GENERATED (or set CPM_GENERATE_PACKAGE_LOCK) for pnpm/npm-style behaviour instead: the lock
+# at <file> is (re)written in the source tree on every configure and git packages are pinned to the
+# exact commit that was checked out, so it stays in sync with no separate update step. The
+# `cpm-update-package-lock` target is not created in this mode. Delete the file and reconfigure to
+# refresh the pins, just like deleting a `pnpm-lock.yaml`.
 macro(CPMUsePackageLock file)
-  if(NOT CPM_DONT_CREATE_PACKAGE_LOCK)
+  # A nested CPM dependency may also call CPMUsePackageLock during configuration. Only the first
+  # (top-level) call should take effect, otherwise a sub-project would overwrite the consuming
+  # project's lock file. A GLOBAL property is used as the guard so it is visible across all
+  # directory scopes yet resets on every fresh configure run (unlike a cache entry, which would
+  # persist and wrongly skip the top-level call on the next configure).
+  get_property(
+    CPM_PACKAGE_LOCK_INITIALIZED GLOBAL
+    PROPERTY CPM_PACKAGE_LOCK_INITIALIZED
+    SET
+  )
+  if(NOT CPM_DONT_CREATE_PACKAGE_LOCK AND NOT CPM_PACKAGE_LOCK_INITIALIZED)
+    set_property(GLOBAL PROPERTY CPM_PACKAGE_LOCK_INITIALIZED true)
     cmake_parse_arguments(CPM_USE_LOCK "GENERATED" "" "" ${ARGN})
 
     get_filename_component(CPM_ABSOLUTE_PACKAGE_LOCK_PATH ${file} ABSOLUTE)

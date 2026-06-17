@@ -279,6 +279,13 @@ cmake --build build --target cpm-update-package-lock
 
 ### Generated package lock (pnpm/npm style)
 
+> **Experimental.** This mode currently only locks the `GIT_TAG` and `GIT_REPOSITORY` of git
+> packages. Any other arguments to `CPMAddPackage` (such as `OPTIONS`, `VERSION`, or an explicitly
+> set commit) are still resolved from your `CMakeLists.txt`, not from the lock, and changing them
+> will **not** take effect until you remove the lock file (or the affected entry) and reconfigure.
+> A proper npm-style lock may cover these in the future, which could be a breaking change, so use
+> with caution for now.
+
 Pass `GENERATED` to keep the lock in sync automatically, the way `pnpm-lock.yaml` or
 `package-lock.json` work:
 
