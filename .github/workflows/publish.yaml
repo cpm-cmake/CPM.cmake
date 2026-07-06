@@ -12,18 +12,23 @@ permissions:
 
 jobs:
   publish:
-    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Validate and create tag
+      - name: Validate publish request
         env:
           TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
+
+          # validate dispatch branch
+          if [[ "${GITHUB_REF}" != "refs/heads/master" ]]; then
+            echo "Error: publish workflow must be dispatched from 'master'. Current ref: ${GITHUB_REF}" >&2
+            exit 1
+          fi
 
           # validate tag input
           if [[ -z "$TAG" ]]; then
@@ -44,6 +49,14 @@ jobs:
               echo "Error: tag '$TAG' already exists and points to a different commit." >&2
               exit 1
             fi
+          fi
+
+      - name: Create tag
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
             echo "Tag '$TAG' already exists; reusing it." >&2
           else
             git tag "$TAG"
