@@ -22,14 +22,24 @@ jobs:
         run: |
           set -euo pipefail
 
+          # validate tag input
+          TAG="${{ inputs.tag }}"
+          if [[ -z "$TAG" ]]; then
+            echo "Error: tag input is empty" >&2
+            exit 1
+          fi
+          
           # ensure the tag starts with "v"
-          [[ "${{ inputs.tag }}" =~ ^v ]] || exit 1
+          if ! [[ "$TAG" =~ ^v ]]; then
+            echo "Error: tag must start with 'v' (e.g., v42.0.0)" >&2
+            exit 1
+          fi
           
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git tag "${{ inputs.tag }}"
-          git push origin "${{ inputs.tag }}"
+          git tag "$TAG"
+          git push origin "$TAG"
 
       - name: Checkout tag
         run: |
