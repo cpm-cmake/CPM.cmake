@@ -45,13 +45,6 @@ jobs:
           git config user.email "github-actions@github.com"
 
           git tag "$TAG"
-          git push origin "$TAG"
-
-      - name: Checkout tag
-        run: |
-          set -euo pipefail
-          git fetch --tags
-          git checkout "${{ inputs.tag }}"
 
       - name: Build CPM.cmake
         run: |
@@ -74,6 +67,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+          git push origin "${{ inputs.tag }}"
           gh release create "${{ inputs.tag }}" \
             dist/*.cmake \
             --title "${{ inputs.tag }}" \
