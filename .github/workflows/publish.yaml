@@ -1,29 +1,56 @@
 name: Publish
 
 on:
-  push:
-    tags:
-      - '*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag (e.g. v42.0.0)
+        required: true
+
+permissions:
+  contents: write
 
 jobs:
-  build:
-    name: Publish CPM.cmake
+  publish:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
 
-      - name: Set CPM version by tag
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create and push tag
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git tag "${{ inputs.tag }}"
+          git push origin "${{ inputs.tag }}"
+
+      - name: Checkout tag
+        run: |
+          git fetch --tags
+          git checkout "${{ inputs.tag }}"
+
+      - name: Build CPM.cmake
         run: |
           mkdir dist
-          sed -e "s/1.0.0-development-version/${GITHUB_REF/refs\/tags\/v}/g" cmake/CPM.cmake > dist/CPM.cmake
-          sed -e "s/1.0.0-development-version/${GITHUB_REF/refs\/tags\/v}/g" \
-              -e "s/CPM_HASH_SUM_PLACEHOLDER/$(sha256sum dist/CPM.cmake | cut -d' ' -f1)/" cmake/get_cpm.cmake > dist/get_cpm.cmake
+          VERSION="${{ inputs.tag }}"
+          VERSION="${VERSION#v}"
 
-      - name: Upload CPM.cmake to release
-        uses: svenstaro/upload-release-action@29e53e917877a24fad85510ded594ab3c9ca12de # 2.11.5
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref }}
-          file: dist/*.cmake
-          file_glob: true
-          overwrite: true
+          sed \
+            -e "s/1.0.0-development-version/${VERSION}/g" \
+            cmake/CPM.cmake > dist/CPM.cmake
+
+          sed \
+            -e "s/1.0.0-development-version/${VERSION}/g" \
+            -e "s/CPM_HASH_SUM_PLACEHOLDER/$(sha256sum dist/CPM.cmake | cut -d' ' -f1)/" \
+            cmake/get_cpm.cmake > dist/get_cpm.cmake
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ inputs.tag }}" \
+            dist/*.cmake \
+            --title "${{ inputs.tag }}" \
+            --generate-notes
