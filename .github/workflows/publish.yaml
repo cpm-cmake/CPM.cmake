@@ -55,8 +55,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir dist
-          VERSION="$TAG"
-          VERSION="${VERSION#v}"
+          VERSION="${TAG#v}"
 
           sed \
             -e "s/1.0.0-development-version/${VERSION}/g" \
