@@ -29,12 +29,19 @@ jobs:
             exit 1
           fi
           
-          # ensure the tag starts with "v"
-          if ! [[ "$TAG" =~ ^v ]]; then
-            echo "Error: tag must start with 'v' (e.g., v42.0.0)" >&2
+          # validate tag format (SemVer with leading "v")
+          if ! [[ "$TAG" =~ ^v[0-9]+(\.[0-9]+){2}([\-+][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Error: tag must be a SemVer starting with 'v' (e.g., v42.0.0 or v42.0.0-rc.1)" >&2
             exit 1
           fi
           
+          git fetch --tags --force
+
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "Error: tag '$TAG' already exists. Pick a new tag or delete the existing one first." >&2
+            exit 1
+          fi
+
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
