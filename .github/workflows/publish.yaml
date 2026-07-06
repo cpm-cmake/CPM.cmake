@@ -19,11 +19,12 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Validate and create tag
+        env:
+          TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
 
           # validate tag input
-          TAG="${{ inputs.tag }}"
           if [[ -z "$TAG" ]]; then
             echo "Error: tag input is empty" >&2
             exit 1
@@ -45,10 +46,12 @@ jobs:
           git tag "$TAG"
 
       - name: Build CPM.cmake
+        env:
+          TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
           mkdir dist
-          VERSION="${{ inputs.tag }}"
+          VERSION="$TAG"
           VERSION="${VERSION#v}"
 
           sed \
@@ -63,10 +66,11 @@ jobs:
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
-          git push origin "${{ inputs.tag }}"
-          gh release create "${{ inputs.tag }}" \
+          git push origin "$GH_TAG"
+          gh release create "$GH_TAG" \
             dist/*.cmake \
-            --title "${{ inputs.tag }}" \
+            --title "$GH_TAG" \
             --generate-notes
