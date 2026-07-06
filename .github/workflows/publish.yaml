@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   publish:
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
 
     steps:
@@ -69,7 +70,7 @@ jobs:
           GH_TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
-          git push origin "$GH_TAG"
+          git push origin "refs/tags/$GH_TAG"
           gh release create "$GH_TAG" \
             dist/*.cmake \
             --title "$GH_TAG" \
