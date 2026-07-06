@@ -45,7 +45,7 @@ jobs:
           git fetch --tags
 
           if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
-            if [[ "$(git rev-list -n 1 \"$TAG\")" != "$(git rev-parse HEAD)" ]]; then
+            if [[ "$(git rev-parse "$TAG^{commit}")" != "$(git rev-parse HEAD)" ]]; then
               echo "Error: tag '$TAG' already exists and points to a different commit." >&2
               exit 1
             fi
@@ -85,6 +85,10 @@ jobs:
           GH_TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
+          if gh release view "$GH_TAG" >/dev/null 2>&1; then
+            echo "Error: GitHub release '$GH_TAG' already exists. Because releases/assets are immutable, choose a new tag or delete the existing release before re-running." >&2
+            exit 1
+          fi
           git push origin "refs/tags/$GH_TAG"
           gh release create "$GH_TAG" \
             dist/*.cmake \
