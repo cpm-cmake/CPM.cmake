@@ -20,6 +20,11 @@ jobs:
 
       - name: Create and push tag
         run: |
+          set -euo pipefail
+
+          # ensure the tag starts with "v"
+          [[ "${{ inputs.tag }}" =~ ^v ]] || exit 1
+          
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
@@ -28,11 +33,13 @@ jobs:
 
       - name: Checkout tag
         run: |
+          set -euo pipefail
           git fetch --tags
           git checkout "${{ inputs.tag }}"
 
       - name: Build CPM.cmake
         run: |
+          set -euo pipefail
           mkdir dist
           VERSION="${{ inputs.tag }}"
           VERSION="${VERSION#v}"
@@ -50,6 +57,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
           gh release create "${{ inputs.tag }}" \
             dist/*.cmake \
             --title "${{ inputs.tag }}" \
