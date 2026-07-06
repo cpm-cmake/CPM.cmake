@@ -40,11 +40,14 @@ jobs:
           git fetch --tags
 
           if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
-            echo "Error: tag '$TAG' already exists. Pick a new tag or delete the existing one first." >&2
-            exit 1
+            if [[ "$(git rev-list -n 1 \"$TAG\")" != "$(git rev-parse HEAD)" ]]; then
+              echo "Error: tag '$TAG' already exists and points to a different commit." >&2
+              exit 1
+            fi
+            echo "Tag '$TAG' already exists; reusing it." >&2
+          else
+            git tag "$TAG"
           fi
-
-          git tag "$TAG"
 
       - name: Build CPM.cmake
         env:
