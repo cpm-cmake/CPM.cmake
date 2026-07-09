@@ -1,0 +1,51 @@
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+
+include(@CPM_PATH@/CPM.cmake)
+include(@CPM_PATH@/testing.cmake)
+
+set(CPM_LOCAL_PACKAGES_ONLY 1)
+
+# Expected that project substractor is installed and can be found. In case of the test, since we do
+# not want to make tests be sudo-required, we use CMAKE_INSTALL_PREFIX to a folder in which the
+# project was installed via `cmake --install build_folder_substractor --prefix a_folder`
+
+CPMAddPackage(NAME substractor VERSION 1.0.0.0)
+
+assert_defined(substractor_ADDED)
+assert_equal("${substractor_ADDED}" "") # it's broken in this case.
+assert_defined(substractor_LOCAL)
+assert_equal("${substractor_LOCAL}" "YES")
+
+# just check the logic 10 times. Can be any number, but 10 is sufficient.
+foreach(loop_var RANGE 1 10 1)
+  CPMAddPackage(NAME substractor VERSION 1.0.0.0)
+
+  assert_equal("${substractor_ADDED}" "NO")
+  assert_equal("${substractor_LOCAL}" "YES")
+endforeach()
+
+# now same logic but for downloaded package.
+set(CPM_LOCAL_PACKAGES_ONLY 0)
+set(CPM_DOWNLOAD_ONLY 1)
+
+# testpack-fibonacci is chosen as not local target.
+set(fibonachi_VERSION 2.0)
+CPMAddPackage(
+  NAME fibonachi
+  VERSION ${fibonachi_VERSION}
+  URL https://github.com/cpm-cmake/testpack-fibonacci/archive/refs/tags/v${fibonachi_VERSION}.tar.gz
+)
+
+assert_equal("${fibonachi_ADDED}" "YES")
+assert_equal("${fibonachi_LOCAL}" "NO")
+
+foreach(loop_var RANGE 1 10 1)
+  CPMAddPackage(
+    NAME fibonachi
+    VERSION ${fibonachi_VERSION}
+    URL https://github.com/cpm-cmake/testpack-fibonacci/archive/refs/tags/v${fibonachi_VERSION}.tar.gz
+  )
+
+  assert_equal("${fibonachi_ADDED}" "NO")
+  assert_equal("${fibonachi_LOCAL}" "NO")
+endforeach()
