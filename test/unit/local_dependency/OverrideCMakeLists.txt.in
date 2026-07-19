@@ -12,11 +12,14 @@ include(@CPM_PATH@/CPM.cmake)
 
 CPMAddPackage(
   NAME Dependency
+  OPTIONS
+    "DEFINE_ALTERNATIVE_FUNCTION YES"
+    "LIST_ARGUMENT       a\\\\;b\\\\;c"
 )
 
 # ---- Call dependency method to validate correct addition of directory ----
 
-dependency_function()
+alternative_dependency_function()
 
 # ---- Check parameters ----
 

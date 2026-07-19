@@ -785,13 +785,20 @@ function(CPMAddPackage)
                       "CPM_${CPM_ARGS_NAME}_SOURCE='${PACKAGE_SOURCE}'"
       )
     endif()
+    # Preserve semicolons in option values across the recursive cpmaddpackage() call.
+    set(_forwarded_options)
+    foreach(opt IN LISTS CPM_ARGS_OPTIONS)
+        string(REPLACE ";" "\\\\;" opt "${opt}")
+        list(APPEND _forwarded_options "${opt}")
+    endforeach()
+
     CPMAddPackage(
       NAME "${CPM_ARGS_NAME}"
       SOURCE_DIR "${PACKAGE_SOURCE}"
       EXCLUDE_FROM_ALL "${CPM_ARGS_EXCLUDE_FROM_ALL}"
       SYSTEM "${CPM_ARGS_SYSTEM}"
       PATCHES "${CPM_ARGS_PATCHES}"
-      OPTIONS "${CPM_ARGS_OPTIONS}"
+      OPTIONS "${_forwarded_options}"
       SOURCE_SUBDIR "${CPM_ARGS_SOURCE_SUBDIR}"
       DOWNLOAD_ONLY "${DOWNLOAD_ONLY}"
       FORCE True
