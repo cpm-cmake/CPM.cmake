@@ -989,6 +989,12 @@ function(CPMAddPackage)
       if(DEFINED CPM_ARGS_SOURCE_SUBDIR)
         list(APPEND fetchContentDeclareExtraArgs SOURCE_SUBDIR ${CPM_ARGS_SOURCE_SUBDIR})
       endif()
+      if(DEFINED CPM_ARGS_DOWNLOAD_ONLY)
+        # MakeAvailable will call add_subdirectory internally which is not what we want when
+        # DOWNLOAD_ONLY is set. Instead we provide a false `SOURCE_SUBDIR` as that is the documented
+        # way todo a DOWNLOAD_ONLY with `FetchContent_MakeAvailable`
+        list(APPEND fetchContentDeclareExtraArgs SOURCE_SUBDIR ".cpm-download-only/${lower_case_name}")
+      endif()
       # For CMake version <3.28 OPTIONS are parsed in cpm_add_subdirectory
       if(CPM_ARGS_OPTIONS AND NOT DOWNLOAD_ONLY)
         foreach(OPTION ${CPM_ARGS_OPTIONS})
@@ -1001,7 +1007,7 @@ function(CPMAddPackage)
       "${CPM_ARGS_NAME}" ${fetchContentDeclareExtraArgs} "${CPM_ARGS_UNPARSED_ARGUMENTS}"
     )
 
-    cpm_fetch_package("${CPM_ARGS_NAME}" ${DOWNLOAD_ONLY} populated ${CPM_ARGS_UNPARSED_ARGUMENTS})
+    cpm_fetch_package("${CPM_ARGS_NAME}" populated ${CPM_ARGS_UNPARSED_ARGUMENTS})
     if(CPM_SOURCE_CACHE AND download_directory)
       file(LOCK ${download_directory}/../cmake.lock RELEASE)
     endif()
@@ -1192,7 +1198,7 @@ endfunction()
 
 # downloads a previously declared package via FetchContent and exports the variables
 # `${PACKAGE}_SOURCE_DIR` and `${PACKAGE}_BINARY_DIR` to the parent scope
-function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY populated)
+function(cpm_fetch_package PACKAGE populated)
   set(${populated}
       FALSE
       PARENT_SCOPE
@@ -1208,20 +1214,7 @@ function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY populated)
 
   if(NOT ${lower_case_name}_POPULATED)
     if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.30.3")
-      if(DOWNLOAD_ONLY)
-        # MakeAvailable will call add_subdirectory internally which is not what we want when
-        # DOWNLOAD_ONLY is set. Populate will only download the dependency without adding it to the
-        # build
-        FetchContent_Populate(
-          ${PACKAGE}
-          SOURCE_DIR "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-src"
-          BINARY_DIR "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-build"
-          SUBBUILD_DIR "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-subbuild"
-          ${ARGN}
-        )
-      else()
-        FetchContent_MakeAvailable(${PACKAGE})
-      endif()
+      FetchContent_MakeAvailable(${PACKAGE})
     else()
       FetchContent_Populate(${PACKAGE})
     endif()
