@@ -788,8 +788,8 @@ function(CPMAddPackage)
     # Preserve semicolons in option values across the recursive cpmaddpackage() call.
     set(_forwarded_options)
     foreach(opt IN LISTS CPM_ARGS_OPTIONS)
-        string(REPLACE ";" "\\\\;" opt "${opt}")
-        list(APPEND _forwarded_options "${opt}")
+      string(REPLACE ";" "\\\\;" opt "${opt}")
+      list(APPEND _forwarded_options "${opt}")
     endforeach()
 
     CPMAddPackage(
