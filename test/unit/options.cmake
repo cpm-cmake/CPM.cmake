@@ -2,6 +2,8 @@ include(CMakePackageConfigHelpers)
 include(${CPM_PATH}/testing.cmake)
 
 set(TEST_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/source_dir)
+# clean existing build if it exists
+file(REMOVE_RECURSE "${TEST_BUILD_DIR}")
 
 set(TEST_DEPENDENCY_NAME Dependency)
 
