@@ -3,6 +3,9 @@ include(${CPM_PATH}/testing.cmake)
 
 set(TEST_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/source_dir)
 
+# Clean previous build
+file(REMOVE_RECURSE "${TEST_BUILD_DIR}")
+
 set(TEST_DEPENDENCY_NAME Dependency)
 
 configure_package_config_file(
