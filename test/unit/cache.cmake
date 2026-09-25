@@ -153,3 +153,148 @@ execute_process(
 
 assert_equal(${ret} "0")
 assert_exists("${CPM_SOURCE_CACHE_DIR}/fibonacci/my_custom_unique_dir")
+
+# Cache checksum
+
+reset_test()
+set(FIBONACCI_VERSION 1.1)
+set(FIBONACCI_GIT_TAG "GIT_TAG e9ebf168ca0fffaa4ef8c6fefc6346aaa22f6ed5")
+set(TEST_CHECKSUM_DIR "${CPM_SOURCE_CACHE_DIR}/fibonacci/my_checksummed_dir")
+set(TEST_CHECKSUM_VALUE
+    cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e
+)
+
+set(CHECKSUM_COMMAND "${CMAKE_CURRENT_LIST_DIR}/checksum_directory.sh")
+set(INCORRECT_CHECKSUM_RESULT "1")
+set(IGNORE_CHECKSUM_TEST)
+if(CMAKE_HOST_WIN32)
+  # checksum example is not adapted to Windows (Cygwin and msys could work though)
+  set(CHECKSUM_COMMAND "")
+  set(TEST_CHECKSUM_VALUE)
+  set(IGNORE_CHECKSUM_TEST True)
+elseif(CMAKE_HOST_APPLE)
+  set(TEST_CHECKSUM_VALUE
+      cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e
+  )
+endif()
+
+# OK download
+
+set(FIBONACCI_PACKAGE_ARGS
+    "${FIBONACCI_GIT_TAG} CUSTOM_CACHE_KEY my_checksummed_dir CUSTOM_CACHE_CHECKSUM_COMMAND \"${CHECKSUM_COMMAND}\""
+)
+update_cmake_lists()
+
+execute_process(
+  COMMAND ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND}
+          "-S${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}" RESULT_VARIABLE ret
+)
+
+assert_equal(${ret} "0")
+assert_exists("${TEST_CHECKSUM_DIR}.download")
+file(READ "${TEST_CHECKSUM_DIR}.download" chksum)
+assert_equal("${chksum}" "${TEST_CHECKSUM_VALUE}")
+
+# Test download again if .download file is missing
+
+file(REMOVE "${TEST_CHECKSUM_DIR}.download")
+file(REMOVE "${TEST_CHECKSUM_DIR}/include/fibonacci.h")
+
+set(FIBONACCI_PACKAGE_ARGS
+    "${FIBONACCI_GIT_TAG} CUSTOM_CACHE_KEY my_checksummed_dir CUSTOM_CACHE_CHECKSUM_COMMAND \"${CHECKSUM_COMMAND}\""
+)
+update_cmake_lists()
+
+execute_process(
+  COMMAND ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND}
+          "-S${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}" RESULT_VARIABLE ret
+)
+
+assert_equal(${ret} "0")
+assert_exists("${TEST_CHECKSUM_DIR}.download")
+assert_exists("${TEST_CHECKSUM_DIR}/include/fibonacci.h")
+
+# check checksum for download
+
+set(FIBONACCI_PACKAGE_ARGS
+    "${FIBONACCI_GIT_TAG} CUSTOM_CACHE_KEY my_checksummed_dir CUSTOM_CACHE_CHECKSUM_COMMAND \"${CHECKSUM_COMMAND}\""
+)
+update_cmake_lists()
+
+execute_process(
+  COMMAND ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND}
+          "-S${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}" RESULT_VARIABLE ret
+)
+
+assert_equal(${ret} "0")
+
+# check checksum for download, provided
+
+set(FIBONACCI_PACKAGE_ARGS
+    "${FIBONACCI_GIT_TAG} CUSTOM_CACHE_KEY my_checksummed_dir CUSTOM_CACHE_CHECKSUM_COMMAND \"${CHECKSUM_COMMAND}\" CUSTOM_CACHE_CHECKSUM_VALUE ${TEST_CHECKSUM_VALUE}"
+)
+update_cmake_lists()
+
+execute_process(
+  COMMAND ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND}
+          "-S${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}" RESULT_VARIABLE ret
+)
+
+assert_equal(${ret} "0")
+
+# check checksum for download, provided incorrect, this will print a fatal_error (red) error to the
+# console
+
+set(FIBONACCI_PACKAGE_ARGS
+    "${FIBONACCI_GIT_TAG} CUSTOM_CACHE_KEY my_checksummed_dir CUSTOM_CACHE_CHECKSUM_COMMAND \"${CHECKSUM_COMMAND}\" CUSTOM_CACHE_CHECKSUM_VALUE invalid_checksum_value"
+)
+update_cmake_lists()
+
+execute_process(
+  COMMAND ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND}
+          "-S${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}" RESULT_VARIABLE ret
+)
+
+if(NOT IGNORE_CHECKSUM_TEST)
+  assert_equal(${ret} "1")
+endif()
+
+# redownload when checksum is changed
+
+set(FIBONACCI_PACKAGE_ARGS
+    "${FIBONACCI_GIT_TAG} CUSTOM_CACHE_KEY my_checksummed_dir CUSTOM_CACHE_CHECKSUM_COMMAND \"${CHECKSUM_COMMAND}\" CUSTOM_CACHE_CHECKSUM_VALUE ${TEST_CHECKSUM_VALUE}"
+)
+update_cmake_lists()
+
+# dummy change, to trigger checksum mismatch
+file(WRITE "${TEST_CHECKSUM_DIR}/fail_checksum.txt" "dummy")
+
+execute_process(
+  COMMAND ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND}
+          "-S${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}" RESULT_VARIABLE ret
+)
+
+assert_equal(${ret} "0")
+if(NOT IGNORE_CHECKSUM_TEST)
+  assert_not_exists("${TEST_CHECKSUM_DIR}/fail_checksum.txt")
+endif()
+
+# redownload when checksum is changed
+
+set(FIBONACCI_PACKAGE_ARGS
+    "${FIBONACCI_GIT_TAG} CUSTOM_CACHE_KEY my_checksummed_dir CUSTOM_CACHE_CHECKSUM_VALUE ${TEST_CHECKSUM_VALUE}"
+)
+update_cmake_lists()
+
+# dummy change, to trigger checksum mismatch
+file(WRITE "${TEST_CHECKSUM_DIR}/fail_checksum.txt" "dummy")
+
+execute_process(
+  COMMAND ${CMAKE_COMMAND} -E env "CPM_SOURCE_CACHE=${CPM_SOURCE_CACHE_DIR}" ${CMAKE_COMMAND}
+          "-S${CMAKE_CURRENT_LIST_DIR}/remote_dependency" "-B${TEST_BUILD_DIR}" RESULT_VARIABLE ret
+)
+
+assert_equal(${ret} "0")
+if(NOT IGNORE_CHECKSUM_TEST)
+  assert_not_exists("${TEST_CHECKSUM_DIR}/fail_checksum.txt")
+endif()
