@@ -541,10 +541,16 @@ endfunction()
 
 # Add PATCH_COMMAND to CPM_ARGS_UNPARSED_ARGUMENTS. This method consumes a list of files in ARGN
 # then generates a `PATCH_COMMAND` appropriate for `ExternalProject_Add()`. This command is appended
-# to the parent scope's `CPM_ARGS_UNPARSED_ARGUMENTS`.
+# to the parent scope's `CPM_ARGS_UNPARSED_ARGUMENTS`. The SHA256 hashes of the patch files are
+# stored in the parent scope's `cpm_patch_hashes` so changes to their contents can be detected.
 function(cpm_add_patches)
   # Return if no patch files are supplied.
   if(NOT ARGN)
+    # ensure value is cleared in parent scope
+    set(cpm_patch_hashes
+        ""
+        PARENT_SCOPE
+    )
     return()
   endif()
 
@@ -573,6 +579,7 @@ function(cpm_add_patches)
 
   # Ensure each file exists (or error out) and add it to the list.
   set(first_item True)
+  set(patch_hashes "")
   foreach(PATCH_FILE ${ARGN})
     # Make sure the patch file exists, if we can't find it, try again in the current directory.
     if(NOT EXISTS "${PATCH_FILE}")
@@ -584,6 +591,8 @@ function(cpm_add_patches)
 
     # Convert to absolute path for use with patch file command.
     get_filename_component(PATCH_FILE "${PATCH_FILE}" ABSOLUTE)
+    file(SHA256 "${PATCH_FILE}" patch_hash)
+    list(APPEND patch_hashes "${patch_hash}")
 
     # The first patch entry must be preceded by "PATCH_COMMAND" while the following items are
     # preceded by "&&".
@@ -600,6 +609,10 @@ function(cpm_add_patches)
   # Move temp out into parent scope.
   set(CPM_ARGS_UNPARSED_ARGUMENTS
       ${temp_list}
+      PARENT_SCOPE
+  )
+  set(cpm_patch_hashes
+      ${patch_hashes}
       PARENT_SCOPE
   )
 
@@ -645,6 +658,31 @@ function(cpm_override_fetchcontent contentName)
   )
   set_property(GLOBAL PROPERTY ${propertyName} TRUE)
 endfunction()
+
+# Adds a package whose sources were already fetched to `source_dir` and overrides FetchContent so
+# they are not fetched again. Only intended to be called from within CPMAddPackage.
+macro(cpm_add_fetched_package source_dir binary_dir)
+  cpm_store_fetch_properties(${CPM_ARGS_NAME} "${source_dir}" "${binary_dir}")
+  cpm_get_fetch_properties("${CPM_ARGS_NAME}")
+
+  cpm_add_subdirectory(
+    "${CPM_ARGS_NAME}"
+    "${DOWNLOAD_ONLY}"
+    "${${CPM_ARGS_NAME}_SOURCE_DIR}/${CPM_ARGS_SOURCE_SUBDIR}"
+    "${${CPM_ARGS_NAME}_BINARY_DIR}"
+    "${CPM_ARGS_EXCLUDE_FROM_ALL}"
+    "${CPM_ARGS_SYSTEM}"
+    "${CPM_ARGS_OPTIONS}"
+  )
+  set(PACKAGE_INFO "${PACKAGE_INFO} at ${source_dir}")
+
+  # As the source dir is already populated, we override the call to FetchContent.
+  set(CPM_SKIP_FETCH TRUE)
+  cpm_override_fetchcontent(
+    "${lower_case_name}" SOURCE_DIR "${${CPM_ARGS_NAME}_SOURCE_DIR}/${CPM_ARGS_SOURCE_SUBDIR}"
+    BINARY_DIR "${${CPM_ARGS_NAME}_BINARY_DIR}"
+  )
+endmacro()
 
 # Download and add a package from source
 function(CPMAddPackage)
@@ -911,12 +949,6 @@ function(CPMAddPackage)
         file(LOCK ${download_directory}/../cmake.lock RELEASE)
       endif()
 
-      cpm_store_fetch_properties(
-        ${CPM_ARGS_NAME} "${download_directory}"
-        "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-build"
-      )
-      cpm_get_fetch_properties("${CPM_ARGS_NAME}")
-
       if(DEFINED CPM_ARGS_GIT_TAG AND NOT (PATCH_COMMAND IN_LIST CPM_ARGS_UNPARSED_ARGUMENTS))
         # warn if cache has been changed since checkout
         cpm_check_git_working_dir_is_clean(${download_directory} ${CPM_ARGS_GIT_TAG} IS_CLEAN)
@@ -927,22 +959,8 @@ function(CPMAddPackage)
         endif()
       endif()
 
-      cpm_add_subdirectory(
-        "${CPM_ARGS_NAME}"
-        "${DOWNLOAD_ONLY}"
-        "${${CPM_ARGS_NAME}_SOURCE_DIR}/${CPM_ARGS_SOURCE_SUBDIR}"
-        "${${CPM_ARGS_NAME}_BINARY_DIR}"
-        "${CPM_ARGS_EXCLUDE_FROM_ALL}"
-        "${CPM_ARGS_SYSTEM}"
-        "${CPM_ARGS_OPTIONS}"
-      )
-      set(PACKAGE_INFO "${PACKAGE_INFO} at ${download_directory}")
-
-      # As the source dir is already cached/populated, we override the call to FetchContent.
-      set(CPM_SKIP_FETCH TRUE)
-      cpm_override_fetchcontent(
-        "${lower_case_name}" SOURCE_DIR "${${CPM_ARGS_NAME}_SOURCE_DIR}/${CPM_ARGS_SOURCE_SUBDIR}"
-        BINARY_DIR "${${CPM_ARGS_NAME}_BINARY_DIR}"
+      cpm_add_fetched_package(
+        "${download_directory}" "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-build"
       )
 
     else()
@@ -958,6 +976,30 @@ function(CPMAddPackage)
       # remove timestamps so CMake will re-download the dependency
       file(REMOVE_RECURSE ${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-subbuild)
       set(PACKAGE_INFO "${PACKAGE_INFO} to ${download_directory}")
+    endif()
+  elseif(PATCH_COMMAND IN_LIST CPM_ARGS_UNPARSED_ARGUMENTS AND NOT FETCHCONTENT_FULLY_DISCONNECTED)
+    # Without a source cache, FetchContent re-runs its update step on every configure, which tries
+    # to apply the patches to already patched sources. Instead, reuse the sources if they were
+    # fetched and patched with the same arguments and patch files.
+    string(TOLOWER ${CPM_ARGS_NAME} lower_case_name)
+    string(TOUPPER ${CPM_ARGS_NAME} upper_case_name)
+    if("${FETCHCONTENT_SOURCE_DIR_${upper_case_name}}" STREQUAL "")
+      set(source_directory "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-src")
+      string(SHA1 fetch_signature "${CPM_ARGS_UNPARSED_ARGUMENTS};${cpm_patch_hashes}")
+      if("${CPM_PACKAGE_${CPM_ARGS_NAME}_FETCH_SIGNATURE}" STREQUAL "${fetch_signature}"
+         AND EXISTS "${source_directory}"
+      )
+        cpm_add_fetched_package(
+          "${source_directory}" "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-build"
+        )
+      else()
+        # The sources may have been patched by a previous configure, so start from scratch.
+        file(REMOVE_RECURSE "${source_directory}"
+             "${CPM_FETCHCONTENT_BASE_DIR}/${lower_case_name}-subbuild"
+        )
+        unset(CPM_PACKAGE_${CPM_ARGS_NAME}_FETCH_SIGNATURE CACHE)
+        set(record_fetch_signature TRUE)
+      endif()
     endif()
   endif()
 
@@ -1011,6 +1053,12 @@ function(CPMAddPackage)
     cpm_fetch_package("${CPM_ARGS_NAME}" ${DOWNLOAD_ONLY} populated ${CPM_ARGS_UNPARSED_ARGUMENTS})
     if(CPM_SOURCE_CACHE AND download_directory)
       file(LOCK ${download_directory}/../cmake.lock RELEASE)
+    endif()
+    if(record_fetch_signature AND ${populated})
+      set(CPM_PACKAGE_${CPM_ARGS_NAME}_FETCH_SIGNATURE
+          "${fetch_signature}"
+          CACHE INTERNAL ""
+      )
     endif()
     if(${populated} AND ${CMAKE_VERSION} VERSION_LESS "3.30.3")
       cpm_add_subdirectory(
