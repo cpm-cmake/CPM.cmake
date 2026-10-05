@@ -539,11 +539,67 @@ function(cpm_check_git_working_dir_is_clean repoPath gitTag isClean)
 
 endfunction()
 
-# Add PATCH_COMMAND to CPM_ARGS_UNPARSED_ARGUMENTS. This method consumes a list of files in ARGN
-# then generates a `PATCH_COMMAND` appropriate for `ExternalProject_Add()`. This command is appended
-# to the parent scope's `CPM_ARGS_UNPARSED_ARGUMENTS`.
-function(cpm_add_patches)
-  # Return if no patch files are supplied.
+# Writes the script that `PATCH_COMMAND` runs: `cmake -P <script> <patch executable> <patches...>`.
+# It applies the patches in order to the current directory. Every applied patch leaves a stamp in
+# `.cpm_patches` (named after the hash of the patch), so running the command again skips it. This
+# relies on a fresh download replacing the source directory.
+function(cpm_write_patch_script script_path)
+  file(
+    WRITE "${script_path}"
+    [=[
+set(arg_index 0)
+while(NOT "${CMAKE_ARGV${arg_index}}" STREQUAL "-P")
+  math(EXPR arg_index "${arg_index} + 1")
+endwhile()
+math(EXPR patch_executable_index "${arg_index} + 2")
+set(patch_executable "${CMAKE_ARGV${patch_executable_index}}")
+
+math(EXPR arg_index "${patch_executable_index} + 1")
+while(arg_index LESS CMAKE_ARGC)
+  set(patch_file "${CMAKE_ARGV${arg_index}}")
+  math(EXPR arg_index "${arg_index} + 1")
+
+  file(SHA1 "${patch_file}" patch_hash)
+  set(stamp_file ".cpm_patches/${patch_hash}")
+  if(EXISTS "${stamp_file}")
+    message(STATUS "Patch already applied: ${patch_file}")
+    continue()
+  endif()
+
+  execute_process(
+    COMMAND "${patch_executable}" -p1
+    INPUT_FILE "${patch_file}"
+    RESULT_VARIABLE result
+    OUTPUT_VARIABLE output
+    ERROR_VARIABLE error
+  )
+  if(NOT result EQUAL 0)
+    message(FATAL_ERROR "Failed to apply patch '${patch_file}' (exit code ${result}):\n${output}${error}")
+  endif()
+  message(STATUS "Applied patch: ${patch_file}")
+  file(WRITE "${stamp_file}" "")
+endwhile()
+]=]
+  )
+endfunction()
+
+# Checks the patch files in ARGN and prepares the patch step for them. Sets: command_var: the
+# `PATCH_COMMAND` arguments for `ExternalProject_Add()` hash_var:    a hash of the patch contents,
+# used for the source cache key stamps_var:  the stamp files (relative to the source directory) that
+# mark all patches as applied All three are empty if there are no patches.
+function(cpm_prepare_patches command_var hash_var stamps_var)
+  set(${command_var}
+      ""
+      PARENT_SCOPE
+  )
+  set(${hash_var}
+      ""
+      PARENT_SCOPE
+  )
+  set(${stamps_var}
+      ""
+      PARENT_SCOPE
+  )
   if(NOT ARGN)
     return()
   endif()
@@ -568,41 +624,41 @@ function(cpm_add_patches)
     message(FATAL_ERROR "Couldn't find `patch` executable to use with PATCHES keyword.")
   endif()
 
-  # Create a temporary
-  set(temp_list ${CPM_ARGS_UNPARSED_ARGUMENTS})
-
-  # Ensure each file exists (or error out) and add it to the list.
-  set(first_item True)
-  foreach(PATCH_FILE ${ARGN})
+  set(patch_files)
+  set(content_hashes)
+  set(stamp_files)
+  foreach(patch_file ${ARGN})
     # Make sure the patch file exists, if we can't find it, try again in the current directory.
-    if(NOT EXISTS "${PATCH_FILE}")
-      if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/${PATCH_FILE}")
-        message(FATAL_ERROR "Couldn't find patch file: '${PATCH_FILE}'")
+    if(NOT EXISTS "${patch_file}")
+      if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/${patch_file}")
+        message(FATAL_ERROR "Couldn't find patch file: '${patch_file}'")
       endif()
-      set(PATCH_FILE "${CMAKE_CURRENT_LIST_DIR}/${PATCH_FILE}")
+      set(patch_file "${CMAKE_CURRENT_LIST_DIR}/${patch_file}")
     endif()
-
-    # Convert to absolute path for use with patch file command.
-    get_filename_component(PATCH_FILE "${PATCH_FILE}" ABSOLUTE)
-
-    # The first patch entry must be preceded by "PATCH_COMMAND" while the following items are
-    # preceded by "&&".
-    if(first_item)
-      set(first_item False)
-      list(APPEND temp_list "PATCH_COMMAND")
-    else()
-      list(APPEND temp_list "&&")
-    endif()
-    # Add the patch command to the list
-    list(APPEND temp_list "${PATCH_EXECUTABLE}" "-p1" "<" "${PATCH_FILE}")
+    get_filename_component(patch_file "${patch_file}" ABSOLUTE)
+    file(SHA1 "${patch_file}" content_hash)
+    list(APPEND patch_files "${patch_file}")
+    list(APPEND content_hashes "${content_hash}")
+    list(APPEND stamp_files ".cpm_patches/${content_hash}")
   endforeach()
 
-  # Move temp out into parent scope.
-  set(CPM_ARGS_UNPARSED_ARGUMENTS
-      ${temp_list}
+  set(script_path "${CMAKE_BINARY_DIR}/CPM_scripts/apply_patches.cmake")
+  cpm_write_patch_script("${script_path}")
+
+  set(${command_var}
+      PATCH_COMMAND "${CMAKE_COMMAND}" -P "${script_path}" "${PATCH_EXECUTABLE}" ${patch_files}
       PARENT_SCOPE
   )
-
+  # Only the contents are hashed, so the cache key doesn't depend on file locations or build dir.
+  string(SHA1 hash "${content_hashes}")
+  set(${hash_var}
+      "${hash}"
+      PARENT_SCOPE
+  )
+  set(${stamps_var}
+      "${stamp_files}"
+      PARENT_SCOPE
+  )
 endfunction()
 
 # method to overwrite internal FetchContent properties, to allow using CPM.cmake to overload
@@ -853,7 +909,7 @@ function(CPMAddPackage)
     set(CPM_FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/_deps)
   endif()
 
-  cpm_add_patches(${CPM_ARGS_PATCHES})
+  cpm_prepare_patches(patch_command patch_hash patch_stamps ${CPM_ARGS_PATCHES})
 
   if(DEFINED CPM_ARGS_DOWNLOAD_COMMAND)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS DOWNLOAD_COMMAND ${CPM_ARGS_DOWNLOAD_COMMAND})
@@ -875,7 +931,7 @@ function(CPMAddPackage)
     endif()
   elseif(CPM_SOURCE_CACHE AND NOT CPM_ARGS_NO_CACHE)
     string(TOLOWER ${CPM_ARGS_NAME} lower_case_name)
-    set(origin_parameters ${CPM_ARGS_UNPARSED_ARGUMENTS})
+    set(origin_parameters ${CPM_ARGS_UNPARSED_ARGUMENTS} ${patch_hash})
     list(SORT origin_parameters)
     if(CPM_ARGS_CUSTOM_CACHE_KEY)
       # Application set a custom unique directory name
@@ -906,6 +962,18 @@ function(CPMAddPackage)
       file(LOCK ${download_directory}/../cmake.lock)
     endif()
 
+    # If patching failed earlier, the cache entry is only partly patched, so download it again.
+    foreach(stamp_file ${patch_stamps})
+      if(EXISTS ${download_directory} AND NOT EXISTS ${download_directory}/${stamp_file})
+        message(
+          WARNING
+            "${CPM_INDENT} Cache for ${CPM_ARGS_NAME} (${download_directory}) is not fully patched, "
+            "downloading it again"
+        )
+        file(REMOVE_RECURSE ${download_directory})
+      endif()
+    endforeach()
+
     if(EXISTS ${download_directory})
       if(CPM_SOURCE_CACHE)
         file(LOCK ${download_directory}/../cmake.lock RELEASE)
@@ -917,7 +985,7 @@ function(CPMAddPackage)
       )
       cpm_get_fetch_properties("${CPM_ARGS_NAME}")
 
-      if(DEFINED CPM_ARGS_GIT_TAG AND NOT (PATCH_COMMAND IN_LIST CPM_ARGS_UNPARSED_ARGUMENTS))
+      if(DEFINED CPM_ARGS_GIT_TAG AND NOT patch_command)
         # warn if cache has been changed since checkout
         cpm_check_git_working_dir_is_clean(${download_directory} ${CPM_ARGS_GIT_TAG} IS_CLEAN)
         if(NOT ${IS_CLEAN})
@@ -960,6 +1028,8 @@ function(CPMAddPackage)
       set(PACKAGE_INFO "${PACKAGE_INFO} to ${download_directory}")
     endif()
   endif()
+
+  list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS ${patch_command})
 
   if(NOT "${DOWNLOAD_ONLY}")
     cpm_create_module_file(${CPM_ARGS_NAME} "CPMAddPackage(\"${ARGN}\")")
