@@ -86,7 +86,8 @@ If `GIT_TAG` hasn't been explicitly specified it defaults to `v(VERSION)`, a com
 On the other hand, if `VERSION` hasn't been explicitly specified, CPM can automatically identify the version from the git tag in some common cases.
 `GIT_TAG` can also be set to a specific commit or a branch name such as `master`, however this isn't recommended, as such packages will only be updated when the cache is cleared.
 
-`PATCHES` takes a list of patch files to apply sequentially. Patch files are applied from the dependency source directory and skipped on later configure runs after the same patch set has been applied successfully. For a basic example, see [Highway](examples/highway/CMakeLists.txt).
+`PATCHES` takes a list of patch files to apply sequentially (using `patch -p1` in the dependency's source directory). For a basic example, see [Highway](examples/highway/CMakeLists.txt).
+Each applied patch is recorded in a `.cpm_patches` folder inside the source directory, so a patch is never applied twice.
 
 If an additional optional parameter `EXCLUDE_FROM_ALL` is set to a truthy value, then any targets defined inside the dependency won't be built by default. See the [CMake docs](https://cmake.org/cmake/help/latest/prop_tgt/EXCLUDE_FROM_ALL.html) for details.
 

@@ -24,4 +24,25 @@ class DownloadCommand < IntegrationTest
     assert_success prj.build
   end
 
+  # Configuring twice runs the patch step again on sources that are already patched
+  def test_reconfigure_does_not_apply_patches_twice
+    prj = make_project from_template: 'using-patch-adder'
+
+    prj.create_lists_from_default_template package: <<~PACK
+      CPMAddPackage(
+        NAME testpack-adder
+        GIT_REPOSITORY https://github.com/cpm-cmake/testpack-adder.git
+        GIT_TAG d86db7c0ab04a536ef071ad813515f0afa4b181b
+        OPTIONS "ADDER_BUILD_TESTS OFF" "ADDER_BUILD_EXAMPLES OFF"
+        PATCHES
+          patches/001-test_patches_command.patch
+          patches/002-test_patches_command.patch
+      )
+    PACK
+
+    assert_success prj.configure
+    assert_success prj.configure
+    assert_success prj.build
+  end
+
 end

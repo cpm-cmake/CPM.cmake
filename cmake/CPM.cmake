@@ -539,228 +539,124 @@ function(cpm_check_git_working_dir_is_clean repoPath gitTag isClean)
 
 endfunction()
 
-function(cpm_escape_for_generated_cmake input output_variable)
-  set(value "${input}")
-  string(REPLACE "\\" "/" value "${value}")
-  string(REPLACE "\"" "\\\"" value "${value}")
-  string(REPLACE "$" "\\$" value "${value}")
-  string(REPLACE ";" "\\;" value "${value}")
-  set(${output_variable}
-      "${value}"
-      PARENT_SCOPE
-  )
-endfunction()
-
-function(cpm_patch_supports_dry_run patch_executable output_variable)
-  execute_process(
-    COMMAND "${patch_executable}" --help
-    RESULT_VARIABLE _result
-    OUTPUT_VARIABLE _help
-    ERROR_VARIABLE _help_err
-  )
-  string(FIND "${_help}${_help_err}" "--dry-run" _index)
-  if(_index GREATER_EQUAL 0)
-    set(${output_variable} YES PARENT_SCOPE)
-  else()
-    set(${output_variable} NO PARENT_SCOPE)
-  endif()
-endfunction()
-
-# Generate a script that applies patches from the dependency source directory.
-function(cpm_write_apply_patches_script script_path patch_executable patch_supports_dry_run
-         patch_set_hash
-)
-  cpm_escape_for_generated_cmake("${patch_executable}" escaped_patch_executable)
-
-  set(script "# Auto-generated patch application script\n")
-  string(APPEND script "set(patch_executable \"${escaped_patch_executable}\")\n")
-  string(APPEND script "set(patch_supports_dry_run ${patch_supports_dry_run})\n")
-  string(APPEND script "set(patch_arguments -p1)\n")
-  string(APPEND script "set(patch_forward_arguments -N -p1 -r -)\n")
-  string(APPEND script "set(patch_stamp_file \".cpm_patches/${patch_set_hash}.stamp\")\n")
-  string(APPEND script "set(patch_files)\n")
-
-  foreach(patch_file IN LISTS ARGN)
-    cpm_escape_for_generated_cmake("${patch_file}" escaped_patch_file)
-    string(APPEND script "list(APPEND patch_files \"${escaped_patch_file}\")\n")
-  endforeach()
-
-  string(
-    APPEND
-    script
+# Writes the script that `PATCH_COMMAND` runs: `cmake -P <script> <patch executable> <patches...>`.
+# It applies the patches in order to the current directory. Every applied patch leaves a stamp in
+# `.cpm_patches` (named after the hash of the patch), so running the command again skips it. This
+# relies on a fresh download replacing the source directory.
+function(cpm_write_patch_script script_path)
+  file(
+    WRITE "${script_path}"
     [=[
+set(arg_index 0)
+while(NOT "${CMAKE_ARGV${arg_index}}" STREQUAL "-P")
+  math(EXPR arg_index "${arg_index} + 1")
+endwhile()
+math(EXPR patch_executable_index "${arg_index} + 2")
+set(patch_executable "${CMAKE_ARGV${patch_executable_index}}")
 
-get_filename_component(patch_working_directory "." ABSOLUTE)
+math(EXPR arg_index "${patch_executable_index} + 1")
+while(arg_index LESS CMAKE_ARGC)
+  set(patch_file "${CMAKE_ARGV${arg_index}}")
+  math(EXPR arg_index "${arg_index} + 1")
 
-if(EXISTS "${patch_stamp_file}")
-  message(STATUS "Patch set already applied: ${patch_stamp_file}")
-  return()
-endif()
-
-foreach(patch_file IN LISTS patch_files)
-  if(patch_supports_dry_run)
-    message(STATUS "Checking patch: ${patch_file}")
-    execute_process(
-      COMMAND "${patch_executable}" --dry-run ${patch_arguments}
-      WORKING_DIRECTORY "${patch_working_directory}"
-      INPUT_FILE "${patch_file}"
-      RESULT_VARIABLE patch_check_result
-      OUTPUT_VARIABLE patch_check_output
-      ERROR_VARIABLE patch_check_error
-    )
-
-    if(patch_check_result EQUAL 0)
-      message(STATUS "Applying patch: ${patch_file}")
-      execute_process(
-        COMMAND "${patch_executable}" ${patch_arguments}
-        WORKING_DIRECTORY "${patch_working_directory}"
-        INPUT_FILE "${patch_file}"
-        RESULT_VARIABLE patch_apply_result
-        OUTPUT_VARIABLE patch_apply_output
-        ERROR_VARIABLE patch_apply_error
-      )
-      if(patch_apply_result EQUAL 0)
-        message(STATUS "Applied patch: ${patch_file}")
-      else()
-        message(
-          FATAL_ERROR
-            "Patch failed: ${patch_file}\n"
-            "Working directory: ${patch_working_directory}\n"
-            "Patch executable: ${patch_executable}\n"
-            "Patch arguments: ${patch_arguments}\n"
-            "${patch_apply_output}\n${patch_apply_error}"
-        )
-      endif()
-    else()
-      execute_process(
-        COMMAND "${patch_executable}" --dry-run ${patch_arguments} --reverse
-        WORKING_DIRECTORY "${patch_working_directory}"
-        INPUT_FILE "${patch_file}"
-        RESULT_VARIABLE reverse_check_result
-        OUTPUT_VARIABLE reverse_check_output
-        ERROR_VARIABLE reverse_check_error
-      )
-      if(reverse_check_result EQUAL 0)
-        message(STATUS "Patch already applied: ${patch_file}")
-      else()
-        message(
-          FATAL_ERROR
-            "Patch cannot be applied and is not already applied: ${patch_file}\n"
-            "Working directory: ${patch_working_directory}\n"
-            "Patch executable: ${patch_executable}\n"
-            "Patch arguments: ${patch_arguments}\n"
-            "${patch_check_output}\n${patch_check_error}\n"
-            "${reverse_check_output}\n${reverse_check_error}"
-        )
-      endif()
-    endif()
-  else()
-    message(STATUS "Applying patch: ${patch_file}")
-    execute_process(
-      COMMAND "${patch_executable}" ${patch_forward_arguments}
-      WORKING_DIRECTORY "${patch_working_directory}"
-      INPUT_FILE "${patch_file}"
-      RESULT_VARIABLE patch_apply_result
-      OUTPUT_VARIABLE patch_apply_output
-      ERROR_VARIABLE patch_apply_error
-    )
-
-    if(patch_apply_result EQUAL 0)
-      message(STATUS "Applied patch: ${patch_file}")
-    else()
-      set(patch_apply_log "${patch_apply_output}\n${patch_apply_error}")
-      # -N makes patch exit non-zero when hunks are skipped. Detect already-applied patches by
-      # matching known output strings: GNU patch emits "Reversed (or previously applied)",
-      # BSD/macOS patch emits "Skipping patch".
-      if(patch_apply_log MATCHES "Reversed|previously applied|Skipping patch")
-        message(STATUS "Patch already applied: ${patch_file}")
-      else()
-        message(
-          FATAL_ERROR
-            "Patch failed: ${patch_file}\n"
-            "Working directory: ${patch_working_directory}\n"
-            "Patch executable: ${patch_executable}\n"
-            "Patch arguments: ${patch_forward_arguments}\n"
-            "${patch_apply_log}"
-        )
-      endif()
-    endif()
+  file(SHA1 "${patch_file}" patch_hash)
+  set(stamp_file ".cpm_patches/${patch_hash}")
+  if(EXISTS "${stamp_file}")
+    message(STATUS "Patch already applied: ${patch_file}")
+    continue()
   endif()
-endforeach()
 
-get_filename_component(patch_stamp_directory "${patch_stamp_file}" DIRECTORY)
-file(MAKE_DIRECTORY "${patch_stamp_directory}")
-file(WRITE "${patch_stamp_file}" "applied\n")
+  execute_process(
+    COMMAND "${patch_executable}" -p1
+    INPUT_FILE "${patch_file}"
+    RESULT_VARIABLE result
+    OUTPUT_VARIABLE output
+    ERROR_VARIABLE error
+  )
+  if(NOT result EQUAL 0)
+    message(FATAL_ERROR "Failed to apply patch '${patch_file}' (exit code ${result}):\n${output}${error}")
+  endif()
+  message(STATUS "Applied patch: ${patch_file}")
+  file(WRITE "${stamp_file}" "")
+endwhile()
 ]=]
   )
-
-  file(WRITE "${script_path}" "${script}")
 endfunction()
 
-# Add a generated PATCH_COMMAND for the provided patch files.
-function(cpm_add_patches)
+# Checks the patch files in ARGN and prepares the patch step for them. Sets: command_var: the
+# `PATCH_COMMAND` arguments for `ExternalProject_Add()` hash_var:    a hash of the patch contents,
+# used for the source cache key stamps_var:  the stamp files (relative to the source directory) that
+# mark all patches as applied All three are empty if there are no patches.
+function(cpm_prepare_patches command_var hash_var stamps_var)
+  set(${command_var}
+      ""
+      PARENT_SCOPE
+  )
+  set(${hash_var}
+      ""
+      PARENT_SCOPE
+  )
+  set(${stamps_var}
+      ""
+      PARENT_SCOPE
+  )
   if(NOT ARGN)
     return()
   endif()
 
+  # Find the patch program.
   find_program(PATCH_EXECUTABLE patch)
-
   if(CMAKE_HOST_WIN32 AND NOT PATCH_EXECUTABLE)
-    # Git for Windows ships patch.exe in adjacent Unix tool directories.
+    # The Windows git executable is distributed with patch.exe. Find the path to the executable, if
+    # it exists, then search `../usr/bin` and `../../usr/bin` for patch.exe.
     find_package(Git QUIET)
     if(GIT_EXECUTABLE)
-      get_filename_component(_git_bin_dir "${GIT_EXECUTABLE}" DIRECTORY)
-      get_filename_component(_git_parent_dir "${_git_bin_dir}" DIRECTORY)
-      get_filename_component(_git_root_dir "${_git_parent_dir}" DIRECTORY)
-
+      get_filename_component(extra_search_path ${GIT_EXECUTABLE} DIRECTORY)
+      get_filename_component(extra_search_path_1up ${extra_search_path} DIRECTORY)
+      get_filename_component(extra_search_path_2up ${extra_search_path_1up} DIRECTORY)
       find_program(
-        PATCH_EXECUTABLE patch HINTS "${_git_parent_dir}/usr/bin" "${_git_root_dir}/usr/bin"
+        PATCH_EXECUTABLE patch HINTS "${extra_search_path_1up}/usr/bin"
+                                     "${extra_search_path_2up}/usr/bin"
       )
     endif()
   endif()
-
   if(NOT PATCH_EXECUTABLE)
     message(FATAL_ERROR "Couldn't find `patch` executable to use with PATCHES keyword.")
   endif()
 
-  set(resolved_patch_files)
-  cpm_patch_supports_dry_run("${PATCH_EXECUTABLE}" patch_supports_dry_run)
-
-  # Fingerprint: executable path + dry-run capability + working dir marker + each file's path and
-  # content hash. Any change to the patch set produces a new hash and therefore a new stamp file.
-  set(patch_set_fingerprint "${PATCH_EXECUTABLE}" "${patch_supports_dry_run}" "WORKING_DIRECTORY=.")
-
-  foreach(patch_file IN LISTS ARGN)
-    # Resolve relative patch files from the current package list file.
+  set(patch_files)
+  set(content_hashes)
+  set(stamp_files)
+  foreach(patch_file ${ARGN})
+    # Make sure the patch file exists, if we can't find it, try again in the current directory.
     if(NOT EXISTS "${patch_file}")
-      set(package_relative_patch_file "${CMAKE_CURRENT_LIST_DIR}/${patch_file}")
-      if(NOT EXISTS "${package_relative_patch_file}")
+      if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/${patch_file}")
         message(FATAL_ERROR "Couldn't find patch file: '${patch_file}'")
       endif()
-      set(patch_file "${package_relative_patch_file}")
+      set(patch_file "${CMAKE_CURRENT_LIST_DIR}/${patch_file}")
     endif()
-
     get_filename_component(patch_file "${patch_file}" ABSOLUTE)
-    file(TO_CMAKE_PATH "${patch_file}" patch_file)
-    file(SHA1 "${patch_file}" patch_file_hash)
-    list(APPEND resolved_patch_files "${patch_file}")
-    list(APPEND patch_set_fingerprint "${patch_file}" "${patch_file_hash}")
+    file(SHA1 "${patch_file}" content_hash)
+    list(APPEND patch_files "${patch_file}")
+    list(APPEND content_hashes "${content_hash}")
+    list(APPEND stamp_files ".cpm_patches/${content_hash}")
   endforeach()
 
-  string(REPLACE ";" "\n" patch_set_fingerprint_text "${patch_set_fingerprint}")
-  string(SHA1 patch_set_hash "${patch_set_fingerprint_text}")
-  set(patch_script_directory "${CMAKE_BINARY_DIR}/CPM_scripts")
-  set(patch_script "${patch_script_directory}/cpm_apply_patches_${patch_set_hash}.cmake")
+  set(script_path "${CMAKE_BINARY_DIR}/CPM_scripts/apply_patches.cmake")
+  cpm_write_patch_script("${script_path}")
 
-  file(MAKE_DIRECTORY "${patch_script_directory}")
-  cpm_write_apply_patches_script(
-    "${patch_script}" "${PATCH_EXECUTABLE}" "${patch_supports_dry_run}" "${patch_set_hash}"
-    ${resolved_patch_files}
+  set(${command_var}
+      PATCH_COMMAND "${CMAKE_COMMAND}" -P "${script_path}" "${PATCH_EXECUTABLE}" ${patch_files}
+      PARENT_SCOPE
   )
-
-  list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS PATCH_COMMAND "${CMAKE_COMMAND}" -P "${patch_script}")
-  set(CPM_ARGS_UNPARSED_ARGUMENTS
-      "${CPM_ARGS_UNPARSED_ARGUMENTS}"
+  # Only the contents are hashed, so the cache key doesn't depend on file locations or build dir.
+  string(SHA1 hash "${content_hashes}")
+  set(${hash_var}
+      "${hash}"
+      PARENT_SCOPE
+  )
+  set(${stamps_var}
+      "${stamp_files}"
       PARENT_SCOPE
   )
 endfunction()
@@ -1013,7 +909,7 @@ function(CPMAddPackage)
     set(CPM_FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/_deps)
   endif()
 
-  cpm_add_patches(${CPM_ARGS_PATCHES})
+  cpm_prepare_patches(patch_command patch_hash patch_stamps ${CPM_ARGS_PATCHES})
 
   if(DEFINED CPM_ARGS_DOWNLOAD_COMMAND)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS DOWNLOAD_COMMAND ${CPM_ARGS_DOWNLOAD_COMMAND})
@@ -1035,7 +931,7 @@ function(CPMAddPackage)
     endif()
   elseif(CPM_SOURCE_CACHE AND NOT CPM_ARGS_NO_CACHE)
     string(TOLOWER ${CPM_ARGS_NAME} lower_case_name)
-    set(origin_parameters ${CPM_ARGS_UNPARSED_ARGUMENTS})
+    set(origin_parameters ${CPM_ARGS_UNPARSED_ARGUMENTS} ${patch_hash})
     list(SORT origin_parameters)
     if(CPM_ARGS_CUSTOM_CACHE_KEY)
       # Application set a custom unique directory name
@@ -1066,6 +962,18 @@ function(CPMAddPackage)
       file(LOCK ${download_directory}/../cmake.lock)
     endif()
 
+    # If patching failed earlier, the cache entry is only partly patched, so download it again.
+    foreach(stamp_file ${patch_stamps})
+      if(EXISTS ${download_directory} AND NOT EXISTS ${download_directory}/${stamp_file})
+        message(
+          WARNING
+            "${CPM_INDENT} Cache for ${CPM_ARGS_NAME} (${download_directory}) is not fully patched, "
+            "downloading it again"
+        )
+        file(REMOVE_RECURSE ${download_directory})
+      endif()
+    endforeach()
+
     if(EXISTS ${download_directory})
       if(CPM_SOURCE_CACHE)
         file(LOCK ${download_directory}/../cmake.lock RELEASE)
@@ -1077,7 +985,7 @@ function(CPMAddPackage)
       )
       cpm_get_fetch_properties("${CPM_ARGS_NAME}")
 
-      if(DEFINED CPM_ARGS_GIT_TAG AND NOT (PATCH_COMMAND IN_LIST CPM_ARGS_UNPARSED_ARGUMENTS))
+      if(DEFINED CPM_ARGS_GIT_TAG AND NOT patch_command)
         # warn if cache has been changed since checkout
         cpm_check_git_working_dir_is_clean(${download_directory} ${CPM_ARGS_GIT_TAG} IS_CLEAN)
         if(NOT ${IS_CLEAN})
@@ -1120,6 +1028,8 @@ function(CPMAddPackage)
       set(PACKAGE_INFO "${PACKAGE_INFO} to ${download_directory}")
     endif()
   endif()
+
+  list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS ${patch_command})
 
   if(NOT "${DOWNLOAD_ONLY}")
     cpm_create_module_file(${CPM_ARGS_NAME} "CPMAddPackage(\"${ARGN}\")")
@@ -1496,7 +1406,7 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
       EXCLUDE_FROM_ALL
       SOURCE_SUBDIR
   )
-  set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND PATCHES)
+  set(multiValueArgs URL OPTIONS DOWNLOAD_COMMAND)
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   foreach(oneArgName ${oneValueArgs})
@@ -1521,15 +1431,6 @@ function(cpm_prettify_package_arguments OUT_VAR IS_IN_COMMENT)
       foreach(singleOption ${CPM_ARGS_${multiArgName}})
         if(${IS_IN_COMMENT})
           string(APPEND PRETTY_OUT_VAR "#")
-        endif()
-        if(multiArgName STREQUAL "PATCHES")
-          if(IS_ABSOLUTE "${singleOption}")
-            string(REPLACE ${CMAKE_SOURCE_DIR} "\${CMAKE_SOURCE_DIR}" singleOption
-                           "${singleOption}"
-            )
-          elseif(NOT singleOption MATCHES "^\\$\\{")
-            set(singleOption "\${CMAKE_SOURCE_DIR}/${singleOption}")
-          endif()
         endif()
         string(APPEND PRETTY_OUT_VAR "    \"${singleOption}\"\n")
       endforeach()
