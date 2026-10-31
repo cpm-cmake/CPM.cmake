@@ -1,0 +1,14 @@
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+
+project(CPMTest_LocalPackage)
+
+set(LocalPkg_DIR "${CMAKE_CURRENT_LIST_DIR}/config" CACHE PATH "" FORCE)
+
+# ---- Dependencies ----
+
+include(@CPM_PATH@/CPM.cmake)
+
+CPMAddPackage(NAME LocalPkg)
+
+include(@CPM_PATH@/testing.cmake)
+ASSERT_TRUTHY(LocalPkg_FOUND)
