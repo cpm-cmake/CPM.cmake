@@ -313,6 +313,10 @@ function(cpm_find_package NAME VERSION)
     endif()
     cpm_message(STATUS "${CPM_INDENT} Using local package ${CPM_ARGS_NAME}@${VERSION}")
     CPMRegisterPackage(${CPM_ARGS_NAME} "${VERSION}")
+    set(${CPM_ARGS_NAME}_FOUND
+        YES
+        PARENT_SCOPE
+    )
     set(CPM_PACKAGE_FOUND
         YES
         PARENT_SCOPE
@@ -1041,6 +1045,12 @@ endmacro()
 
 # export variables available to the caller to the parent scope expects ${CPM_ARGS_NAME} to be set
 macro(cpm_export_variables name)
+  if(DEFINED ${name}_FOUND)
+    set(${name}_FOUND
+        "${${name}_FOUND}"
+        PARENT_SCOPE
+    )
+  endif()
   set(${name}_SOURCE_DIR
       "${${name}_SOURCE_DIR}"
       PARENT_SCOPE
