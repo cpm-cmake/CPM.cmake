@@ -50,6 +50,9 @@ file(
 project(GeneratedLockTest NONE)
 include(${CPM_PATH}/CPM.cmake)
 CPMUsePackageLock(package-lock.cmake GENERATED)
+if(CPM_TEST_FAIL)
+  message(FATAL_ERROR \"simulated configure failure\")
+endif()
 CPMAddPackage(
   NAME Dep
   GIT_REPOSITORY ${REPO}
@@ -88,3 +91,30 @@ assert_equal(${ret2} "0")
 file(READ ${LOCK} LOCK_RUN2)
 assert_equal("${LOCK_RUN1}" "${LOCK_RUN2}")
 message(STATUS "test passed: generated lock is stable across reconfigures")
+
+# ---- a failing configure must not clobber the lock (publishing is deferred until success) ----
+# Advance the branch so a lost pin would actually change the resolution afterwards.
+file(WRITE ${REPO}/VERSION "2.0")
+git(add -A)
+git(commit -m "second commit")
+
+execute_process(
+  COMMAND ${CMAKE_COMMAND} -S ${PROJECT_DIR} -B ${BUILD_DIR} -DCPM_TEST_FAIL=ON
+  RESULT_VARIABLE ret3
+  OUTPUT_QUIET ERROR_QUIET
+)
+assert_not_equal(${ret3} "0")
+assert_exists(${LOCK})
+file(READ ${LOCK} LOCK_RUN3)
+assert_equal("${LOCK_RUN1}" "${LOCK_RUN3}")
+message(STATUS "test passed: failed configure left the lock untouched")
+
+# ---- the pin must hold on the next successful configure even though the branch moved on ----
+execute_process(
+  COMMAND ${CMAKE_COMMAND} -S ${PROJECT_DIR} -B ${BUILD_DIR} -DCPM_TEST_FAIL=OFF
+  RESULT_VARIABLE ret4
+)
+assert_equal(${ret4} "0")
+file(READ ${LOCK} LOCK_RUN4)
+assert_equal("${LOCK_RUN1}" "${LOCK_RUN4}")
+message(STATUS "test passed: pinned commit held after the branch advanced")

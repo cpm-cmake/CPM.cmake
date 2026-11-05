@@ -1024,15 +1024,24 @@ function(CPMAddPackage)
       endif()
     endif()
 
+    # Record which package (if any) this one was added by, so the lock keeps track of the
+    # relationships between dependencies (e.g. for generating an SBOM from the lock).
+    get_property(CPM_LOCK_PARENT_STACK GLOBAL PROPERTY CPM_PACKAGE_ADD_STACK)
+    if(CPM_LOCK_PARENT_STACK)
+      list(GET CPM_LOCK_PARENT_STACK -1 CPM_LOCK_PARENT)
+    else()
+      set(CPM_LOCK_PARENT "")
+    endif()
+
     if((CPM_ARGS_VERSION AND NOT CPM_ARGS_SOURCE_DIR)
        OR CPM_INCLUDE_ALL_IN_PACKAGE_LOCK
        OR (CPM_PACKAGE_LOCK_GENERATED AND NOT CPM_ARGS_SOURCE_DIR)
     )
-      cpm_add_to_package_lock(${CPM_ARGS_NAME} "${CPM_LOCK_ARGN}")
+      cpm_add_to_package_lock(${CPM_ARGS_NAME} "${CPM_LOCK_PARENT}" "${CPM_LOCK_ARGN}")
     elseif(CPM_ARGS_SOURCE_DIR)
-      cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "local directory")
+      cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "${CPM_LOCK_PARENT}" "local directory")
     else()
-      cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "${ARGN}")
+      cpm_add_comment_to_package_lock(${CPM_ARGS_NAME} "${CPM_LOCK_PARENT}" "${ARGN}")
     endif()
   endif()
 
@@ -1106,30 +1115,57 @@ function(cpm_get_git_commit_hash repoPath result)
   endif()
 endfunction()
 
-function(cpm_add_to_package_lock Name)
-  if(NOT CPM_DONT_CREATE_PACKAGE_LOCK)
-    cpm_prettify_package_arguments(PRETTY_ARGN false ${ARGN})
-    file(APPEND ${CPM_PACKAGE_LOCK_FILE} "# ${Name}\nCPMDeclarePackage(${Name}\n${PRETTY_ARGN})\n")
+# Renders the "added by" annotation for a package lock entry into ${OUT_VAR}. ${parent} is the
+# package that added this one, or the empty string for direct (top-level) dependencies.
+function(cpm_package_lock_relationship_comment parent OUT_VAR)
+  if("${parent}" STREQUAL "")
+    set(${OUT_VAR}
+        ""
+        PARENT_SCOPE
+    )
+  else()
+    set(${OUT_VAR}
+        " (transitive dependency of ${parent})"
+        PARENT_SCOPE
+    )
   endif()
 endfunction()
 
-function(cpm_add_comment_to_package_lock Name)
+function(cpm_add_to_package_lock Name parent)
   if(NOT CPM_DONT_CREATE_PACKAGE_LOCK)
-    cpm_prettify_package_arguments(PRETTY_ARGN true ${ARGN})
+    cpm_prettify_package_arguments(PRETTY_ARGN false ${ARGN})
+    cpm_package_lock_relationship_comment("${parent}" RELATIONSHIP)
     file(APPEND ${CPM_PACKAGE_LOCK_FILE}
-         "# ${Name} (unversioned)\n# CPMDeclarePackage(${Name}\n${PRETTY_ARGN}#)\n"
+         "# ${Name}${RELATIONSHIP}\nCPMDeclarePackage(${Name}\n${PRETTY_ARGN})\n"
     )
   endif()
+endfunction()
+
+function(cpm_add_comment_to_package_lock Name parent)
+  if(NOT CPM_DONT_CREATE_PACKAGE_LOCK)
+    cpm_prettify_package_arguments(PRETTY_ARGN true ${ARGN})
+    cpm_package_lock_relationship_comment("${parent}" RELATIONSHIP)
+    file(APPEND ${CPM_PACKAGE_LOCK_FILE}
+         "# ${Name} (unversioned)${RELATIONSHIP}\n# CPMDeclarePackage(${Name}\n${PRETTY_ARGN}#)\n"
+    )
+  endif()
+endfunction()
+
+# Publishes the staged package lock into the source tree. Deferred (via cmake_language(DEFER)) to
+# the end of a successful configure in GENERATED mode, so a failing configure leaves any existing
+# lock untouched. copy_if_different keeps the file's timestamp stable when nothing changed.
+function(cpm_write_generated_package_lock stagingFile lockFile)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different "${stagingFile}" "${lockFile}")
 endfunction()
 
 # Includes the package lock file if it exists. In the default mode this also creates a
 # `cpm-update-package-lock` target that copies the lock generated in the binary dir back to <file>.
 #
 # Pass GENERATED (or set CPM_GENERATE_PACKAGE_LOCK) for pnpm/npm-style behaviour instead: the lock
-# at <file> is (re)written in the source tree on every configure and git packages are pinned to the
-# exact commit that was checked out, so it stays in sync with no separate update step. The
-# `cpm-update-package-lock` target is not created in this mode. Delete the file and reconfigure to
-# refresh the pins, just like deleting a `pnpm-lock.yaml`.
+# at <file> is (re)written in the source tree at the end of every successful configure and git
+# packages are pinned to the exact commit that was checked out, so it stays in sync with no separate
+# update step. The `cpm-update-package-lock` target is not created in this mode. Delete the file and
+# reconfigure to refresh the pins, just like deleting a `pnpm-lock.yaml`. Requires CMake 3.19+.
 macro(CPMUsePackageLock file)
   # A nested CPM dependency may also call CPMUsePackageLock during configuration. Only the first
   # (top-level) call should take effect, otherwise a sub-project would overwrite the consuming
@@ -1153,18 +1189,28 @@ macro(CPMUsePackageLock file)
     endif()
 
     if(CPM_USE_LOCK_GENERATED OR CPM_GENERATE_PACKAGE_LOCK)
-      # Author the lock directly in the source tree and keep it current on every configure.
+      if(CMAKE_VERSION VERSION_LESS "3.19")
+        message(
+          FATAL_ERROR
+            "CPM: A GENERATED package lock requires CMake 3.19 or newer (uses cmake_language(DEFER))"
+        )
+      endif()
       set(CPM_PACKAGE_LOCK_GENERATED
           TRUE
           CACHE INTERNAL ""
       )
-      set(CPM_PACKAGE_LOCK_FILE
-          "${CPM_ABSOLUTE_PACKAGE_LOCK_PATH}"
-          CACHE INTERNAL ""
-      )
-      file(
-        WRITE ${CPM_PACKAGE_LOCK_FILE}
-        "# CPM Package Lock\n# This file is generated by CPM.cmake and should be committed to version control\n\n"
+      # Entries accumulate in the binary dir staging file (CPM_PACKAGE_LOCK_FILE) as packages are
+      # added, and the result is only published into the source tree once the whole configure has
+      # succeeded (deferred to the end of the top-level directory). A failed or interrupted
+      # configure therefore never truncates an existing lock (which would silently lose its pins).
+      cmake_language(
+        DEFER
+        DIRECTORY
+        ${CMAKE_SOURCE_DIR}
+        CALL
+        cpm_write_generated_package_lock
+        "${CPM_PACKAGE_LOCK_FILE}"
+        "${CPM_ABSOLUTE_PACKAGE_LOCK_PATH}"
       )
     else()
       set(CPM_PACKAGE_LOCK_GENERATED
@@ -1244,6 +1290,19 @@ function(cpm_store_fetch_properties PACKAGE source_dir binary_dir)
   )
 endfunction()
 
+# Maintains the chain of packages currently being configured (added as subdirectories), so that
+# packages added from within another package can be attributed to it in the package lock (e.g. for
+# deriving the dependency relationships of an SBOM from the lock).
+function(cpm_push_package_add_stack PACKAGE)
+  set_property(GLOBAL APPEND PROPERTY CPM_PACKAGE_ADD_STACK "${PACKAGE}")
+endfunction()
+
+function(cpm_pop_package_add_stack)
+  get_property(cpmPackageAddStack GLOBAL PROPERTY CPM_PACKAGE_ADD_STACK)
+  list(REMOVE_AT cpmPackageAddStack -1)
+  set_property(GLOBAL PROPERTY CPM_PACKAGE_ADD_STACK "${cpmPackageAddStack}")
+endfunction()
+
 # adds a package as a subdirectory if viable, according to provided options
 function(
   cpm_add_subdirectory
@@ -1273,7 +1332,9 @@ function(
     endif()
     set(CPM_OLD_INDENT "${CPM_INDENT}")
     set(CPM_INDENT "${CPM_INDENT} ${PACKAGE}:")
+    cpm_push_package_add_stack("${PACKAGE}")
     add_subdirectory(${SOURCE_DIR} ${BINARY_DIR} ${addSubdirectoryExtraArgs})
+    cpm_pop_package_add_stack()
     set(CPM_INDENT "${CPM_OLD_INDENT}")
   endif()
 endfunction()
@@ -1308,7 +1369,11 @@ function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY populated)
           ${ARGN}
         )
       else()
+        # MakeAvailable calls add_subdirectory internally, so track the package on the add stack
+        # here just as cpm_add_subdirectory does for older CMake versions.
+        cpm_push_package_add_stack("${PACKAGE}")
         FetchContent_MakeAvailable(${PACKAGE})
+        cpm_pop_package_add_stack()
       endif()
     else()
       FetchContent_Populate(${PACKAGE})

@@ -293,10 +293,20 @@ Pass `GENERATED` to keep the lock in sync automatically, the way `pnpm-lock.yaml
 CPMUsePackageLock(package-lock.cmake GENERATED)
 ```
 
-In this mode the lock at the given path is rewritten in your source tree on **every configure**,
-and git packages are pinned to the **exact commit that was checked out** rather than the (possibly
+In this mode the lock at the given path is rewritten in your source tree at the end of **every
+successful configure** (a failed or interrupted configure leaves the existing lock untouched), and
+git packages are pinned to the **exact commit that was checked out** rather than the (possibly
 moving) `GIT_TAG`. This makes the lock reproducible even when dependencies are declared against a
-branch like `main`. No separate `cpm-update-package-lock` step is needed.
+branch like `main`. No separate `cpm-update-package-lock` step is needed. This mode requires CMake
+3.19 or newer.
+
+Packages added from within another CPM package are also recorded, annotated with the package that
+added them (e.g. `# fmt (transitive dependency of spdlog)`). Together with the pinned commits and
+repository URLs this makes the lock a complete inventory of CPM-managed dependencies and their
+relationships, from which supply-chain artifacts such as an SBOM can be derived (see
+[#708](https://github.com/cpm-cmake/CPM.cmake/issues/708)). Only the top-level project's lock is
+honoured — a `CPMUsePackageLock` call inside a dependency is ignored, just as npm and pnpm ignore
+nested lockfiles.
 
 To refresh the pins (e.g. to pull in newer upstream commits), delete the lock file and reconfigure,
 just like deleting a `pnpm-lock.yaml`:
