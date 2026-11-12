@@ -1,0 +1,41 @@
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+
+project(
+  substractor
+  VERSION 1.0.0.0
+  LANGUAGES C
+)
+
+add_library(${PROJECT_NAME} src/substractor.c include/substractor.h)
+target_include_directories(
+  ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+                         $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+)
+
+include(@CPM_PATH@/CPM.cmake)
+
+set(packageProject_VERSION 1.11.2)
+CPMAddPackage(
+  NAME PackageProject.cmake
+  VERSION ${packageProject_VERSION}
+  URL "https://github.com/TheLartians/PackageProject.cmake/archive/refs/tags/v${packageProject_VERSION}.zip"
+)
+
+string(TOLOWER ${PROJECT_NAME}/version.h VERSION_HEADER_LOCATION)
+string(TOLOWER ${PROJECT_NAME}/export.h EXPORT_HEADER_LOCATION)
+
+set_property(TARGET ${PROJECT_NAME} PROPERTY VERSION ${PROJECT_VERSION})
+set_property(TARGET ${PROJECT_NAME} PROPERTY SOVERSION 1)
+
+packageProject(
+  NAME ${PROJECT_NAME}
+  VERSION ${PROJECT_VERSION}
+  NAMESPACE ${PROJECT_NAME}
+  BINARY_DIR ${PROJECT_BINARY_DIR}
+  INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include
+  INCLUDE_DESTINATION include/${PROJECT_NAME}
+  VERSION_HEADER "${VERSION_HEADER_LOCATION}"
+  EXPORT_HEADER "${EXPORT_HEADER_LOCATION}"
+  COMPATIBILITY "AnyNewerVersion"
+  DISABLE_VERSION_SUFFIX ON
+)
